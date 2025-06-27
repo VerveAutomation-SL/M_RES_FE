@@ -1,12 +1,12 @@
 "use client";
 
-import AuthInput from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import { Key, User } from "lucide-react";
 import React from "react";
 import { useState } from "react";
 import { loginUser } from "@/lib/api/auth";
 import { LoginFormData } from "@/lib/types/auth";
+import AuthInput from "@/components/ui/input";
 
 const Page = () => {
   const [formData, setFormData] = useState<LoginFormData>({
