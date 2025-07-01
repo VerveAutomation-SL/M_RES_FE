@@ -1,15 +1,20 @@
+import TopBar from "@/components/topBar";
 import SideBar from "@/components/sideBar";
+//import { redirect } from "next/navigation";
 
 export default function Home() {
   return (
-    <div className="flex h-screen">
-      <div className="flex-1 bg-[#F5F5F5]">
-        <SideBar />
-      </div>
-      <div className="flex-5 bg-white p-6">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+    <div className="flex h-screen overflow-hidden">
+      {/* {redirect("/login")} */}
+      <SideBar />
+      <div className="flex-4 bg-[var(--background)] flex flex-col overflow-hidden min-w-0">
+        {/* Top Bar */}
+        <TopBar />
         {/* Main content goes here */}
-        <p>Welcome to the Maldives Admin Dashboard!</p>
+        <div className="p-6 flex-9">
+          <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+          <p>Welcome to the Maldives Admin Dashboard!</p>
+        </div>
       </div>
     </div>
   );
