@@ -32,7 +32,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-4 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-4 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <Home className="h-4 w-4" />
               <span className="text-md">Dashboard</span>
@@ -40,7 +40,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-3 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-3 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <Users className="h-4 w-4" />
               <span className="text-md">Check-ins</span>
@@ -48,7 +48,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-3 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-3 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <BarChart3 className="h-4 w-4" />
               <span className="text-md">Analytics</span>
@@ -61,7 +61,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-3 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-3 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <MapPin className="h-4 w-4" />
               <span className="text-md">Resorts</span>
@@ -69,7 +69,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-3 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-3 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <Users className="h-4 w-4" />
               <span className="text-md">Restaurants</span>
@@ -77,7 +77,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-3 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-3 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <User className="h-4 w-4" />
               <span className="text-md">Users</span>
@@ -85,7 +85,7 @@ const SideBar = () => {
 
             <Link
               href={"/"}
-              className="flex items-center gap-3 px-3 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
+              className="flex items-center gap-3 px-6 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors"
             >
               <Settings className="h-4 w-4" />
               <span className="text-md">Admin Manager</span>
