@@ -1,9 +1,20 @@
+import TopBar from "@/components/topBar";
+import SideBar from "@/components/sideBar";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="text-4xl font-bold">Welcome to Maldives Admin Dashboard!</h1>
-      <p className="mt-4 text-lg">This is a simple admin dashboard template.</p>
-    </main>
+    <div className="flex h-screen overflow-hidden">
+      <SideBar />
+      {/* Main content area - Only needs margin on mobile/tablet */}
+      <div className="flex-1 bg-[var(--background)] flex flex-col overflow-hidden ml-16 sm:ml-20 lg:ml-0">
+        {/* Top Bar */}
+        <TopBar />
+        {/* Main content */}
+        <div className="p-4 sm:p-12 flex-1 overflow-auto">
+          <h1 className="text-xl sm:text-2xl font-bold mb-4">Dashboard</h1>
+          <p className="text-sm sm:text-base">Welcome to the Maldives Admin Dashboard!</p>
+        </div>
+      </div>
+    </div>
   );
 }
