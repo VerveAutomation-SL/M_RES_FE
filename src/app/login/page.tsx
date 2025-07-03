@@ -67,7 +67,7 @@ const Page = () => {
     <>
       <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left Side - Brand Section */}
-        <div className="flex flex-1 md:flex-4 bg-[var(--primary)] text-white items-center justify-center">
+        <div className="flex flex-1 md:flex-3 bg-[var(--primary)] text-white items-center justify-center">
           <div>
             <h1 className="text-2xl md:text-4xl lg:text-5xl tracking-wider my-2 text-center transition-all duration-300">
               The Residence
