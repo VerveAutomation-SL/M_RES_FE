@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import Button from "./button";
+import Button from "../ui/button";
 import { Clock, RefreshCw } from "lucide-react";
 
 interface HeaderProps {
@@ -12,52 +12,53 @@ interface HeaderProps {
 
 const TopBar = ({ breadcrumbs }: HeaderProps) => {
   const pathname = usePathname();
-  
+
   // Dynamic breadcrumbs based on current route
   const getBreadcrumbs = () => {
     if (breadcrumbs) return breadcrumbs;
-    
-    const routeBreadcrumbs: { [key: string]: Array<{ label: string; href?: string }> } = {
-      '/': [
-        { label: "Home", href: "/" },
-        { label: "Dashboard" }
-      ],
-      '/checkins': [
-        { label: "Home", href: "/" },
-        { label: "Overview", href: "#" },
-        { label: "Check-ins" }
-      ],
-      '/analytics': [
+
+    const routeBreadcrumbs: {
+      [key: string]: Array<{ label: string; href?: string }>;
+    } = {
+      "/": [{ label: "Home", href: "/" }, { label: "Dashboard" }],
+      "/checkins": [
         { label: "Home", href: "/" },
         { label: "Overview", href: "#" },
-        { label: "Analytics" }
+        { label: "Check-ins" },
       ],
-      '/resorts': [
+      "/analytics": [
+        { label: "Home", href: "/" },
+        { label: "Overview", href: "#" },
+        { label: "Analytics" },
+      ],
+      "/resorts": [
         { label: "Home", href: "/" },
         { label: "Management", href: "#" },
-        { label: "Resorts" }
+        { label: "Resorts" },
       ],
-      '/restaurants': [
+      "/restaurants": [
         { label: "Home", href: "/" },
         { label: "Management", href: "#" },
-        { label: "Restaurants" }
+        { label: "Restaurants" },
       ],
-      '/users': [
+      "/users": [
         { label: "Home", href: "/" },
         { label: "Management", href: "#" },
-        { label: "Users" }
+        { label: "Users" },
       ],
-      '/admin': [
+      "/admin": [
         { label: "Home", href: "/" },
         { label: "Management", href: "#" },
-        { label: "Admin Manager" }
-      ]
+        { label: "Admin Manager" },
+      ],
     };
 
-    return routeBreadcrumbs[pathname] || [
-      { label: "Home", href: "/" },
-      { label: "Dashboard" }
-    ];
+    return (
+      routeBreadcrumbs[pathname] || [
+        { label: "Home", href: "/" },
+        { label: "Dashboard" },
+      ]
+    );
   };
 
   const currentBreadcrumbs = getBreadcrumbs();
@@ -116,7 +117,7 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
             <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
             <span className="hidden sm:inline md:text-base pt-0.5">{time}</span>
             <span className="sm:hidden">
-              {time.split(' ')[0].substring(0, 5)}
+              {time.split(" ")[0].substring(0, 5)}
             </span>
           </div>
 

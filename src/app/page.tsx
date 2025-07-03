@@ -1,5 +1,5 @@
-import TopBar from "@/components/topBar";
-import SideBar from "@/components/sideBar";
+import TopBar from "@/components/layout/topBar";
+import SideBar from "@/components/layout/sideBar";
 
 export default function Home() {
   return (
@@ -12,7 +12,9 @@ export default function Home() {
         {/* Main content */}
         <div className="p-4 sm:p-12 flex-1 overflow-auto">
           <h1 className="text-xl sm:text-2xl font-bold mb-4">Dashboard</h1>
-          <p className="text-sm sm:text-base">Welcome to the Maldives Admin Dashboard!</p>
+          <p className="text-sm sm:text-base">
+            Welcome to the Maldives Admin Dashboard!
+          </p>
         </div>
       </div>
     </div>
