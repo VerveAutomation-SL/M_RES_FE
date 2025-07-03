@@ -65,11 +65,11 @@ const Page = () => {
 
   return (
     <>
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left Side - Brand Section */}
-        <div className="flex-1 bg-[var(--primary)] text-white flex items-center justify-center">
+        <div className="flex flex-3 bg-[var(--primary)] text-white items-center justify-center">
           <div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl tracking-wider mb-2 text-center">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl tracking-wider my-2 text-center transition-all duration-300">
               The Residence
             </h1>
             <h3 className="text-2xl md:text-3xl lg:text-4xl tracking-wider mb-8 text-center">
@@ -81,18 +81,21 @@ const Page = () => {
           </div>
         </div>
         {/* Right Side - Login Form */}
-        <div className="flex-1/8 bg-[var(--background)] flex items-center justify-center">
-          <div className="w-full max-w-lg">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl md:text-5xl font-bold tracking-wide text-[var(--highlight-text)] mb-2">
+        <div className="flex flex-col md:flex-4 bg-[var(--background)] items-center justify-center px-4 py-12 md:py-0">
+          <div className="w-full max-w-md">
+            {/* Heading */}
+            <div className="text-center mb-8">
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-wide text-[var(--highlight-text)] mb-2">
                 WELCOME
               </h3>
-              <p className="text-lg md:text-xl text-gray-600">
+              <p className="text-base sm:text-lg text-gray-600">
                 Please login to continue
               </p>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* userName Input */}
+
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Username */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-[#8B6F47] opacity-70" />
@@ -107,14 +110,14 @@ const Page = () => {
                   icon={User}
                   required
                   disabled={isLoading}
-                  className="w-full pl-12 pr-4 py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-base"
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
                 />
               </div>
 
-              {/* Password Input */}
+              {/* Password */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-[#8B6F47] opacity-70" />
+                  <Key className="h-5 w-5 text-[#8B6F47] opacity-70" />
                 </div>
                 <AuthInput
                   type="password"
@@ -126,33 +129,31 @@ const Page = () => {
                   icon={Key}
                   required
                   disabled={isLoading}
-                  className="w-full pl-12 pr-4 py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-base"
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
                 />
-                <div className="text-right mt-3 mr-2 space-y-2">
-                  <p className="text-[#8B6F47] text-sm">
-                    <a
-                      href="/forgot-password"
-                      className="font-medium  hover:underline transition-all duration-200 "
-                    >
-                      Forgot Password?
-                    </a>
-                  </p>
+                <div className="text-right mt-2 sm:mt-3 mr-2">
+                  <a
+                    href="/forgot-password"
+                    className="text-[#8B6F47] text-xs sm:text-sm font-medium hover:underline"
+                  >
+                    Forgot Password?
+                  </a>
                 </div>
               </div>
 
-              {/* Login Button */}
-              <div className="flex pt-6 space-around gap-10">
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row pt-4 sm:pt-6 gap-4 sm:gap-6">
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wider rounded-full transition-colors duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "SIGNING IN..." : "SIGN IN as Admin"}
                 </Button>
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wider rounded-full transition-colors duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "SIGNING IN..." : "SIGN IN as User"}
                 </Button>
