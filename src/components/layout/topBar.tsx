@@ -115,8 +115,8 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
           {/* Time Display */}
           <div className="flex items-center gap-1 text-xs bg-[#D4B896] text-[#8B6F47] px-2 sm:px-3 py-1 sm:py-2 rounded-full font-medium">
             <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-            <span className="hidden sm:inline md:text-base pt-0.5">{time}</span>
-            <span className="sm:hidden">
+            <span className="hidden lg:inline md:text-base pt-0.5">{time}</span>
+            <span className="lg:hidden">
               {time.split(" ")[0].substring(0, 5)}
             </span>
           </div>
@@ -128,7 +128,7 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
             className="flex items-center gap-1 bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-800 px-2 sm:px-3 py-1 sm:py-2 text-xs md:text-base rounded-full shadow-sm transition-colors"
           >
             <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden lg:inline">Refresh</span>
           </Button>
         </div>
       </div>
