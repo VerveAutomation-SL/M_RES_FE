@@ -1,10 +1,19 @@
 "use client";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 
-const SearchBar = () => {
+interface SearchBarProps {
+  onSearch?: (value: string) => void;
+}
+
+const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
+
+  useEffect(() => {
+    onSearch?.(searchValue);
+  }, [searchValue, onSearch]);
+
   return (
     <>
       <div className="flex items-center border rounded-lg px-4 py-2 shadow-md bg-white transition-all duration-200">
