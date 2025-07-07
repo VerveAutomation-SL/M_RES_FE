@@ -1,5 +1,6 @@
-import ResortForm from "@/components/forms/resortForm";
-import RoomForm from "@/components/forms/roomForm";
+
+import RoomGrid from "@/components/layout/roomGrid";
+import Modal from "@/components/ui/modal";
 import React from "react";
 
 const Page = () => {
@@ -7,8 +8,7 @@ const Page = () => {
     <>
       <div className="h-full bg-gray-200">
         {/* <div>Test Page</div> */}
-        <RoomForm />
-        <ResortForm/>
+        <RoomGrid/>
       </div>
     </>
   );
