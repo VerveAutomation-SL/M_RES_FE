@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
 import Tabs from "./tabs";
-import { roomNumbers, tabItems } from "@/lib/data";
+import { roomNumbers, tabItems, rooms } from "@/lib/data";
+
 
 type ResortName = "dhigurah" | "falhumaafushi";
 
@@ -43,56 +44,64 @@ const ResortNavigation = ({ activeResort, onResortChange }: ResortNavigationProp
   );
 };
 
-const getFilteredRooms = (tabName: string, searchTerm: string) => {
-  let rooms = [];
-  switch (tabName) {
-    case "100-130":
-      rooms = roomNumbers.filter((room) => room >= 100 && room <= 130);
-      break;
-    case "200-218":
-      rooms = roomNumbers.filter((room) => room >= 200 && room <= 218);
-      break;
-    case "300-343":
-      rooms = roomNumbers.filter((room) => room >= 300 && room <= 343);
-      break;
-    case "600-693":
-      rooms = roomNumbers.filter((room) => room >= 600 && room <= 693);
-      break;
-    case "800-820":
-      rooms = roomNumbers.filter((room) => room >= 800 && room <= 820);
-      break;
-    case "840-897":
-      rooms = roomNumbers.filter((room) => room >= 840 && room <= 897);
-      break;
-    default:
-      return roomNumbers;
+const getFilteredRooms = (tabName: string, searchTerm: string, activeResort: ResortName) => {
+  let filteredRooms : number[] = [];
+
+  // Special handling for "All" tab
+  if (tabName === "All") {
+    filteredRooms = rooms[activeResort];
+  } else {
+    // Existing tab filtering logic
+    switch (tabName) {
+      case "100-130":
+        filteredRooms = roomNumbers.filter((room) => room >= 100 && room <= 130);
+        break;
+      case "200-218":
+        filteredRooms = roomNumbers.filter((room) => room >= 200 && room <= 218);
+        break;
+      case "300-343":
+        filteredRooms = roomNumbers.filter((room) => room >= 300 && room <= 343);
+        break;
+      case "600-693":
+        filteredRooms = roomNumbers.filter((room) => room >= 600 && room <= 693);
+        break;
+      case "800-820":
+        filteredRooms = roomNumbers.filter((room) => room >= 800 && room <= 820);
+        break;
+      case "840-897":
+        filteredRooms = roomNumbers.filter((room) => room >= 840 && room <= 897);
+        break;
+      default:
+        filteredRooms = rooms[activeResort] || []; // Fallback to resort rooms if tab not recognized
+    }
   }
 
+  // Filter by search term
   if (searchTerm.trim()) {
-    return rooms.filter((room) =>
+    return filteredRooms.filter((room) =>
       room.toString().startsWith(searchTerm.trim())
     );
   }
-  return rooms;
+  return filteredRooms;
 };
 
 const RoomGrid = () => {
   // Manage both resort and tab selection in this component
   const [activeResort, setActiveResort] = useState<ResortName>("dhigurah");
-  const [activeTab, setActiveTab] = useState("600-693"); // Default to first tab of dhigurah
+  const [activeTab, setActiveTab] = useState("All"); // Default to "all" tab
   const [searchTerm, setSearchTerm] = useState("");
 
   // Get the appropriate tab items based on active resort
   const currentTabItems = tabItems[activeResort as keyof typeof tabItems];
 
-  // Filter rooms based on active tab and search
-  const filteredRooms = getFilteredRooms(activeTab, searchTerm);
+  // Pass activeResort to getFilteredRooms
+  const filteredRooms = getFilteredRooms(activeTab, searchTerm, activeResort);
 
   // Handle resort change
   const handleResortChange = (resort: ResortName) => {
     setActiveResort(resort);
-    // Reset tab to the first one for the selected resort
-    setActiveTab(tabItems[resort as keyof typeof tabItems][0].name);
+    // Reset tab to "all" when changing resorts
+    setActiveTab("All");
   };
 
   // Handle tab click

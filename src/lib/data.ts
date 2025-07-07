@@ -15,11 +15,13 @@ export const roomNumbers = [
 
 export const tabItems = {
     dhigurah: [
+      {name: "All", href: "#all" },
       { name: "600-693", href: "#600-693" },
       { name: "800-820", href: "#800-820" },
       { name: "840-897", href: "#840-897" },
     ],
     falhumaafushi: [
+      { name: "All", href: "#all" },
       { name: "100-130", href: "#100-130" },
       { name: "200-218", href: "#200-218" },
       { name: "300-343", href: "#300-343" },
@@ -28,14 +30,14 @@ export const tabItems = {
 
 export const rooms = {
     "dhigurah": [
-        ...roomNumbers.filter((room) => room >= 100 && room <= 130),
-        ...roomNumbers.filter((room) => room >= 200 && room <= 218),
-        ...roomNumbers.filter((room) => room >= 300 && room <= 343)
-    ],
-    "falhumaafushi": [
         ...roomNumbers.filter((room) => room >= 600 && room <= 693),
         ...roomNumbers.filter((room) => room >= 800 && room <= 820),
         ...roomNumbers.filter((room) => room >= 840 && room <= 897),
+    ],
+    "falhumaafushi": [
+        ...roomNumbers.filter((room) => room >= 100 && room <= 130),
+        ...roomNumbers.filter((room) => room >= 200 && room <= 218),
+        ...roomNumbers.filter((room) => room >= 300 && room <= 343),
     ],
     "all": roomNumbers,
 }
