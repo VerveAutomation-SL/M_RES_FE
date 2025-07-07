@@ -22,7 +22,7 @@ const Header = ({ title, subtitle, addButton, onClick }: HeaderProps) => {
         </div>
         {addButton && (
           <button
-            className="flex items-center p-1 lg:p-2 text-xs text-[var(--primary)] border-4 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
+            className="flex items-center p-1 lg:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
             onClick={onClick}
           >
             <Plus className="w-3 h-3 lg:w-5 lg:h-5 mr-2" />
