@@ -20,7 +20,7 @@ export default function Tabs({ items, className, activeItem, onTabClick }: TabsP
   return (
     <nav className={cn("flex border-b border-gray-200", className)}>
       {items.map((item) => {
-        const isActive = activeItem === item.href;
+        const isActive = activeItem === item.name;
 
         return (
           <button
