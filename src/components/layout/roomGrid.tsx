@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
 import Tabs from "./tabs";
@@ -44,13 +44,11 @@ const getFilteredRooms = (tabName: string, searchTerm: string) => {
 };
 
 const RoomGrid = ({ activeNav }: RoomGridProps) => {
-  const [activeTab, setActiveTab] = useState("600-693");
+  const [activeTab, setActiveTab] = useState(
+    activeNav === "dhigurah" ? "600-693" : "100-130"
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const filteredRooms = getFilteredRooms(activeTab, searchTerm);
-
-  useEffect(() => {
-    setActiveTab(activeNav === "dhigurah" ? "600-693" : "100-130");
-  }, [activeNav]);
 
   // Handle tab click
   const handleTabClick = (tabName: string) => {
@@ -78,7 +76,7 @@ const RoomGrid = ({ activeNav }: RoomGridProps) => {
             items={
               activeNav === "dhigurah"
                 ? tabItems.dhigurah
-                : tabItems.Falhumaafushi
+                : tabItems.fathurnahafushi
             }
             activeItem={activeTab}
             className="mb-4"

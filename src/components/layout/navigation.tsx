@@ -1,18 +1,17 @@
+"use client";
 import React from "react";
+import { useState } from "react";
 
-interface NavigationProps {
-  activeNav: string;
-  setActiveNav: (nav: string) => void;
-}
+const Navigation = () => {
+  const [activeTab, setActiveTab] = useState("dhigurah");
 
-const Navigation = ({ activeNav, setActiveNav }: NavigationProps) => {
   return (
     <div className="flex items-center justify-between bg-white rounded-lg px-4 py-2 shadow-md text-xs lg:text-base transition-all duration-200">
       <button
-        onClick={() => setActiveNav("dhigurah")}
+        onClick={() => setActiveTab("dhigurah")}
         className={` flex-1 py-1
                      font-medium rounded-md transition-colors cursor-pointer ${
-                       activeNav === "dhigurah"
+                       activeTab === "dhigurah"
                          ? "text-gray-900 bg-gray-200"
                          : "text-gray-600 hover:text-gray-900"
                      }`}
@@ -21,15 +20,15 @@ const Navigation = ({ activeNav, setActiveNav }: NavigationProps) => {
       </button>
 
       <button
-        onClick={() => setActiveNav("Falhumaafushi")}
+        onClick={() => setActiveTab("fathurnahafushi")}
         className={`flex-1 py-1 
                     font-medium rounded-md transition-colors cursor-pointer ${
-                      activeNav === "Falhumaafushi"
+                      activeTab === "fathurnahafushi"
                         ? "text-gray-900 bg-gray-200"
                         : "text-gray-600 hover:text-gray-900"
                     }`}
       >
-        <span className="text-nowrap"> Falhumaafushi Island</span>
+        <span className="text-nowrap"> Fathurnahafushi Island</span>
       </button>
     </div>
   );

@@ -16,7 +16,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
   return (
     <>
-      <div className="flex items-center border-2 rounded-lg px-5 py-2 shadow-md bg-white transition-all duration-200">
+      <div className="flex items-center border rounded-lg px-4 py-2 shadow-md bg-white transition-all duration-200">
         <div className="flex items-center justify-center">
           <Search className=" h-4 w-4 text-gray-400" />
           <input
