@@ -5,7 +5,7 @@ import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
 import Tabs from "./tabs";
 import { roomNumbers, tabItems, rooms } from "@/lib/data";
-
+import { Plus } from "lucide-react";
 
 type ResortName = "dhigurah" | "falhumaafushi";
 
@@ -15,9 +15,11 @@ interface ResortNavigationProps {
 }
 
 // Simplified version of the Navigation component
-const ResortNavigation = ({ activeResort, onResortChange }: ResortNavigationProps) => {
+const ResortNavigation = ({
+  activeResort,
+  onResortChange,
+}: ResortNavigationProps) => {
   return (
-
     <div className="flex items-center justify-between bg-white rounded-lg px-4 py-2 shadow-md text-xs lg:text-base mb-6 transition-all duration-200">
       <button
         onClick={() => onResortChange("dhigurah")}
@@ -44,8 +46,12 @@ const ResortNavigation = ({ activeResort, onResortChange }: ResortNavigationProp
   );
 };
 
-const getFilteredRooms = (tabName: string, searchTerm: string, activeResort: ResortName) => {
-  let filteredRooms : number[] = [];
+const getFilteredRooms = (
+  tabName: string,
+  searchTerm: string,
+  activeResort: ResortName
+) => {
+  let filteredRooms: number[] = [];
 
   // Special handling for "All" tab
   if (tabName === "All") {
@@ -54,22 +60,34 @@ const getFilteredRooms = (tabName: string, searchTerm: string, activeResort: Res
     // Existing tab filtering logic
     switch (tabName) {
       case "100-130":
-        filteredRooms = roomNumbers.filter((room) => room >= 100 && room <= 130);
+        filteredRooms = roomNumbers.filter(
+          (room) => room >= 100 && room <= 130
+        );
         break;
       case "200-218":
-        filteredRooms = roomNumbers.filter((room) => room >= 200 && room <= 218);
+        filteredRooms = roomNumbers.filter(
+          (room) => room >= 200 && room <= 218
+        );
         break;
       case "300-343":
-        filteredRooms = roomNumbers.filter((room) => room >= 300 && room <= 343);
+        filteredRooms = roomNumbers.filter(
+          (room) => room >= 300 && room <= 343
+        );
         break;
       case "600-693":
-        filteredRooms = roomNumbers.filter((room) => room >= 600 && room <= 693);
+        filteredRooms = roomNumbers.filter(
+          (room) => room >= 600 && room <= 693
+        );
         break;
       case "800-820":
-        filteredRooms = roomNumbers.filter((room) => room >= 800 && room <= 820);
+        filteredRooms = roomNumbers.filter(
+          (room) => room >= 800 && room <= 820
+        );
         break;
       case "840-897":
-        filteredRooms = roomNumbers.filter((room) => room >= 840 && room <= 897);
+        filteredRooms = roomNumbers.filter(
+          (room) => room >= 840 && room <= 897
+        );
         break;
       default:
         filteredRooms = rooms[activeResort] || []; // Fallback to resort rooms if tab not recognized
@@ -85,7 +103,12 @@ const getFilteredRooms = (tabName: string, searchTerm: string, activeResort: Res
   return filteredRooms;
 };
 
-const RoomGrid = () => {
+interface RoomGridProps {
+  addButton?: string;
+  onClick?: () => void;
+}
+
+const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
   // Manage both resort and tab selection in this component
   const [activeResort, setActiveResort] = useState<ResortName>("dhigurah");
   const [activeTab, setActiveTab] = useState("All"); // Default to "all" tab
@@ -115,9 +138,7 @@ const RoomGrid = () => {
 
   // Get resort display name
   const resortDisplayName =
-    activeResort === "dhigurah"
-      ? "Dhigurah Island"
-      : "Falhumaafushi Island";
+    activeResort === "dhigurah" ? "Dhigurah Island" : "Falhumaafushi Island";
 
   return (
     <>
@@ -136,14 +157,26 @@ const RoomGrid = () => {
               <h2 className="text-xl font-semibold text-gray-900">
                 {resortDisplayName} Rooms
               </h2>
-              <SearchBar onSearch={handleSearch} />
+              <div className="flex items-center space-x-5">
+                <SearchBar onSearch={handleSearch} />
+                {addButton && (
+                  <button
+                    className="flex items-center p-1 lg:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
+                    onClick={onClick}
+                  >
+                    <Plus className="w-3 h-3 lg:w-5 lg:h-5 mr-2" />
+                    <span className="items-center">{addButton}</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Search results count */}
             {searchTerm && (
               <div className="mb-4 text-sm text-gray-600">
                 Found {filteredRooms.length}{" "}
-                {filteredRooms.length === 1 ? "room" : "rooms"} matching &quot;{searchTerm}&quot;
+                {filteredRooms.length === 1 ? "room" : "rooms"} matching &quot;
+                {searchTerm}&quot;
               </div>
             )}
 
