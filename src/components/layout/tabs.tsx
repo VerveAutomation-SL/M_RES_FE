@@ -1,7 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -13,20 +11,21 @@ interface NavItem {
 interface TabsProps {
   items: NavItem[];
   className?: string;
+  activeItem?: string;
+  onTabClick?: (tabName: string) => void;
 }
 
-export default function Tabs({ items, className }: TabsProps) {
-  const pathname = usePathname();
+export default function Tabs({ items, className, activeItem, onTabClick }: TabsProps) {
 
   return (
     <nav className={cn("flex border-b border-gray-200", className)}>
       {items.map((item) => {
-        const isActive = pathname === item.href;
+        const isActive = activeItem === item.href;
 
         return (
-          <Link
+          <button
             key={item.name}
-            href={item.href}
+            onClick={()=> onTabClick?.(item.name)}
             className={cn(
               "px-4 py-2 text-sm font-medium whitespace-nowrap",
               isActive
@@ -47,7 +46,7 @@ export default function Tabs({ items, className }: TabsProps) {
                 {item.count}
               </span>
             )}
-          </Link>
+          </button>
         );
       })}
     </nav>
