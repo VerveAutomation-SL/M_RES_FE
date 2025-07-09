@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ApiResponse, CheckIn, Resort, Room } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
 const api = axios.create({
     baseURL : API_BASE_URL,
@@ -13,7 +13,8 @@ const api = axios.create({
 // Resort APIs
 export const resortApi = {
     getAll : () => api.get<ApiResponse<Resort[]>>('/resorts'),
-    create: (data: Omit<Resort, 'id' | 'createdAt' | 'updatedAt'>) => api.post<ApiResponse<Resort>>('/resorts', data),
+    create: (data: Omit<Resort, 'id' | 'createdAt' | 'updatedAt'>) => 
+        api.post<ApiResponse<Resort>>('/resorts', data),
     getById: (id: number) => api.get<ApiResponse<Resort>>(`/resorts/${id}`)
 };
 
@@ -35,8 +36,11 @@ export const roomApi = {
 export const checkInApi = {
     getAll : (resortId? : number , date? : string) => {
         const params = date ? {date } : {};
-        return api.get<ApiResponse<CheckIn[]>>(`/checkins/${resortId}`, { params });
+        return api.get<ApiResponse<CheckIn[]>>(`/checkins/check-in/${resortId}`, { params });
     },
     process: (data: Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>) =>
-        api.post<ApiResponse<CheckIn>>('/checkins/process', data),
+        api.post<ApiResponse<CheckIn>>('/checkins/check-in', data),
+
+    getTodayCheckIns: () =>
+        api.get<ApiResponse<CheckIn[]>>('/checkins/check-in')
 }

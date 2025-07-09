@@ -1,3 +1,9 @@
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 export interface Resort {
   id: number;
   name: string;
@@ -8,32 +14,34 @@ export interface Resort {
 
 export interface Room {
   id: number;
-  room_number: string;
-  status: 'available' | 'occupied';
-  resort_id: number;
-  Resort?: Resort;
+  number: string;
+  resortId: number;
+  status: "available" | "occupied" ;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CheckIn {
   id: number;
-  resort_id: number;
-  room_number: string;
   guest_name: string;
+  room_number: string;
   outlet_name: string;
-  meal_type: 'breakfast' | 'lunch' | 'dinner';
-  check_in_date: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  resort_id: number;
   check_in_time: string;
-  Resort?: Resort;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  count?: number;
-  message?: string;
-  error?: string;
+export interface CheckInFormData {
+  resort_name: string;
+  room_number: string;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  resort_id: number;
 }
+

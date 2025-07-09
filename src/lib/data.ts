@@ -41,3 +41,15 @@ export const rooms = {
     ],
     "all": roomNumbers,
 }
+
+export const mealTypes = [
+    { value: "breakfast", label: "Breakfast" },
+    { value: "lunch", label: "Lunch" },
+    { value: "dinner", label: "Dinner" },
+];
+
+export const mealPlans = [
+    { value: "all-inclusive", label: "All-Inclusive" },
+    { value: "full_board", label: "Full Board" },
+    { value: "half_board", label: "Half Board" },
+];
