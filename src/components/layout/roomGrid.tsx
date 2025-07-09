@@ -6,12 +6,12 @@ import ButtonGrid from "../ui/buttonGrid";
 import Tabs from "./tabs";
 import { roomNumbers, tabItems, rooms } from "@/lib/data";
 import { Plus } from "lucide-react";
-
-type ResortName = "dhigurah" | "falhumaafushi";
+import { resorts } from "@/lib/data";
+import { Resort } from "@/lib/types";
 
 interface ResortNavigationProps {
-  activeResort: ResortName;
-  onResortChange: (resort: ResortName) => void;
+  activeResort: string;
+  onResortChange: (resort: string) => void;
 }
 
 // Simplified version of the Navigation component
@@ -21,27 +21,21 @@ const ResortNavigation = ({
 }: ResortNavigationProps) => {
   return (
     <div className="flex items-center justify-between bg-white rounded-lg px-4 py-2 shadow-md text-xs lg:text-base mb-6 transition-all duration-200">
-      <button
-        onClick={() => onResortChange("dhigurah")}
-        className={`flex-1 py-1 font-medium rounded-md transition-colors cursor-pointer ${
-          activeResort === "dhigurah"
-            ? "text-gray-900 bg-gray-200"
-            : "text-gray-600 hover:text-gray-900"
-        }`}
-      >
-        <span className=""> Dhigurah Island</span>
-      </button>
-
-      <button
-        onClick={() => onResortChange("falhumaafushi")}
-        className={`flex-1 py-1 font-medium rounded-md transition-colors cursor-pointer ${
-          activeResort === "falhumaafushi"
-            ? "text-gray-900 bg-gray-200"
-            : "text-gray-600 hover:text-gray-900"
-        }`}
-      >
-        <span className="text-nowrap"> Falhumaafushi Island</span>
-      </button>
+      {resorts.map((resort) => (
+        <button
+          key={resort.name}
+          onClick={() => onResortChange(resort.name)}
+          className={`flex-1 py-1 font-medium rounded-md transition-colors cursor-pointer ${
+            activeResort === resort.name
+              ? "text-gray-900 bg-gray-200"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          <span>
+            {activeResort === resort.name} {resort.name}
+          </span>
+        </button>
+      ))}
     </div>
   );
 };
@@ -49,49 +43,32 @@ const ResortNavigation = ({
 const getFilteredRooms = (
   tabName: string,
   searchTerm: string,
-  activeResort: ResortName
+  activeResort: string
 ) => {
   let filteredRooms: number[] = [];
 
-  // Special handling for "All" tab
-  if (tabName === "All") {
-    filteredRooms = rooms[activeResort];
-  } else {
-    // Existing tab filtering logic
-    switch (tabName) {
-      case "100-130":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 100 && room <= 130
-        );
-        break;
-      case "200-218":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 200 && room <= 218
-        );
-        break;
-      case "300-343":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 300 && room <= 343
-        );
-        break;
-      case "600-693":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 600 && room <= 693
-        );
-        break;
-      case "800-820":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 800 && room <= 820
-        );
-        break;
-      case "840-897":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 840 && room <= 897
-        );
-        break;
-      default:
-        filteredRooms = rooms[activeResort] || []; // Fallback to resort rooms if tab not recognized
-    }
+  // Existing tab filtering logic
+  switch (tabName) {
+    case "100-130":
+      filteredRooms = roomNumbers.filter((room) => room >= 100 && room <= 130);
+      break;
+    case "200-218":
+      filteredRooms = roomNumbers.filter((room) => room >= 200 && room <= 218);
+      break;
+    case "300-343":
+      filteredRooms = roomNumbers.filter((room) => room >= 300 && room <= 343);
+      break;
+    case "600-693":
+      filteredRooms = roomNumbers.filter((room) => room >= 600 && room <= 693);
+      break;
+    case "800-820":
+      filteredRooms = roomNumbers.filter((room) => room >= 800 && room <= 820);
+      break;
+    case "840-897":
+      filteredRooms = roomNumbers.filter((room) => room >= 840 && room <= 897);
+      break;
+    default:
+      filteredRooms = rooms[activeResort as keyof typeof rooms] || [];
   }
 
   // Filter by search term
@@ -104,13 +81,16 @@ const getFilteredRooms = (
 };
 
 interface RoomGridProps {
+  resorts: Resort[]; // name, totalRooms, booked, available
   addButton?: string;
   onClick?: () => void;
 }
 
-const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
+const RoomGrid = ({ resorts, addButton, onClick }: RoomGridProps) => {
   // Manage both resort and tab selection in this component
-  const [activeResort, setActiveResort] = useState<ResortName>("dhigurah");
+  const [activeResort, setActiveResort] = useState<string>(
+    resorts[0].name || ""
+  );
   const [activeTab, setActiveTab] = useState("All"); // Default to "all" tab
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -121,8 +101,8 @@ const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
   const filteredRooms = getFilteredRooms(activeTab, searchTerm, activeResort);
 
   // Handle resort change
-  const handleResortChange = (resort: ResortName) => {
-    setActiveResort(resort);
+  const handleResortChange = (resort: string) => {
+    setActiveResort(resort as keyof typeof rooms);
     // Reset tab to "all" when changing resorts
     setActiveTab("All");
   };
@@ -137,12 +117,11 @@ const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
   };
 
   // Get resort display name
-  const resortDisplayName =
-    activeResort === "dhigurah" ? "Dhigurah Island" : "Falhumaafushi Island";
+  const resortDisplayName = activeResort;
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="container my-2 lg:my-4">
         {/* Resort Navigation */}
         <ResortNavigation
           activeResort={activeResort}
@@ -150,7 +129,7 @@ const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
         />
 
         {/* Room Grid */}
-        <div className="bg-white shadow-sm">
+        <div className="bg-white shadow-sm rounded-xl overflow-hidden">
           <div className="p-6">
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">

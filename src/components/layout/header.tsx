@@ -11,7 +11,7 @@ interface HeaderProps {
 const Header = ({ title, subtitle, addButton, onClick }: HeaderProps) => {
   return (
     <>
-      <div className="flex items-start justify-between px-2 md:px-5 py-2 md:py-6">
+      <div className="block sm:flex justify-between py-2 md:py-6 transition-all duration-200">
         <div>
           <h1 className="text-lg md:text-2xl lg:text-3xl text-[var(--primary)] font-extrabold">
             {title}
@@ -22,10 +22,11 @@ const Header = ({ title, subtitle, addButton, onClick }: HeaderProps) => {
         </div>
         {addButton && (
           <button
-            className="flex items-center p-1 lg:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
+            className="flex w-full p-2 justify-center items-center
+                      sm:w-fit lg:px-4 lg:py-3 my-2 text-xs md:text-base text-white border-2 rounded-full bg-[var(--primary)] hover:bg-white hover:text-[var(--primary)] transition-all duration-200"
             onClick={onClick}
           >
-            <Plus className="w-3 h-3 lg:w-5 lg:h-5 mr-2" />
+            <Plus className="w-3 h-3 lg:w-4 lg:h-4 mr-2 rounded-full" />
             <span className="items-center text-nowrap">{addButton}</span>
           </button>
         )}
