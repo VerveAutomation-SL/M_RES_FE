@@ -1,9 +1,14 @@
 export interface Resort {
-  id: number;
-  name: string;
-  location: string;
-  createdAt: string;
-  updatedAt: string;
+  id?: number;
+  name?: string;
+  location?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  totalRooms?: number; 
+  booked?: number; 
+  available?: number; 
+  rooms?: Room[];
+
 }
 
 export interface Room {

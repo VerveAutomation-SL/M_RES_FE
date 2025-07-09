@@ -11,7 +11,7 @@ const Pagelayout = ({ children }: { children: React.ReactNode }) => {
         {/* Top Bar */}
         <TopBar />
         {/* Main content */}
-        <div className="md:px-8 flex-1 overflow-auto">{children}</div>
+        <div className="px-2 md:px-8 flex-1 overflow-auto">{children}</div>
       </div>
     </div>
   );
