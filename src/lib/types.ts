@@ -42,3 +42,8 @@ export interface ApiResponse<T> {
   message?: string;
   error?: string;
 }
+
+export interface ResortFormData {
+  name: string;
+  totalRooms: number;       
+}
