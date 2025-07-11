@@ -41,3 +41,96 @@ export const rooms = {
     ],
     "all": roomNumbers,
 }
+
+export const restaurants = [
+    {
+        name: "Restaurant A",
+        outlets: [
+            {
+                name: "Outlet 1",
+                location: "Dhigurah",
+                cuisine: "Maldivian",
+                rating: 4.5,
+                description: "Authentic Maldivian cuisine with a modern twist.",
+            },
+            {
+                name: "Outlet 2",
+                location: "Falhumaafushi",
+                cuisine: "Asian Fusion",
+                rating: 4.7,
+                description: "A blend of Asian flavors in a tropical setting.",
+            },
+            {
+                name: "Outlet 3",
+                location: "Dhigurah",
+                cuisine: "Italian",
+                rating: 4.2,
+                description: "Traditional Italian dishes with fresh local ingredients.",
+            },
+            {
+                name: "Outlet 4",
+                location: "Falhumaafushi",
+                cuisine: "Seafood Grill",
+                rating: 4.8,
+                description: "Fresh seafood grilled to perfection with a view.",
+            }
+        ]
+    },
+    {
+        name: "Restaurant B",
+        outlets: [
+            {
+                name: "Outlet 3",
+                location: "Dhigurah",
+                cuisine: "Italian",
+                rating: 4.2,
+                description: "Traditional Italian dishes with fresh local ingredients.",
+            },
+            {
+                name: "Outlet 4",
+                location: "Falhumaafushi",
+                cuisine: "Seafood Grill",
+                rating: 4.8,
+                description: "Fresh seafood grilled to perfection with a view.",
+            }
+        ]
+    },
+    {
+        name: "Restaurant C",
+        outlets: [
+            {
+                name: "Outlet 5",
+                location: "Dhigurah",
+                cuisine: "Indian",
+                rating: 4.6,
+                description: "Spicy Indian dishes with a Maldivian touch.",
+            },
+            {
+                name: "Outlet 6",
+                location: "Falhumaafushi",
+                cuisine: "Mediterranean",
+                rating: 4.3,
+                description: "Mediterranean flavors with a tropical ambiance.",
+            }
+        ]
+    },
+    {
+        name: "Restaurant D",
+        outlets: [
+            {
+                name: "Outlet 7",
+                location: "Dhigurah",
+                cuisine: "Japanese",
+                rating: 4.9,
+                description: "Sushi and sashimi made with the freshest fish.",
+            },
+            {
+                name: "Outlet 8",
+                location: "Falhumaafushi",
+                cuisine: "Barbecue",
+                rating: 4.4,
+                description: "Barbecue specialties with a tropical twist.",
+            }
+        ]
+    }
+];
