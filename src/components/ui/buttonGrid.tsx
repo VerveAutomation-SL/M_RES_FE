@@ -3,12 +3,29 @@ import { useState, useEffect } from "react";
 import React from "react";
 import CheckInForm from "../forms/checkInForm";
 import { checkInApi, roomApi } from "@/lib/api";
+import { count } from "console";
+import Tabs from "../layout/tabs";
+
 
 interface ButtonGridProps {
   mode?: "check-in" | "view-details";
   resortId: number;
   searchTerm?: string;
 }
+
+// Room series for each resort
+const ROOM_SERIES = {
+  1: [
+    { name: "600-693", start: 600, end: 693 },
+    { name: "800-820", start: 800, end: 820 },
+    { name: "840-897", start: 840, end: 897 },
+  ],
+  2: [
+    { name: "100-130", start: 100, end: 130 },
+    { name: "200-218", start: 200, end: 218 },
+    { name: "300-343", start: 300, end: 343 },
+  ],
+};
 
 // Keep meal times configurable
 const MEAL_TIMES = {
@@ -65,6 +82,48 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [rooms, setRooms] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("All");
+
+  // group rooms by series
+  const groupRoomsBySeries = (roomNumbers : number[]) =>{
+    const seriesConfig = ROOM_SERIES[resortId as keyof typeof ROOM_SERIES]  || [];
+
+    const grouped : {[key: string]: number[]} = {
+      "All" : roomNumbers,
+    };
+
+    // Intializing empty arrays for each series
+    seriesConfig.forEach(series => {
+      grouped[series.name] = [];
+    });
+
+    // Grouping rooms into series
+    roomNumbers.forEach(roomNum => {
+      seriesConfig.forEach(series => {
+        if (roomNum >= series.start && roomNum <= series.end) {
+          grouped[series.name].push(roomNum);
+        }
+      });
+    });
+
+    // Remove empty series
+    Object.keys(grouped).forEach(key => {
+      if (key !== "All" && grouped[key].length === 0) {
+        delete grouped[key];
+      }
+    });
+
+    return grouped;
+  }
+
+  // Generate tab items based on grouped rooms
+  const generateTabItems = (groupedRooms: {[key: string]: number[]}) => {
+    return Object.keys(groupedRooms).map((seriesName) => ({
+      name: seriesName,
+      href: `#${seriesName.toLowerCase()}`,
+      count: groupedRooms[seriesName].length,
+    }));
+  };
 
   // Fetch rooms for the current resort
   useEffect(() => {
@@ -104,6 +163,7 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
                     
                 console.log(`Successfully parsed ${roomNumbers.length} room numbers:`, roomNumbers);
                 setRooms(roomNumbers);
+                setActiveTab("All");
             } else {
                 console.log(`No rooms found for resort ${resortId}`, response);
                 setRooms([]);
@@ -121,10 +181,19 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
     }
   }, [resortId]);
 
-  // Filter rooms based on search term
-  const filteredRooms = rooms.filter(room => 
-    room.toString().includes(searchTerm.toLowerCase())
-  );
+  // Group rooms by series
+  const groupedRooms = groupRoomsBySeries(rooms);
+  const tabItems = generateTabItems(groupedRooms);
+
+  // Get rooms for the active tab
+  const getDisplayRooms = () =>{
+    const seriesRooms = groupedRooms[activeTab] || [];
+    return seriesRooms.filter(room =>
+      room.toString().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  const displayRooms = getDisplayRooms();
 
   // Load room status
   useEffect(() => {
@@ -208,11 +277,15 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       return "bg-red-500 hover:bg-red-600 border-red-500";
     }
     
-    if (withinMealPeriod) {
+    if (withinMealPeriod ) {
       return "bg-green-500 hover:bg-green-600 border-green-500";
     }
     
-    return "bg-gray-200 hover:bg-gray-500 border-gray-400";
+    return "bg-gray-300 hover:bg-gray-500 border-gray-400";
+  };
+
+  const handleTabClick = (tabName: string) => {
+    setActiveTab(tabName);
   };
 
   if (loading) {
@@ -221,6 +294,13 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
 
   return (
     <>
+      {/* Room Series Tabs */}
+      {tabItems.length > 1 && (
+        <div className="mb-4">
+          <Tabs items={tabItems} activeItem={activeTab} onTabClick={handleTabClick} />
+        </div>
+      )}
+
       {/* Current meal type indicator */}
       <div className="mb-4 p-3 bg-blue-50 rounded-lg">
         <div className="flex items-center justify-between">
@@ -238,11 +318,12 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       </div>
 
       {/* Room Number Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-        {filteredRooms.map((roomNumber) => {
-          const buttonColor = getRoomButtonColor(roomNumber);
-          
-          return (
+      {displayRooms.length > 0 ? (
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+          {displayRooms.map((roomNumber) => {
+            const buttonColor = getRoomButtonColor(roomNumber);
+
+            return (
             <button
               key={roomNumber}
               onClick={() => handleRoomClick(roomNumber)}
@@ -254,7 +335,11 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
           );
         })}
       </div>
+      ) : (
+        <div className="text-center p-4">No rooms available for this series.</div>
+      )}
 
+      {/* Check-in Form Modal */}
       {mode === "check-in" && showModal && (
         <CheckInForm 
           isOpen={showModal} 
