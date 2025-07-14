@@ -2,20 +2,38 @@
 
 import Button from "@/components/ui/button";
 import { Key, User } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { loginUser } from "@/lib/api/auth";
 import { LoginFormData } from "@/lib/types/auth";
 import AuthInput from "@/components/ui/input";
+import { checkAuthLogin, login } from "@/lib/api/auth";
+import { AppError } from "@/lib/types";
 
 const Page = () => {
   const [formData, setFormData] = useState<LoginFormData>({
     userName: "",
     password: "",
-    role: "",
   });
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [clickedRole, setClickedRole] = useState<"Admin" | "User" | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await checkAuthLogin();
+        console.log("Authentication check response:", response);
+        // router.push("/dashboard");
+      } catch (err: unknown) {
+        if (err instanceof AppError) {
+          console.error(err.message);
+        } else {
+          console.error(err);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,21 +50,25 @@ const Page = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("Form submitted with data:", formData);
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      console.error("Form validation failed:", errors);
+      return;
+    }
     setLoading(true);
     try {
-      const response = await loginUser(formData);
+      console.log("Clicked role:", clickedRole);
 
-      if (response.error) {
-        console.error("Login error:", response.error);
-        // Handle error (show toast, etc.)
+      const response = await login(formData, clickedRole);
+
+      console.log("Login response:", response);
+    } catch (err: unknown) {
+      if (err instanceof AppError) {
+        console.error(err.message);
       } else {
-        console.log("Login successful:", response);
-        // Handle success (redirect, show success message, etc.)
+        console.error(err);
       }
-    } catch (error) {
-      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }
@@ -145,6 +167,7 @@ const Page = () => {
               <div className="flex flex-col sm:flex-row pt-4 sm:pt-6 gap-4 sm:gap-6">
                 <Button
                   type="submit"
+                  onClick={() => setClickedRole("Admin")}
                   disabled={isLoading}
                   className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -152,6 +175,7 @@ const Page = () => {
                 </Button>
                 <Button
                   type="submit"
+                  onClick={() => setClickedRole("User")}
                   disabled={isLoading}
                   className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >

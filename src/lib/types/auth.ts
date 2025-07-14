@@ -1,7 +1,6 @@
 export interface LoginFormData {
     userName: string;
     password: string;
-    role: string;
 }
 
 export interface AuthResponse {

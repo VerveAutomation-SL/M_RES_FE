@@ -37,3 +37,12 @@ export interface ApiResponse<T> {
   message?: string;
   error?: string;
 }
+
+// types/AppError.ts
+export class AppError extends Error {
+  constructor(public message: string, public statusCode: number) {
+  super(message);
+    this.name = 'AppError';
+  }
+  
+}
