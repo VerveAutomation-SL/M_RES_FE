@@ -14,7 +14,7 @@ export interface Resort {
 
 export interface Room {
   id: number;
-  number: string;
+  room_number: string;
   resortId: number;
   status: "available" | "occupied" ;
   createdAt: string;
@@ -23,7 +23,7 @@ export interface Room {
 
 export interface CheckIn {
   id: number;
-  guest_name: string;
+  guest_name?: string;
   room_number: string;
   outlet_name: string;
   meal_type: string;
@@ -45,3 +45,4 @@ export interface CheckInFormData {
   resort_id: number;
 }
 
+export type CheckInRequest = Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>;
