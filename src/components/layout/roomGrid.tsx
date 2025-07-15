@@ -6,18 +6,19 @@ import ButtonGrid from "../ui/buttonGrid";
 import Tabs from "./tabs";
 import { roomNumbers, tabItems, rooms } from "@/lib/data";
 import { Plus } from "lucide-react";
-import { resorts } from "@/lib/data";
 import { Resort } from "@/lib/types";
 
 interface ResortNavigationProps {
   activeResort: string;
   onResortChange: (resort: string) => void;
+  resorts: Resort[];
 }
 
 // Simplified version of the Navigation component
 const ResortNavigation = ({
   activeResort,
   onResortChange,
+  resorts,
 }: ResortNavigationProps) => {
   return (
     <div className="flex items-center justify-between bg-white rounded-lg px-4 py-2 shadow-md text-xs lg:text-base mb-6 transition-all duration-200">
@@ -31,9 +32,7 @@ const ResortNavigation = ({
               : "text-gray-600 hover:text-gray-900"
           }`}
         >
-          <span>
-            {activeResort === resort.name} {resort.name}
-          </span>
+          <span>{`${resort.name}`}</span>
         </button>
       ))}
     </div>
@@ -81,7 +80,7 @@ const getFilteredRooms = (
 };
 
 interface RoomGridProps {
-  resorts: Resort[]; // name, totalRooms, booked, available
+  resorts: Resort[]; // name, location, and Rooms properties
   addButton?: string;
   onClick?: () => void;
   mode: string;
@@ -89,9 +88,7 @@ interface RoomGridProps {
 
 const RoomGrid = ({ resorts, addButton, onClick, mode }: RoomGridProps) => {
   // Manage both resort and tab selection in this component
-  const [activeResort, setActiveResort] = useState<string>(
-    resorts[0].name || ""
-  );
+  const [activeResort, setActiveResort] = useState<string>(resorts[0]?.name);
   const [activeTab, setActiveTab] = useState("All"); // Default to "all" tab
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -117,15 +114,13 @@ const RoomGrid = ({ resorts, addButton, onClick, mode }: RoomGridProps) => {
     setSearchTerm(value);
   };
 
-  // Get resort display name
-  const resortDisplayName = activeResort;
-
   return (
     <>
       <div className="container my-2 lg:my-4">
         {/* Resort Navigation */}
         <ResortNavigation
-          activeResort={activeResort}
+          resorts={resorts}
+          activeResort={`${activeResort}`}
           onResortChange={handleResortChange}
         />
 
@@ -135,7 +130,7 @@ const RoomGrid = ({ resorts, addButton, onClick, mode }: RoomGridProps) => {
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                {resortDisplayName} Rooms
+                {activeResort} Island Rooms
               </h2>
               <div className="flex items-center space-x-5">
                 <SearchBar onSearch={handleSearch} />

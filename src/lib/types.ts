@@ -1,22 +1,14 @@
 export interface Resort {
-  id?: number;
-  name?: string;
-  location?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  totalRooms?: number; 
-  booked?: number; 
-  available?: number; 
-  rooms?: Room[];
-
+  id: number;
+  name: string;
+  location: string;
+  Rooms: Room[];
 }
 
 export interface Room {
   id: number;
   room_number: string;
-  status: 'available' | 'occupied';
   resort_id: number;
-  Resort?: Resort;
 }
 
 export interface CheckIn {
@@ -44,4 +36,13 @@ export interface ApiResponse<T> {
 export interface ResortFormData {
   name: string;
   totalRooms: number;       
+}
+
+// types/AppError.ts
+export class AppError extends Error {
+  constructor(public message: string, public statusCode: number) {
+  super(message);
+    this.name = 'AppError';
+  }
+  
 }

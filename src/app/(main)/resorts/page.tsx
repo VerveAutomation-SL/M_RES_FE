@@ -3,29 +3,30 @@ import Header from "@/components/layout/header";
 import RoomGrid from "@/components/layout/roomGrid";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
+import { getResorts } from "@/lib/api/resorts";
+import { Resort } from "@/lib/types";
 import { ChevronRight, MapPin } from "lucide-react";
-import React, { useEffect, useRef } from "react";
-import { resorts } from "@/lib/data";
+import React, { useState, useEffect, useRef } from "react";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  //const [resorts, setResorts] = useState([]);
-  // const [loading, setLoading] = useState(true);
+  const [resorts, setResorts] = useState<Resort[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchResorts = async () => {
+    const fetchAllResorts = async () => {
+      setLoading(true);
       try {
-        const response = await fetch("/resorts");
-        const data = await response.json();
-        console.log("Fetched resorts:", data);
-        //setResorts(data);
+        const response = await getResorts();
+        console.log("Fetched resorts:", response.data);
+        setResorts(response.data);
       } catch (error) {
         console.error("Error fetching resorts:", error);
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     };
-    fetchResorts();
+    fetchAllResorts();
   }, []);
 
   const scroll = (direction: "left" | "right") => {
@@ -86,55 +87,62 @@ const Page = () => {
         )}
 
         {/* Scrollable Cards Container */}
-        <div
-          ref={needsScrolling ? scrollRef : null}
-          className={getGridClasses()}
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {resorts.map((resort) => (
-            <Card key={resort.name} classname={getCardClasses()}>
-              <div>
-                <div className="flex items-center gap-2 mb-5">
-                  <MapPin className="w-4 md:w-5 h-4 md:h-5 text-gray-600 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-gray-900 text-sm md:text-base leading-tight">
-                      {resort.name}
-                    </h3>
+        {loading ? (
+          <div className="flex justify-center items-center h-60">
+            <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-[var(--primary)]"></div>
+            <span className="ml-2 text-gray-700">Loading...</span>
+          </div>
+        ) : (
+          <div
+            ref={needsScrolling ? scrollRef : null}
+            className={getGridClasses()}
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {resorts.map((resort) => (
+              <Card key={resort.id} classname={getCardClasses()}>
+                <div>
+                  <div className="flex items-center gap-2 mb-5">
+                    <MapPin className="w-4 md:w-5 h-4 md:h-5 text-gray-600 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm md:text-base leading-tight">
+                        {resort.name}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
+                    <div>
+                      <div className="text-xl md:text-2xl font-bold text-gray-900">
+                        {resort.Rooms.length}
+                      </div>
+                      <div className="text-xs md:text-sm text-gray-600">
+                        Total Rooms
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xl md:text-2xl font-bold text-red-500">
+                        {resort.id}
+                      </div>
+                      <div className="text-xs md:text-sm text-gray-600">
+                        Booked
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xl md:text-2xl font-bold text-green-500">
+                        {resort.id}
+                      </div>
+                      <div className="text-xs md:text-sm text-gray-600">
+                        Available
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-gray-900">
-                      {resort.totalRooms}
-                    </div>
-                    <div className="text-xs md:text-sm text-gray-600">
-                      Total Rooms
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-red-500">
-                      {resort.booked}
-                    </div>
-                    <div className="text-xs md:text-sm text-gray-600">
-                      Booked
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-green-500">
-                      {resort.available}
-                    </div>
-                    <div className="text-xs md:text-sm text-gray-600">
-                      Available
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
       <RoomGrid
-        resorts={resorts} // name, totalRooms, booked, available
+        resorts={resorts} // name, location, Rooms
         addButton="Add Room"
         onClick={() => {
           console.log("Add Room Clicked");
