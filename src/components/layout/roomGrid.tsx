@@ -84,9 +84,10 @@ interface RoomGridProps {
   resorts: Resort[]; // name, totalRooms, booked, available
   addButton?: string;
   onClick?: () => void;
+  mode: string;
 }
 
-const RoomGrid = ({ resorts, addButton, onClick }: RoomGridProps) => {
+const RoomGrid = ({ resorts, addButton, onClick, mode }: RoomGridProps) => {
   // Manage both resort and tab selection in this component
   const [activeResort, setActiveResort] = useState<string>(
     resorts[0].name || ""
@@ -153,7 +154,7 @@ const RoomGrid = ({ resorts, addButton, onClick }: RoomGridProps) => {
             {/* Search results count */}
             {searchTerm && (
               <div className="mb-4 text-sm text-gray-600">
-                Found {filteredRooms.length}{" "}
+                Found {filteredRooms.length}
                 {filteredRooms.length === 1 ? "room" : "rooms"} matching &quot;
                 {searchTerm}&quot;
               </div>
@@ -169,7 +170,7 @@ const RoomGrid = ({ resorts, addButton, onClick }: RoomGridProps) => {
 
             {/* Room Buttons */}
             {filteredRooms.length > 0 ? (
-              <ButtonGrid rooms={filteredRooms} />
+              <ButtonGrid rooms={filteredRooms} mode={mode} />
             ) : (
               <div className="text-center p-8 text-gray-500">
                 No rooms found matching your search.

@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
+import RoomDetails from "../layout/roomDetails";
 
 interface ButtonGridProps {
   rooms?: number[];
+  mode: string;
 }
 
-const ButtonGrid = ({ rooms }: ButtonGridProps) => {
+const ButtonGrid = ({ rooms, mode }: ButtonGridProps) => {
+  const [showRoomModal, setShowRoomModal] = useState(false);
   return (
     <>
       {/* Room Number Grid */}
@@ -18,6 +21,15 @@ const ButtonGrid = ({ rooms }: ButtonGridProps) => {
           </button>
         ))}
       </div>
+
+      {mode === "roomDetails" && (
+        <RoomDetails
+          isOpen={showRoomModal}
+          onClose={() => {
+            setShowRoomModal(false);
+          }}
+        />
+      )}
     </>
   );
 };

@@ -17,8 +17,6 @@ export interface Room {
   status: 'available' | 'occupied';
   resort_id: number;
   Resort?: Resort;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface CheckIn {

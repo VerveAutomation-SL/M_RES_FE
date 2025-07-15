@@ -4,13 +4,13 @@ import RoomGrid from "@/components/layout/roomGrid";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { ChevronRight, MapPin } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { resorts } from "@/lib/data";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   //const [resorts, setResorts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchResorts = async () => {
@@ -22,7 +22,7 @@ const Page = () => {
       } catch (error) {
         console.error("Error fetching resorts:", error);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
     fetchResorts();
@@ -139,6 +139,7 @@ const Page = () => {
         onClick={() => {
           console.log("Add Room Clicked");
         }}
+        mode="roomDetails"
       />
     </>
   );
