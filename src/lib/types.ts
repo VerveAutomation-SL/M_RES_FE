@@ -16,6 +16,11 @@ export interface Room {
   updatedAt: string;
 }
 
+export interface Restaurant {
+  id: number;
+  name: string;
+}
+
 export interface CheckIn {
   id: number;
   resort_id: number;
