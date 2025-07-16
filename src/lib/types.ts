@@ -31,6 +31,9 @@ export interface CheckIn {
   table_number: string;
   resort_id: number;
   check_in_time: string;
+  check_out_time?: string;
+  checkout_remarks?: string;
+  status: "checked_in" | "checked_out";
   createdAt: string;
   updatedAt: string;
 }

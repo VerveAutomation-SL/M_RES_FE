@@ -44,10 +44,27 @@ export const getAllCheckIns = async (params?: {
 export const getCheckInDetails = async (resortId: number, roomId: number, mealType: string) => {
     try {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-        const response = await api.get<ApiResponse<any>>(`/checkins/details?resortId=${resortId}&roomId=${roomId}&mealType=${mealType}&date=${today}`);
+        const response = await api.get<ApiResponse<CheckIn>>(`/checkins/details?resortId=${resortId}&roomId=${roomId}&mealType=${mealType}&date=${today}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching check-in details:', error);
+        throw error;
+    }
+};
+
+// Process check-out
+export const processCheckOut = async (checkOutData:{
+    resortId: number;
+    roomId: number;
+    mealType: string;
+    remarks?: string;
+    date?: string;
+}) => {
+    try {
+        const response = await api.post<ApiResponse<CheckIn>>('/checkins/check-out', checkOutData);
+        return response.data;
+    } catch (error) {
+        console.error('Error processing check-out:', error);
         throw error;
     }
 };

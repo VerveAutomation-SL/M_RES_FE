@@ -29,9 +29,9 @@ const ROOM_SERIES = {
 
 // Meal times Constants
 const MEAL_TIMES = {
-  breakfast: { start: "06:00:00", end: "09:30:00" },
-  lunch: { start: "09:30:00", end: "15:00:00" },
-  dinner: { start: "18:00:00", end: "23:30:00" },
+  breakfast: { start: "06:00:00", end: "11:00:00" },
+  lunch: { start: "12:00:00", end: "16:00:00" },
+  dinner: { start: "18:00:00", end: "23:00:00" },
 };
 
 const getCurrentMealType = () => {
@@ -327,6 +327,21 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
     console.log('Updated room status data');
   };
 
+  // checkout success handler
+  const handleCheckoutSuccess = (roomNumber: string) => {
+    console.log(`✅ Checkout success for room ${roomNumber}`);
+    
+    // Remove from room status data (change red to green)
+    setRoomStatusData(prev => 
+      prev.filter(room => room.room_number !== roomNumber)
+    );
+    
+    // Force refresh of room status data
+    setRefreshTrigger(prev => prev + 1);
+    
+    console.log(`🔄 Room ${roomNumber} should now be green`);
+  };
+
   const getRoomButtonColor = (roomNumber: number) => {
     const roomStatus = roomStatusData.find(
       room => room.room_number === roomNumber.toString()
@@ -414,7 +429,7 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
         />
       )}
 
-      {/* Check-in Details Modal */}
+      {/* Check-in Details Modal - Add onCheckoutSuccess prop */}
       {showDetailsModal && (
         <CheckInDetailsModal
           isOpen={showDetailsModal}
@@ -422,8 +437,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
           roomId={detailsRoomId}
           resortId={resortId}
           mealType={mealType}
+          onCheckoutSuccess={handleCheckoutSuccess} // Add this line
         />
-
       )}
 
     </>
