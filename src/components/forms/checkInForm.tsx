@@ -13,6 +13,7 @@ interface CheckInFormProps {
     selectedRoom?: string;
     mealType?: string;
     resortId?: number;
+    roomId?: number;
     onCheckInSuccess?: (roomNumber: string) => void;
 }
 
@@ -22,13 +23,14 @@ export default function CheckInForm({
     selectedRoom, 
     mealType,
     resortId,
+    roomId,
     onCheckInSuccess 
 }: CheckInFormProps) {
     const [loading, setLoading] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [formData, setFormData] = useState<CheckInFormData>({
         resort_name: '',
-        room_number: '',
+        room_id: roomId || 0,
         outlet_name: '',
         meal_type: '',
         meal_plan: '',
@@ -46,7 +48,7 @@ export default function CheckInForm({
 
     useEffect(() => {
         const fetchResortAndSetData = async () => {
-            if (selectedRoom && resortId) {
+            if (selectedRoom && resortId && roomId) {
                 try {
                     // Fetch resort data dynamically
                     const resortResponse = await resortApi.getResortById(resortId);
@@ -56,6 +58,7 @@ export default function CheckInForm({
                         ...prev,
                         resort_name: resortName,
                         resort_id: resortId,
+                        room_id: roomId,
                         room_number: selectedRoom,
                         meal_type: mealType || ''
                     }));
@@ -66,6 +69,7 @@ export default function CheckInForm({
                         ...prev,
                         resort_name: `Resort ${resortId}`,
                         resort_id: resortId,
+                        room_id: roomId,
                         room_number: selectedRoom,
                         meal_type: mealType || ''
                     }));
@@ -74,7 +78,7 @@ export default function CheckInForm({
         };
 
         fetchResortAndSetData();
-    }, [selectedRoom, resortId, mealType]);
+    }, [selectedRoom, resortId, mealType, roomId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -82,9 +86,15 @@ export default function CheckInForm({
         
         try {
             // Validate required fields
-            if (!formData.resort_name || !formData.room_number || !formData.outlet_name || 
+            if (!formData.resort_name || !formData.room_id || !formData.outlet_name || 
                 !formData.meal_type || !formData.meal_plan || !formData.table_number) {
                 alert("Please fill in all required fields.");
+                setLoading(false);
+                return;
+            }
+
+            if (!roomId) {
+                alert("Room ID not found. Please try again.");
                 setLoading(false);
                 return;
             }
@@ -93,7 +103,7 @@ export default function CheckInForm({
             
             const checkInPayload = {
                 resort_name: formData.resort_name,
-                room_number: formData.room_number,
+                room_id: roomId,  
                 outlet_name: formData.outlet_name,
                 meal_type: formData.meal_type,
                 meal_plan: formData.meal_plan,
@@ -106,10 +116,8 @@ export default function CheckInForm({
             
             const response = await checkInApi.processCheckIn(checkInPayload);
             
-            console.log('Check-in response:', response);
-            
             if (response && response.success) {
-                onCheckInSuccess?.(formData.room_number);
+                onCheckInSuccess?.(selectedRoom!); 
                 alert('Check-in successful!');
                 onClose?.();
             } else {
@@ -164,8 +172,7 @@ export default function CheckInForm({
                         <input 
                             type="text" 
                             required 
-                            value={formData.room_number} 
-                            onChange={(e) => setFormData({ ...formData, room_number: e.target.value })} 
+                            value={selectedRoom || ''} // Use selectedRoom prop instead of formData.room_number
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
                             placeholder="Room Number"
                             readOnly

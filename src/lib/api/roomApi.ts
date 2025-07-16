@@ -33,3 +33,14 @@ export const createRoom = async(roomData: Omit<Room, 'id' | 'createdAt' | 'updat
         throw error;
     }
 };
+
+// Get room by ID
+export const getRoomById = async (roomId: number) => {
+    try {
+        const response = await api.get<ApiResponse<Room>>(`/rooms/${roomId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching room by ID:', error);
+        throw error;
+    }
+};

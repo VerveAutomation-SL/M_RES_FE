@@ -24,7 +24,7 @@ export interface Room {
 export interface CheckIn {
   id: number;
   guest_name?: string;
-  room_number: string;
+  room_id: number;
   outlet_name: string;
   meal_type: string;
   meal_plan: string;
@@ -37,12 +37,26 @@ export interface CheckIn {
 
 export interface CheckInFormData {
   resort_name: string;
-  room_number: string;
+  room_id: number;
+  room_number?: string;
   outlet_name: string;
   meal_type: string;
   meal_plan: string;
   table_number: string;
   resort_id: number;
+}
+
+export interface CheckInDetails {
+  id: number;
+  name: string;
+  room_number: string;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  check_in_time: string;
+  createdAt: string;
+  status: string;
 }
 
 export type CheckInRequest = Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>;

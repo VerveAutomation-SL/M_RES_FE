@@ -40,6 +40,18 @@ export const getAllCheckIns = async (params?: {
     }
 };
 
+// Get check-in details
+export const getCheckInDetails = async (resortId: number, roomId: number, mealType: string) => {
+    try {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+        const response = await api.get<ApiResponse<any>>(`/checkins/details?resortId=${resortId}&roomId=${roomId}&mealType=${mealType}&date=${today}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching check-in details:', error);
+        throw error;
+    }
+};
+
 // // Get today's check-ins
 // export const getTodayCheckIns = async () => {
 //     try {

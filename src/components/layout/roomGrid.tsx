@@ -3,14 +3,13 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
-import Tabs from "./tabs";
 import { Plus } from "lucide-react";
 import { resortApi } from "@/lib/api";
 import { Resort } from "@/lib/types";
 
 interface ResortNavigationProps {
   resorts: Resort[];
-  activeResort: number; // Use resort ID instead of string
+  activeResort: number; 
   onResortChange: (resortId: number) => void;
 }
 
@@ -56,7 +55,7 @@ const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
         const response = await resortApi.getAllResorts();
         if (response.success && response.data.length > 0) {
           setResorts(response.data);
-          setActiveResort(response.data[0].id); // Set first resort as default
+          setActiveResort(response.data[0].id); // First resort as default
         }
       } catch (error) {
         console.error("Failed to fetch resorts:", error);
@@ -120,7 +119,7 @@ const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
             </div>
 
             {/* Room Grid - Pass the active resort ID */}
-            <ButtonGrid resortId={activeResort} searchTerm={searchTerm} />
+            <ButtonGrid resortId={activeResort} searchTerm={searchTerm}/>
           </div>
         </div>
       </div>
