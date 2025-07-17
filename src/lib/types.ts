@@ -1,3 +1,9 @@
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 export interface Resort {
   id: number;
   name: string;
@@ -8,30 +14,54 @@ export interface Resort {
 export interface Room {
   id: number;
   room_number: string;
-  resort_id: number;
-}
-
-export interface CheckIn {
-  id: number;
-  resort_id: number;
-  room_number: string;
-  guest_name: string;
-  outlet_name: string;
-  meal_type: 'breakfast' | 'lunch' | 'dinner';
-  check_in_date: string;
-  check_in_time: string;
-  Resort?: Resort;
+  resortId: number;
+  status: "available" | "occupied" ;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  count?: number;
-  message?: string;
-  error?: string;
+export interface CheckIn {
+  id: number;
+  guest_name?: string;
+  room_id: number;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  resort_id: number;
+  check_in_time: string;
+  check_out_time?: string;
+  checkout_remarks?: string;
+  status: "checked_in" | "checked_out";
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface CheckInFormData {
+  resort_name: string;
+  room_id: number;
+  room_number?: string;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  resort_id: number;
+}
+
+export interface CheckInDetails {
+  id: number;
+  name: string;
+  room_number: string;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  check_in_time: string;
+  createdAt: string;
+  status: string;
+}
+
+export type CheckInRequest = Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>;
 
 export interface ResortFormData {
   name: string;
