@@ -109,7 +109,7 @@ export default function CheckInForm({
                 meal_plan: formData.meal_plan,
                 table_number: formData.table_number,
                 resort_id: formData.resort_id,
-                check_in_time: timeOnly,
+                check_in_time: timeOnly
             };
             
             console.log('Submitting check-in data:', checkInPayload);

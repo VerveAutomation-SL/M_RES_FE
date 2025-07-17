@@ -5,6 +5,7 @@ import CheckInForm from "../forms/checkInForm";
 import { checkInApi, roomApi } from "@/lib/api";
 import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
+import { Room } from "@/lib/types";
 
 
 interface ButtonGridProps {
@@ -153,9 +154,9 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
                 
                 // Try multiple possible field names
                 const roomNumbers = response.data
-                    .map((room: any) => {
+                    .map((room: Room) => {
                         // Check all possible field names
-                        const possibleRoomNumber = room.room_number || room.number || room.roomNumber || room.name;
+                        const possibleRoomNumber = room.room_number ;
                         console.log(`Processing room:`, room, `Room number field:`, possibleRoomNumber);
                         
                         if (possibleRoomNumber) {

@@ -1,5 +1,5 @@
 import { api } from './config';
-import { ApiResponse, CheckIn } from '../types';
+import { ApiResponse, CheckIn, CheckInDetails } from '../types';
 
 // Create a new check-in
 export const processCheckIn = async (checkInData: Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -44,7 +44,7 @@ export const getAllCheckIns = async (params?: {
 export const getCheckInDetails = async (resortId: number, roomId: number, mealType: string) => {
     try {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-        const response = await api.get<ApiResponse<CheckIn>>(`/checkins/details?resortId=${resortId}&roomId=${roomId}&mealType=${mealType}&date=${today}`);
+        const response = await api.get<ApiResponse<CheckInDetails>>(`/checkins/details?resortId=${resortId}&roomId=${roomId}&mealType=${mealType}&date=${today}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching check-in details:', error);
@@ -69,34 +69,4 @@ export const processCheckOut = async (checkOutData:{
     }
 };
 
-// // Get today's check-ins
-// export const getTodayCheckIns = async () => {
-//     try {
-//         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-//         const response = await api.get<ApiResponse<CheckIn[]>>(`/checkins?date=${today}`);
-//         return response.data;
-//     } catch (error: any) {
-//         throw new Error(error.response?.data?.message || 'Failed to get today\'s check-ins');
-//     }
-// };
-
-// // Update a check-in
-// export const updateCheckIn = async (id: number, data: Partial<CheckIn>) => {
-//     try {
-//         const response = await api.put<ApiResponse<CheckIn>>(`/checkins/${id}`, data);
-//         return response.data;
-//     } catch (error: any) {
-//         throw new Error(error.response?.data?.message || 'Failed to update check-in');
-//     }
-// };
-
-// // Delete a check-in
-// export const deleteCheckIn = async (id: number) => {
-//     try {
-//         const response = await api.delete<ApiResponse<void>>(`/checkins/${id}`);
-//         return response.data;
-//     } catch (error: any) {
-//         throw new Error(error.response?.data?.message || 'Failed to delete check-in');
-//     }
-// };
 
