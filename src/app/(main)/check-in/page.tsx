@@ -34,7 +34,7 @@ export default function CheckInPage() {
             </Card>
         </div>
         <Modal/>
-        <RoomGrid/>
+        <RoomGrid mode="check-in"/>
 
       </div>
     );

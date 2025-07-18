@@ -1,9 +1,10 @@
 "use client";
+import ResortForm from "@/components/forms/resortForm";
 import Header from "@/components/layout/header";
 import RoomGrid from "@/components/layout/roomGrid";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
-import { getResorts } from "@/lib/api/resorts";
+import { resortApi } from "@/lib/api";
 import { Resort } from "@/lib/types";
 import { ChevronRight, MapPin } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
@@ -12,22 +13,28 @@ const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);  
 
   useEffect(() => {
-    const fetchAllResorts = async () => {
+    const fetchResorts = async () => {
       setLoading(true);
-      try {
-        const response = await getResorts();
-        console.log("Fetched resorts:", response.data);
-        setResorts(response.data);
-      } catch (error) {
-        console.error("Error fetching resorts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAllResorts();
-  }, []);
+          try {
+            const response = await resortApi.getAllResorts();
+            console.log("Fetched resorts:", response);
+            if (response.success && response.data.length > 0) {
+              setResorts(response.data);
+            }
+          } catch (error) {
+            console.error("Failed to fetch resorts:", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    fetchResorts();
+  }, [refreshTrigger]);
+
+
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -65,15 +72,26 @@ const Page = () => {
     return "bg-white shadow-sm w-full";
   };
 
+  const handleAddResort = () => {
+    setShowModal(true);
+  };
+
+  const handleResortCreated = () => {
+    console.log("Resort created, refreshing...");
+    setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <>
       <Header
         title="Resort Management"
         subtitle="Manage your resorts and rooms efficiently."
         addButton="Add Resort"
-        onClick={() => {
-          console.log("Add Resort Clicked");
-        }}
+        onClick={handleAddResort}
       />
       <div className="relative">
         {/* Navigation Buttons */}
@@ -92,8 +110,21 @@ const Page = () => {
             <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-[var(--primary)]"></div>
             <span className="ml-2 text-gray-700">Loading...</span>
           </div>
-        ) : (
-          <div
+        ) : resorts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 mb-4">
+              <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <h3 className="text-lg font-medium">No resorts found</h3>
+              <p className="text-sm">Create your first resort to get started</p>
+            </div>
+            <button
+              onClick={handleAddResort}
+              className="px-6 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 transition-colors"
+            >
+              Add Your First Resort
+            </button>
+          </div>
+        ) : (<div
             ref={needsScrolling ? scrollRef : null}
             className={getGridClasses()}
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -120,7 +151,7 @@ const Page = () => {
                     </div>
                     <div>
                       <div className="text-xl md:text-2xl font-bold text-red-500">
-                        {resort.id}
+                        {resort.Rooms.filter((room) => room.status === "available").length}
                       </div>
                       <div className="text-xs md:text-sm text-gray-600">
                         Booked
@@ -141,14 +172,15 @@ const Page = () => {
           </div>
         )}
       </div>
-      <RoomGrid
-        resorts={resorts} // name, location, Rooms
-        addButton="Add Room"
-        onClick={() => {
-          console.log("Add Room Clicked");
-        }}
-        mode="roomDetails"
-      />
+      <RoomGrid mode="view-details" addButton="Add Room" onClick={() => {}} key={refreshTrigger}/>
+
+        {showModal && (
+          <ResortForm 
+            isOpen={showModal} 
+            onClose={handleCloseModal}
+            onSuccess={handleResortCreated} 
+          />
+        )}
     </>
   );
 };

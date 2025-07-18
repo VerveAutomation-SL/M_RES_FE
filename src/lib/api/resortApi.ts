@@ -21,4 +21,15 @@ export const getResortById = async (resortId: number) => {
         console.error('Error fetching resort by ID:', error);
         throw error;
     }
-}
+};
+
+// Create a new resort
+export const createResort = async (resortData: Omit<Resort, 'id'>) => {
+    try {
+        const response = await api.post<ApiResponse<Resort>>('/resorts', resortData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating resort:', error);
+        throw error;
+    }
+};

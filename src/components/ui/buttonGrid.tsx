@@ -6,6 +6,7 @@ import { checkInApi, roomApi } from "@/lib/api";
 import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
 import { Room } from "@/lib/types";
+import RoomDetails from "../layout/roomDetails";
 
 
 interface ButtonGridProps {
@@ -354,12 +355,15 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
     if (isCheckedIn) {
       return "bg-red-500 hover:bg-red-600 border-red-500";
     }
-    
-    if (withinMealPeriod ) {
-      return "bg-green-500 hover:bg-green-600 border-green-500";
+
+    if(mode === "check-in"){
+      if(withinMealPeriod){
+        return "bg-green-500 hover:bg-green-600 border-green-500";
+      }
+      return "bg-gray-300 hover:bg-gray-500 border-gray-400";
     }
-    
-    return "bg-gray-300 hover:bg-gray-500 border-gray-400";
+      
+    return "bg-green-500 hover:bg-green-600 border-green-500";
   };
 
   const handleTabClick = (tabName: string) => {
@@ -380,20 +384,22 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       )}
 
       {/* Current meal type indicator */}
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-blue-800">
-            Current Meal: {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
-          </span>
-          <span className={`text-xs px-2 py-1 rounded ${
-            isWithinMealPeriod(mealType) 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-gray-100 text-gray-800'
-          }`}>
-            {isWithinMealPeriod(mealType) ? 'Active' : 'Inactive'}
-          </span>
+      {mode === "check-in" && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-blue-800">
+              Current Meal: {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+            </span>
+            <span className={`text-xs px-2 py-1 rounded ${
+              isWithinMealPeriod(mealType) 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {isWithinMealPeriod(mealType) ? 'Active' : 'Inactive'}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Room Number Grid */}
       {displayRooms.length > 0 ? (
@@ -443,14 +449,15 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       )}
 
 
-      {mode === "roomDetails" && (
+      {mode === "view-details" && (
         <RoomDetails
-          isOpen={showRoomModal}
+          isOpen={showModal}
           onClose={() => {
-            setShowRoomModal(false);
+            setShowModal(false);
           }}
         />
       )}
+
     </>
   );
 };

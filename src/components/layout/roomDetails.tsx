@@ -44,7 +44,7 @@ const RoomDetails = ({ isOpen = false, onClose, room }: ViewDetailsProps) => {
         <div className="grid grid-cols-3 gap-6 bg-gray-200 p-4 rounded-lg mb-6 text-center">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-600">
-              Room ID:
+              Room Number:
             </label>
             <p className="text-sm text-gray-900">{room?.room_number}</p>
           </div>

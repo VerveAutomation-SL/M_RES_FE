@@ -65,10 +65,15 @@ export type CheckInRequest = Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>;
 
 export interface ResortFormData {
   name: string;
-  totalRooms: number;       
+  location: string;       
 }
 
-// types/AppError.ts
+export interface RoomFormData {
+  room_number: string;
+  resortId: number;
+  name?: string; 
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);
