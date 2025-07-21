@@ -2,6 +2,8 @@ export interface Resort {
   id: number;
   name: string;
   location: string;
+  restaurants: Restaurant[];
+  rooms: Room[];
   createdAt: string;
   updatedAt: string;
 }
@@ -18,7 +20,9 @@ export interface Room {
 
 export interface Restaurant {
   id: number;
-  name: string;
+  restaurantName: string;
+  resort_id: number;
+  diningTables: number; 
 }
 
 export interface CheckIn {

@@ -1,3 +1,5 @@
+import { Resort } from "./types";
+
 export const roomNumbers = [
     // 100-130 range
     ...Array.from({ length: 31 }, (_, i) => 100 + i),
@@ -42,95 +44,64 @@ export const rooms = {
     "all": roomNumbers,
 }
 
-export const restaurants = [
+export const resorts: Resort[] = [
     {
-        name: "Restaurant A",
-        outlets: [
-            {
-                name: "Outlet 1",
-                location: "Dhigurah",
-                cuisine: "Maldivian",
-                rating: 4.5,
-                description: "Authentic Maldivian cuisine with a modern twist.",
-            },
-            {
-                name: "Outlet 2",
-                location: "Falhumaafushi",
-                cuisine: "Asian Fusion",
-                rating: 4.7,
-                description: "A blend of Asian flavors in a tropical setting.",
-            },
-            {
-                name: "Outlet 3",
-                location: "Dhigurah",
-                cuisine: "Italian",
-                rating: 4.2,
-                description: "Traditional Italian dishes with fresh local ingredients.",
-            },
-            {
-                name: "Outlet 4",
-                location: "Falhumaafushi",
-                cuisine: "Seafood Grill",
-                rating: 4.8,
-                description: "Fresh seafood grilled to perfection with a view.",
-            }
-        ]
+        id: 1,
+        name: "Dhigurah Resort",
+        location: "Dhigurah",
+        restaurants: [
+            { id: 1, restaurantName: "Ocean View", resort_id: 1, diningTables: 20 },
+            { id: 2, restaurantName: "Sunset Grill", resort_id: 1, diningTables: 15 },
+            { id: 3, restaurantName: "Coral Cafe", resort_id: 1, diningTables: 30 },
+            { id: 4, restaurantName: "Beachside Bistro", resort_id: 1, diningTables: 22 },
+            { id: 5, restaurantName: "Lagoon Lounge", resort_id: 1, diningTables: 18 }
+        ],
+        rooms: rooms["dhigurah"].map(room_number => ({
+            id: room_number,
+            room_number: room_number.toString(),
+            status: 'available',
+            resort_id: 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        })),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
     },
     {
-        name: "Restaurant B",
-        outlets: [
-            {
-                name: "Outlet 3",
-                location: "Dhigurah",
-                cuisine: "Italian",
-                rating: 4.2,
-                description: "Traditional Italian dishes with fresh local ingredients.",
-            },
-            {
-                name: "Outlet 4",
-                location: "Falhumaafushi",
-                cuisine: "Seafood Grill",
-                rating: 4.8,
-                description: "Fresh seafood grilled to perfection with a view.",
-            }
-        ]
+        id: 2,
+        name: "Falhumaafushi Resort",
+        location: "Falhumaafushi",
+        restaurants: [
+            { id: 3, restaurantName: "Island Feast", resort_id: 2, diningTables: 25 },
+            { id: 4, restaurantName: "Lagoon Lounge", resort_id: 2, diningTables: 18 }
+        ],
+        rooms: rooms["falhumaafushi"].map(room_number => ({
+            id: room_number,
+            room_number: room_number.toString(),
+            status: 'available',
+            resort_id: 2,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        })),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
     },
     {
-        name: "Restaurant C",
-        outlets: [
-            {
-                name: "Outlet 5",
-                location: "Dhigurah",
-                cuisine: "Indian",
-                rating: 4.6,
-                description: "Spicy Indian dishes with a Maldivian touch.",
-            },
-            {
-                name: "Outlet 6",
-                location: "Falhumaafushi",
-                cuisine: "Mediterranean",
-                rating: 4.3,
-                description: "Mediterranean flavors with a tropical ambiance.",
-            }
-        ]
+        id: 3,
+        name: "Sample Resort",
+        location: "Sample Location",
+        restaurants: [],
+        rooms: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
     },
     {
-        name: "Restaurant D",
-        outlets: [
-            {
-                name: "Outlet 7",
-                location: "Dhigurah",
-                cuisine: "Japanese",
-                rating: 4.9,
-                description: "Sushi and sashimi made with the freshest fish.",
-            },
-            {
-                name: "Outlet 8",
-                location: "Falhumaafushi",
-                cuisine: "Barbecue",
-                rating: 4.4,
-                description: "Barbecue specialties with a tropical twist.",
-            }
-        ]
+        id: 4,
+        name: "Test Resort",
+        location: "Test Location",
+        restaurants: [],
+        rooms: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
     }
-];
+]
