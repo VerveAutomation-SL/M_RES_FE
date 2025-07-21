@@ -65,9 +65,11 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
           Array.isArray(response.data) &&
           response.data.length > 0
         ) {
-          setResorts(response.data);
-          setActiveResort(response.data[0].id); // Set first resort as default
-          console.log("✅ RoomGrid: Resorts loaded:", response.data.length);
+          // Sort resorts by ID to ensure consistent ordering
+          const sortedResorts = response.data.sort((a, b) => a.id - b.id);
+          setResorts(sortedResorts);
+          setActiveResort(sortedResorts[0].id); // Set first resort as default
+          console.log("✅ RoomGrid: Resorts sorted by ID, active resort:", sortedResorts[0].id);
         } else {
           console.warn("❌ RoomGrid: No resorts found");
           setResorts([]);
@@ -104,10 +106,19 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
     setShowRoomModal(true);
   };
 
+  // Update the room creation handler to force ButtonGrid refresh
   const handleRoomCreated = () => {
-    console.log("Room created, refreshing grid...");
-    setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
+    console.log("🎉 Room created, refreshing grid...");
+    setRefreshTrigger((prev) => prev + 1);
   };
+
+  // Add effect to refetch resorts when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      console.log("🔄 RoomGrid: Refreshing due to trigger change...");
+      // The ButtonGrid will handle its own refresh via the key prop or internal logic
+    }
+  }, [refreshTrigger]);
 
   const handleRoomModalClose = () => {
     setShowRoomModal(false);
@@ -198,21 +209,21 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
               resortId={activeResort}
               searchTerm={searchTerm}
               mode={mode}
-              key={`${activeResort}-${refreshTrigger}`} // Force re-mount on resort change
+              key={`${activeResort}-${refreshTrigger}`} // This ensures ButtonGrid refreshes
             />
           </div>
         </div>
-
-        {/* Room Form Modal */}
-        {showRoomModal && (
-          <RoomForm
-            isOpen={showRoomModal}
-            onClose={handleRoomModalClose}
-            onSuccess={handleRoomCreated}
-            selectedResort={currentResort?.name}
-          />
-        )}
       </div>
+
+      {/* Room Form Modal */}
+      {showRoomModal && (
+        <RoomForm
+          isOpen={showRoomModal}
+          onClose={handleRoomModalClose}
+          onSuccess={handleRoomCreated}
+          selectedResort={currentResort?.name}
+        />
+      )}
     </>
   );
 };

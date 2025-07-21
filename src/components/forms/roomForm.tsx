@@ -97,7 +97,9 @@ export default function RoomForm({
             // Create room payload
             const roomPayload = {
                 room_number: formData.room_number.trim(),
-                resort_id: formData.resortId, // Use resort_id to match backend
+                resort_id: formData.resortId,
+                // room_type: roomType,
+                // status: "available"
             };
 
             const response = await roomApi.createRoom(roomPayload);
@@ -125,7 +127,28 @@ export default function RoomForm({
         } catch (error) {
             console.error("💥 Error creating room:", error);
             const errorMessage = error instanceof Error ? error.message : "An error occurred while creating the room.";
-            setError(errorMessage);
+            if(error.response){
+                const {status, data} = error.response;
+                if(status === 409){
+                    const errorMessage = data?.message || `Room number ${formData.room_number} already exists. Please choose a different room number.`;
+                    setError(errorMessage);
+                }else if(status === 400){
+                    const errorMessage = data?.message || "Invalid room data. Please check your input.";
+                    setError(errorMessage);
+                }
+                else {
+                // Other server errors
+                const errorMessage = data?.message || "Server error occurred. Please try again.";
+                setError(errorMessage);
+                }
+            } else if (error.request) {
+                // Network error
+                setError("Network error. Please check your connection and try again.");
+            } else {
+                // Other errors
+                const errorMessage = error.message || "An unexpected error occurred while creating the room.";
+                setError(errorMessage);
+            }
         } finally {
             setLoading(false);
         }
@@ -170,8 +193,16 @@ export default function RoomForm({
 
                 {/* Error Message */}
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-sm text-red-600">{error}</p>
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start space-x-2">
+                        <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                            <p className="text-sm text-red-600 font-medium">
+                                {error.includes('already exists') ? 'Duplicate Room Number' : 'Error'}
+                            </p>
+                            <p className="text-sm text-red-600">{error}</p>
+                        </div>
                     </div>
                 )}
 

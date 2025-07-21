@@ -44,3 +44,26 @@ export const getRoomById = async (roomId: number) => {
         throw error;
     }
 };
+
+// Update room by ID
+export const updateRoom = async (roomId: number, roomData: Partial<Room>) => {
+    try {
+        console.log('Updating room with ID:', roomId, 'Data:', roomData);
+        const response = await api.put<ApiResponse<Room>>(`/rooms/${roomId}`, roomData);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating room:', error);
+        throw error;
+    }
+}
+
+// Delete room by ID
+export const deleteRoom = async (roomId: number) => {
+    try {
+        const response = await api.delete<ApiResponse<Room>>(`/rooms/${roomId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        throw error;
+    }
+}

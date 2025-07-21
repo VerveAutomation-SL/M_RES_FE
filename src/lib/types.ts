@@ -14,7 +14,7 @@ export interface Resort {
 export interface Room {
   id: number;
   room_number: string;
-  resortId: number;
+  resort_id: number;
   status: "available" | "occupied" ;
   createdAt: string;
   updatedAt: string;

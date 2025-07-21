@@ -257,13 +257,50 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
     return () => clearInterval(interval);
   }, [resortId, mealType, refreshTrigger]);
 
+  // Add this effect to re-fetch rooms when refreshTrigger changes
+  useEffect(() => {
+    const refetchRooms = async () => {
+      if (refreshTrigger > 0) { // Only refetch if trigger was actually incremented
+        console.log("🔄 Refreshing rooms due to trigger change...");
+        
+        try {
+          const response = await roomApi.getRoomsByResort(resortId);
+          
+          if (response.success && response.data) {
+            const roomsWithIds = response.data.map((room: Room) =>({
+              ...room,
+              resortId: resortId
+            }));
+
+            setRoomsWithIds(roomsWithIds);
+
+            const roomNumbers = response.data
+              .map((room: Room) => {
+                const parsed = parseInt(room.room_number.toString());
+                return parsed;
+              })
+              .filter((num: number) => !isNaN(num))
+              .sort((a: number, b: number) => a - b);
+              
+            setRooms(roomNumbers);
+            console.log("✅ Rooms refreshed successfully");
+          }
+        } catch (error) {
+          console.error("❌ Failed to refresh rooms:", error);
+        }
+      }
+    };
+
+    refetchRooms();
+  }, [refreshTrigger, resortId]); // Add refreshTrigger as dependency
+
   const handleRoomClick = (roomNumber: number) => {
     const roomStatus = roomStatusData.find(
       room => room.room_number === roomNumber.toString()                            
     );
     
     const isCheckedIn = roomStatus ? roomStatus.checked_in : false;
-    const withinPeriod = isWithinMealPeriod(mealType);
+    
     
     const roomId = getRoomIdByNumber(roomNumber.toString());
 
@@ -274,20 +311,27 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
         return;
     }
 
-    if (!withinPeriod) {
-      alert(`Check-in is only available during ${mealType} time period.`);
-      return;
-    }
+    if(mode === "check-in"){
+      const withinPeriod = isWithinMealPeriod(mealType);
+      
+      if (!withinPeriod) {
+        alert(`Check-in is only available during ${mealType} time period.`);
+        return;
+      }
 
-    
-    if (!roomId) {
-      alert(`Room ${roomNumber} not found.`);
-      return;
-    }
+      if (!roomId) {
+        alert(`Room ${roomNumber} not found.`);
+        return;
+      } 
+      setSelectedRoom(roomNumber.toString());
+      setSelectedRoomId(roomId);
+      setShowModal(true);
 
-    setSelectedRoom(roomNumber.toString());
-    setSelectedRoomId(roomId);
-    setShowModal(true);
+    }else if(mode === "view-details") {
+      setSelectedRoom(roomNumber.toString());
+      setSelectedRoomId(roomId);
+      setShowModal(true);
+    }   
   };
 
   const handleCheckInSuccess = (roomNumber: string) => {
@@ -351,6 +395,10 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
     
     const isCheckedIn = roomStatus ? roomStatus.checked_in : false;
     const withinMealPeriod = isWithinMealPeriod(mealType);
+
+    if (mode === "view-details") {
+      return "bg-green-500 hover:bg-green-600 border-green-500";
+    }
     
     if (isCheckedIn) {
       return "bg-red-500 hover:bg-red-600 border-red-500";
@@ -368,6 +416,65 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
 
   const handleTabClick = (tabName: string) => {
     setActiveTab(tabName);
+  };
+
+  // Extract fetchRoomStatus to be reusable
+  const fetchRoomStatus = async () => {
+    try {
+      console.log(`Fetching room status for resort ${resortId}, meal: ${mealType}`);
+      const response = await checkInApi.getCheckInStatus(resortId, mealType);
+      
+      if (response && response.success && response.data) {
+        const mappedRoomStatus = response.data.map((item: any) => ({
+          room_id: item.room_id ?? item.id ?? 0,
+          room_number: item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
+          meal_type: item.meal_type ?? mealType,
+          resort_id: item.resort_id ?? resortId,
+          checked_in: item.checked_in ?? false
+        }));
+        setRoomStatusData(mappedRoomStatus);
+      } else {
+        setRoomStatusData([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch room status:", error);
+      setRoomStatusData([]);
+    }
+  };
+
+  // Update the existing room status useEffect to use the extracted function
+  useEffect(() => {
+    if (resortId) {
+      fetchRoomStatus();
+    }
+
+    const interval = setInterval(() => {
+      const newMealType = getCurrentMealType();
+      if (newMealType !== mealType) {
+        setMealType(newMealType);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [resortId, mealType, refreshTrigger]);
+
+  // Handle room update with immediate refresh
+  const handleRoomUpdate = () => {
+    console.log("🔄 Room updated, refreshing data...");
+    setRefreshTrigger(prev => prev + 1);
+    
+    // Also refresh room status to ensure colors are correct
+    // fetchRoomStatus();
+  };
+
+  // Handle room deletion with immediate refresh
+  const handleRoomDelete = () => {
+    console.log("🗑️ Room deleted, refreshing data...");
+    setRefreshTrigger(prev => prev + 1);
+    
+    // Close the details modal since room is deleted
+    setShowDetailsModal(false);
+    setDetailsRoomId(null);
   };
 
   if (loading) {
@@ -455,6 +562,9 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
           onClose={() => {
             setShowModal(false);
           }}
+          room={roomsWithIds.find(room => room.id === selectedRoomId)}
+          onUpdate={handleRoomUpdate}
+          onDelete={handleRoomDelete}
         />
       )}
 
