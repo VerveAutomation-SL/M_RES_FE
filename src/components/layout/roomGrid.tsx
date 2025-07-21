@@ -42,18 +42,38 @@ interface RoomGridProps {
   addButton?: string;
   onClick?: () => void;
   mode?: "view-details" | "check-in";
+  externalResorts?: Resort[];
+  externalActiveResort?: number | null;
+  onExternalResortChange?: (resortId: number) => void;
 }
 
-const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
-  const [resorts, setResorts] = useState<Resort[]>([]);
-  const [activeResort, setActiveResort] = useState<number | null>(null);
+const RoomGrid = ({ 
+  addButton, 
+  mode, 
+  externalResorts,
+  externalActiveResort,
+  onExternalResortChange 
+}: RoomGridProps) => {
+  // Internal state (fallback when no external state provided)
+  const [internalResorts, setInternalResorts] = useState<Resort[]>([]);
+  const [internalActiveResort, setInternalActiveResort] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showRoomModal, setShowRoomModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Fetch resorts when component mounts
+  // Use external state if provided, otherwise use internal state
+  const useExternalState = externalResorts && externalActiveResort && onExternalResortChange;
+  const resorts = useExternalState ? externalResorts : internalResorts;
+  const activeResort = useExternalState ? externalActiveResort : internalActiveResort;
+
+  // Fetch resorts only if NOT using external state
   useEffect(() => {
+    if (useExternalState) {
+      setLoading(false);
+      return;
+    }
+
     const fetchResorts = async () => {
       try {
         console.log("🏨 RoomGrid: Fetching resorts...");
@@ -65,36 +85,38 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
           Array.isArray(response.data) &&
           response.data.length > 0
         ) {
-          // Sort resorts by ID to ensure consistent ordering
           const sortedResorts = response.data.sort((a, b) => a.id - b.id);
-          setResorts(sortedResorts);
-          setActiveResort(sortedResorts[0].id); // Set first resort as default
-          console.log("✅ RoomGrid: Resorts sorted by ID, active resort:", sortedResorts[0].id);
+          setInternalResorts(sortedResorts);
+          setInternalActiveResort(sortedResorts[0].id);
+          console.log("✅ RoomGrid: Resorts loaded, active resort:", sortedResorts[0].id);
         } else {
           console.warn("❌ RoomGrid: No resorts found");
-          setResorts([]);
-          setActiveResort(null);
+          setInternalResorts([]);
+          setInternalActiveResort(null);
         }
       } catch (error) {
         console.error("💥 RoomGrid: Failed to fetch resorts:", error);
-        setResorts([]);
-        setActiveResort(null);
+        setInternalResorts([]);
+        setInternalActiveResort(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchResorts();
-  }, []); // Remove dependencies to prevent unnecessary re-fetching
+  }, [useExternalState]);
 
   // Handle resort change
   const handleResortChange = (resortId: number) => {
-    if (resortId === activeResort) return;
-
-    console.log(
-      `🔄 RoomGrid: Changing resort from ${activeResort} to ${resortId}`
-    );
-    setActiveResort(resortId);
+    if (useExternalState) {
+      // Use external handler
+      onExternalResortChange!(resortId);
+    } else {
+      // Use internal handler
+      if (resortId === internalActiveResort) return;
+      console.log(`🔄 RoomGrid: Changing resort from ${internalActiveResort} to ${resortId}`);
+      setInternalActiveResort(resortId);
+    }
     setSearchTerm(""); // Clear search when changing resorts
   };
 
@@ -123,8 +145,6 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
   const handleRoomModalClose = () => {
     setShowRoomModal(false);
   };
-
-  const currentResort = resorts.find((resort) => resort.id === activeResort);
 
   // Show loading state
   if (loading) {
@@ -188,7 +208,7 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                {currentResort?.name || "Resort"} Rooms
+                {resorts.find(r => r.id === activeResort)?.name || "Resort"} Rooms
               </h2>
               <div className="flex items-center space-x-5">
                 <SearchBar onSearch={handleSearch} />
@@ -206,10 +226,10 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
 
             {/* Room Grid */}
             <ButtonGrid
-              resortId={activeResort}
+              resortId={activeResort || 0}
               searchTerm={searchTerm}
               mode={mode}
-              key={`${activeResort}-${refreshTrigger}`} // This ensures ButtonGrid refreshes
+              key={`${activeResort}-${refreshTrigger}`}
             />
           </div>
         </div>
@@ -221,7 +241,7 @@ const RoomGrid = ({ addButton, mode }: RoomGridProps) => {
           isOpen={showRoomModal}
           onClose={handleRoomModalClose}
           onSuccess={handleRoomCreated}
-          selectedResort={currentResort?.name}
+          selectedResort={resorts.find(r => r.id === activeResort)?.name}
         />
       )}
     </>

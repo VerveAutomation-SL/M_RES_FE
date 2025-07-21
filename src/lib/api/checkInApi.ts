@@ -40,6 +40,17 @@ export const getAllCheckIns = async (params?: {
     }
 };
 
+// Get check-ins for today
+export const getTodayCheckIns = async (resortId: number) => {
+    try {
+        const response = await api.get<ApiResponse<CheckIn[]>>(`/checkins/today?resortId=${resortId}`);
+        return response.data;
+    }catch (error) {
+        console.error('Error fetching today\'s check-ins:', error);
+        throw error;
+    }
+};
+
 // Get check-in details
 export const getCheckInDetails = async (resortId: number, roomId: number, mealType: string) => {
     try {
