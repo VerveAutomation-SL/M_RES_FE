@@ -25,7 +25,7 @@ export default function DailyCheckInsChart({data}: DailyCheckInsProps){
                 <BarChart data= {data} barCategoryGap="20%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis
-                        dataKey="day"
+                        dataKey="date"
                         stroke="#666"
                         fontSize={12}
                         tickLine={false}
@@ -46,13 +46,15 @@ export default function DailyCheckInsChart({data}: DailyCheckInsProps){
                     />
                     <Legend/>
                     <Bar 
-                        dataKey="Dhigurah" 
-                        fill="#8B5CF6" 
+                        dataKey="dhigurah" 
+                        fill="#8B5CF6"
+                        name="Dhigurah" 
                         radius={[4, 4, 0, 0]} 
                     />
                     <Bar 
-                        dataKey="Falhumaafushi" 
-                        fill="#10B981" 
+                        dataKey="falhumaafushi" 
+                        fill="#10B981"
+                        name="Falhumaafushi"
                         radius={[4, 4, 0, 0]} 
                     />
                 </BarChart>

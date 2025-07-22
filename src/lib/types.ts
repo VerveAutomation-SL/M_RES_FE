@@ -74,6 +74,30 @@ export interface RoomFormData {
   name?: string; 
 }
 
+export interface CheckInAnalyticsData{
+  resort_id: number;
+  total_checkins: number;
+  checkin_date: string;
+}
+
+export interface MealDistributionData {
+  meal_type: string;
+  meals_count: string;
+  meals_percentage: string;
+}
+
+export interface HourlyTrendsData{
+  hour:number;
+  time:string;
+  checkIns:number;  
+}
+
+export interface AnalyticsResponse {
+  checkInsLastWeek: CheckInAnalyticsData[];
+  mealDistribution: MealDistributionData[];
+  hourlyTrends: HourlyTrendsData[];
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);
