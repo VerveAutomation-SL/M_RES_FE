@@ -87,7 +87,7 @@ export default function CheckInPage() {
   const formatMealTime = (mealType: string) => {
     const mealTimes = {
       breakfast: "06:00 - 10:30",
-      lunch: "12:00 - 15:30", 
+      lunch: "12:00 - 16:00", 
       dinner: "19:00 - 22:30"
     };
     return mealTimes[mealType as keyof typeof mealTimes] || "";
