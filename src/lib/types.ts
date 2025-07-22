@@ -2,8 +2,8 @@ export interface Resort {
   id: number;
   name: string;
   location: string;
-  restaurants: Restaurant[];
-  rooms: Room[];
+  restaurants?: Restaurant[];
+  rooms?: Room[];
   createdAt: string;
   updatedAt: string;
 }
@@ -22,7 +22,15 @@ export interface Restaurant {
   id: number;
   restaurantName: string;
   resort_id: number;
-  diningTables: number; 
+  diningTables: DiningTable[]; 
+}
+
+export interface DiningTable {
+  id: number;
+  tableNumber: string;
+  restaurant_id: number;
+  status: 'available' | 'occupied';
+  Restaurant?: Restaurant;
 }
 
 export interface CheckIn {
@@ -45,4 +53,12 @@ export interface ApiResponse<T> {
   count?: number;
   message?: string;
   error?: string;
+}
+
+export class AppError extends Error {
+  constructor(public message: string, public statusCode: number) {
+  super(message);
+    this.name = 'AppError';
+    this.statusCode = statusCode;
+  }
 }

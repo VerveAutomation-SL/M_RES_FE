@@ -2,27 +2,25 @@
 import Header from "@/components/layout/header";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
-import { getAllResorts } from "@/lib/api/restaurants";
+import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
 import { Resort, Restaurant } from "@/lib/types";
 import { ChevronRight, MapPin } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { resorts } from "@/lib/data";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [activeResort, setActiveResort] = useState<Resort>(resorts[0] || null);
-  //const [resorts, setResorts] = useState<Resort[]>([]);
+  const [resorts, setResorts] = useState<Resort[]>([]);
+  const [activeResort, setActiveResort] = useState<Resort>(resorts[0]);
   const [loadingResorts, setLoadingResorts] = useState(false);
-  const [loadingRestaurants, setLoadingRestaurants] = useState(false);
 
   useEffect(() => {
     const fetchResorts = async () => {
       setLoadingResorts(true);
       try {
-        const response = await getAllResorts();
+        const response = await getAllResortsWithRestaurants();
         console.log("Fetched resorts:", response.data);
-        // setResorts(response.data);
+        setResorts(response.data);
+        setActiveResort(response.data[0]);
       } catch (error) {
         console.error("Error fetching resorts:", error);
       } finally {
@@ -69,17 +67,8 @@ const Page = () => {
   };
 
   const handleResortSelect = async (resort: React.SetStateAction<Resort>) => {
+    console.log("Selected resort:", resort);
     setActiveResort(resort);
-    setLoadingRestaurants(true);
-    try {
-      const response = await getAllResorts();
-      console.log("Fetched restaurants for resort:", response.data);
-      // setRestaurants(data);
-    } catch (error) {
-      console.error("Error fetching restaurants:", error);
-    } finally {
-      setLoadingRestaurants(false);
-    }
   };
 
   function handleRestaurantClick(restaurant: Restaurant): void {
@@ -122,7 +111,7 @@ const Page = () => {
           >
             {resorts.map((resort) => (
               <Card
-                key={resort.name}
+                key={resort.id}
                 classname={getCardClasses()}
                 onClick={() => handleResortSelect(resort)}
               >
@@ -130,7 +119,7 @@ const Page = () => {
                   <div className="flex items-center gap-2 mb-5">
                     <MapPin className="w-4 md:w-5 h-4 md:h-5 text-gray-600 flex-shrink-0" />
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-sm md:text-base leading-tight">
+                      <h3 className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight">
                         {resort.name}
                       </h3>
                     </div>
@@ -138,22 +127,10 @@ const Page = () => {
                   <div className="grid grid-cols-2 gap-2 md:gap-4 text-center">
                     <div>
                       <div className="text-xl md:text-2xl font-bold text-gray-900">
-                        {resort.restaurants.length}
+                        {0 || resort.restaurants?.length}
                       </div>
                       <div className="text-xs md:text-sm text-gray-600">
                         Total Restaurants
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xl md:text-2xl font-bold text-green-500">
-                        {
-                          resort.restaurants.filter(
-                            (restaurant) => restaurant.diningTables > 0
-                          ).length
-                        }
-                      </div>
-                      <div className="text-xs md:text-sm text-gray-600">
-                        Active
                       </div>
                     </div>
                   </div>
@@ -165,24 +142,23 @@ const Page = () => {
       </div>
 
       {/* Restaurants List */}
-      {loadingRestaurants ? (
-        <div className="flex justify-center items-center h-60">
-          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-[var(--primary)]"></div>
-          <span className="ml-2 text-gray-700">Loading...</span>
-        </div>
-      ) : (
-        <div>
-          {activeResort && (
-            <Card classname="bg-white shadow-sm border border-gray-200 rounded-lg">
-              <div className="md:p-2">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-                  <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
-                    <span>{activeResort.name}</span>
-                  </h2>
-                </div>
+      <div>
+        {activeResort && (
+          <Card classname="bg-white shadow-sm border border-gray-200 rounded-lg">
+            <div className="md:p-2">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+                <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
+                  <span>{activeResort.name}</span>
+                </h2>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                  {activeResort.restaurants.map((restaurant) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+                {activeResort.restaurants?.length === 0 ? (
+                  <div className="text-gray-500 text-center col-span-full">
+                    No restaurants available for this resort.
+                  </div>
+                ) : (
+                  activeResort.restaurants?.map((restaurant) => (
                     <Card
                       key={restaurant.id}
                       classname="bg-gray-50 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
@@ -214,13 +190,13 @@ const Page = () => {
                         </div>
                       </div>
                     </Card>
-                  ))}
-                </div>
+                  ))
+                )}
               </div>
-            </Card>
-          )}
-        </div>
-      )}
+            </div>
+          </Card>
+        )}
+      </div>
     </>
   );
 };
