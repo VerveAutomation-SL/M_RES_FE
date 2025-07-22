@@ -23,6 +23,7 @@ export interface Restaurant {
   restaurantName: string;
   resort_id: number;
   diningTables: DiningTable[]; 
+  status: 'Open' | 'Closed';
 }
 
 export interface DiningTable {

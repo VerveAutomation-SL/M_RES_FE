@@ -2,9 +2,20 @@
 import Header from "@/components/layout/header";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
 import { Resort, Restaurant } from "@/lib/types";
-import { ChevronRight, MapPin } from "lucide-react";
+import {
+  Badge,
+  ChevronRight,
+  Clock,
+  Edit,
+  Filter,
+  MapPin,
+  MoreHorizontal,
+  Search,
+  Trash2,
+} from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 const Page = () => {
@@ -12,6 +23,10 @@ const Page = () => {
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [activeResort, setActiveResort] = useState<Resort>(resorts[0]);
   const [loadingResorts, setLoadingResorts] = useState(false);
+  const [viewMode, setViewMode] = useState("grid");
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedResort, setSelectedResort] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchResorts = async () => {
@@ -76,6 +91,19 @@ const Page = () => {
     // You can add further logic here, such as navigating to a detailed view
     // or opening a modal with restaurant details.
   }
+
+  const allRestaurants = resorts.flatMap((resort) => resort.restaurants || []);
+
+  const filteredRestaurants = allRestaurants.filter((restaurant) => {
+    const matchesSearch = restaurant.restaurantName
+      .toLowerCase()
+      .startsWith(searchValue.toLowerCase());
+
+    const matchesResort =
+      selectedResort === "all" || restaurant.restaurantName === selectedResort;
+
+    return matchesSearch && matchesResort;
+  });
 
   return (
     <>
@@ -142,7 +170,7 @@ const Page = () => {
       </div>
 
       {/* Restaurants List */}
-      <div>
+      {/* <div>
         {activeResort && (
           <Card classname="bg-white shadow-sm border border-gray-200 rounded-lg">
             <div className="md:p-2">
@@ -196,7 +224,293 @@ const Page = () => {
             </div>
           </Card>
         )}
-      </div>
+      </div> */}
+
+      <Card classname="bg-white shadow-sm border border-gray-200 rounded-lg">
+        <div>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+            <h1 className="text-2xl font-semibold">Restaurant Directory</h1>
+            <div className="flex items-center gap-4">
+              <Button
+                variant={
+                  viewMode === "grid"
+                    ? "outline bg-black text-white"
+                    : "default"
+                }
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className="py-1 px-3 rounded-md"
+              >
+                Grid
+              </Button>
+              <Button
+                variant={
+                  viewMode === "list"
+                    ? "outline bg-black text-white"
+                    : "default"
+                }
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className="py-1 px-3 rounded-md flex items-center gap-1"
+              >
+                List
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="flex flex-col lg:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search restaurants by name"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <select
+                  value={selectedResort}
+                  onChange={(e) => setSelectedResort(e.target.value)}
+                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 appearance-none bg-white"
+                >
+                  <option value="all">All Locations</option>
+                  {resorts.map((resort) => (
+                    <option key={resort.id} value={resort.name}>
+                      {resort.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+              >
+                <option value="all">All Status</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Restaurant Cards - Grid View */}
+          {viewMode === "grid" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRestaurants.map((restaurant) => (
+                <Card
+                  key={restaurant.id}
+                  classname="cursor-pointer hover:shadow-lg transition-all bg-gray-100"
+                  onClick={() => handleRestaurantClick(restaurant)}
+                >
+                  <div className="flex items-center justify-between w-full max-w-md p-4 rounded-lg shadow-sm bg-white">
+                    {/* Left side: Title and Location */}
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {restaurant.restaurantName}
+                      </h2>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="w-3 h-3 mr-1" />
+                        Dhigurah Island
+                      </div>
+                    </div>
+
+                    {/* Right side: Status badge */}
+                    <div
+                      className={`text-sm px-3 py-1 font-medium rounded-full ${
+                        restaurant.status === "Open" || true
+                          ? "bg-green-100 text-green-800 hover:bg-green-100"
+                          : "bg-red-100 text-red-800 hover:bg-red-100"
+                      }`}
+                    >
+                      {restaurant.status || "Open"}
+                    </div>
+                  </div>
+                  {/* <div className="pt-0">
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Type:</span>
+                          <div className="font-medium text-gray-900">
+                            {restaurant.id}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Capacity:</span>
+                          <div className="font-medium text-gray-900">
+                            {restaurant.id} guests
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Cuisine:</span>
+                        <div className="font-medium text-gray-900">
+                          {restaurant.id}
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Hours:</span>
+                        <div className="font-medium text-gray-900">
+                          {restaurant.id}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">
+                            Last updated: Today
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                          >
+                            <MoreHorizontal className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div> */}
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Restaurant Cards - List View */}
+          {viewMode === "list" && (
+            <div className="space-y-6">
+              {filteredRestaurants.map((restaurant) => (
+                <Card
+                  key={restaurant.id}
+                  classname="cursor-pointer hover:shadow-lg transition-al bg-gray-50"
+                  onClick={() => handleRestaurantClick(restaurant)}
+                >
+                  <div className="py-1 px-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center flex-1">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-8 mb-1">
+                            <h3 className="font-semibold text-xl text-gray-900">
+                              {restaurant.restaurantName}
+                            </h3>
+                            <div
+                              className={`text-sm px-3 py-1 font-medium rounded-full ${
+                                restaurant.status === "Open" || true
+                                  ? "bg-green-100 text-green-800 hover:bg-green-100"
+                                  : "bg-red-100 text-red-800 hover:bg-red-100"
+                              }`}
+                            >
+                              {restaurant.status || "Open"}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 text-gray-500 mb-2">
+                            <MapPin className="w-3 h-3" />
+                            <span className="text-sm">
+                              {restaurant.resort_id}
+                            </span>
+                          </div>
+                        </div>
+                        {/* <div className="hidden md:flex items-center gap-6 text-sm mr-10 text-gray-600">
+                          <div>
+                            <span className="text-gray-500">Type:</span>
+                            <span className="ml-1 font-medium">
+                              {restaurant.id}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Cuisine:</span>
+                            <span className="ml-1 font-medium">
+                              {restaurant.id}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Capacity:</span>
+                            <span className="ml-1 font-medium">
+                              {restaurant.id} guests
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Hours:</span>
+                            <span className="ml-1 font-medium">
+                              {restaurant.id}
+                            </span>
+                          </div>
+                        </div> */}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* No results message */}
+          {filteredRestaurants.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-6 h-6 text-gray-400" />
+              </div>
+              <p className="text-lg">No restaurants found</p>
+              <p className="text-sm mt-1">
+                Try adjusting your search or filters
+              </p>
+            </div>
+          )}
+
+          {/* Results count */}
+          <div className="mt-6 flex items-center justify-between text-sm text-gray-500 border-t border-gray-200 pt-4">
+            <span>
+              Showing {filteredRestaurants.length} of {allRestaurants.length}{" "}
+              restaurants
+            </span>
+          </div>
+        </div>
+      </Card>
     </>
   );
 };

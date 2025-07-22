@@ -24,8 +24,7 @@ const Button = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={className}
-      data-variant={variant}
+      className={`${className} ${variant}`}
       data-size={size}
     >
       {children}
