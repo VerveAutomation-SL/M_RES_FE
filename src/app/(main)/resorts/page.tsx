@@ -14,27 +14,25 @@ const Page = () => {
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);  
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const fetchResorts = async () => {
       setLoading(true);
-          try {
-            const response = await resortApi.getAllResorts();
-            console.log("Fetched resorts:", response);
-            if (response.success && response.data.length > 0) {
-              setResorts(response.data);
-            }
-          } catch (error) {
-            console.error("Failed to fetch resorts:", error);
-          } finally {
-            setLoading(false);
-          }
-        };
+      try {
+        const response = await resortApi.getAllResorts();
+        console.log("Fetched resorts:", response.data);
+        if (response.success) {
+          setResorts(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch resorts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchResorts();
   }, [refreshTrigger]);
-
-
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -124,7 +122,8 @@ const Page = () => {
               Add Your First Resort
             </button>
           </div>
-        ) : (<div
+        ) : (
+          <div
             ref={needsScrolling ? scrollRef : null}
             className={getGridClasses()}
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -151,7 +150,11 @@ const Page = () => {
                     </div>
                     <div>
                       <div className="text-xl md:text-2xl font-bold text-red-500">
-                        {resort.Rooms.filter((room) => room.status === "available").length}
+                        {
+                          resort.Rooms.filter(
+                            (room) => room.status === "available"
+                          ).length
+                        }
                       </div>
                       <div className="text-xs md:text-sm text-gray-600">
                         Booked
@@ -172,15 +175,20 @@ const Page = () => {
           </div>
         )}
       </div>
-      <RoomGrid mode="view-details" addButton="Add Room" onClick={() => {}} key={refreshTrigger}/>
+      <RoomGrid
+        mode="view-details"
+        addButton="Add Room"
+        onClick={() => {}}
+        key={refreshTrigger}
+      />
 
-        {showModal && (
-          <ResortForm 
-            isOpen={showModal} 
-            onClose={handleCloseModal}
-            onSuccess={handleResortCreated} 
-          />
-        )}
+      {showModal && (
+        <ResortForm
+          isOpen={showModal}
+          onClose={handleCloseModal}
+          onSuccess={handleResortCreated}
+        />
+      )}
     </>
   );
 };
