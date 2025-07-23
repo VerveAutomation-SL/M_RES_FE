@@ -24,6 +24,8 @@ export interface Restaurant {
   resort_id: number;
   diningTables: DiningTable[]; 
   status: 'Open' | 'Closed';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface DiningTable {
