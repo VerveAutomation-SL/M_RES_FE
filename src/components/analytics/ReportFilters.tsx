@@ -1,9 +1,11 @@
 "use client";
 
 import { Filter, Calendar, MapPin, Utensils, Eye, RefreshCw } from "lucide-react";
-import { useState} from "react";
-import { ReportFilterData, checkInRecord } from "@/lib/types";
+import { useEffect, useState} from "react";
+import { ReportFilterData, Resort, checkInRecord } from "@/lib/types";
 import { getPreviewData } from "@/lib/api/analyticsApi";
+import { resortApi } from "@/lib/api";
+import { mealPlans, mealTypes } from "@/lib/data";
 
 interface ReportFiltersProps {
   onFiltersChange: (filters: ReportFilterData) => void;
@@ -33,51 +35,40 @@ export default function ReportFilters({
   const [previewLoading, setPreviewLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [resorts, setResorts] = useState<Resort[]>([]);
+  const [resortsLoading, setResortsLoading] = useState(true);
+
   const filterOptions = {
-    resorts: [
-      { id: 1, name: 'Dhigurah Resort' },
-      { id: 2, name: 'Falhumaafushi Resort' }
-    ],
+    resorts: resorts,
     outlets: ['Libai', 'Beach Resort', 'Pool Bar', 'Sunset Lounge'],
-    mealTypes: ['breakfast', 'lunch', 'dinner'],
-    mealPlans: ['all-inclusive', 'full-board', 'half-board'],
+    mealTypes: mealTypes.map(type => type.value),
+    mealPlans: mealPlans.map(plan => plan.value),
     statuses: ['checked-in', 'checked-out']
   };
 
-  // Filter the data based on the selected filters
-//   const filterData = (data: checkInRecord[]): checkInRecord[] => {
-//     return data.filter(item => {
-//       // Resort filtering - handle both empty and valid values
-//       const matchesResort = !filters.resort_id || 
-//         filters.resort_id === '' ||
-//         filterOptions.resorts.find(r => r.id.toString() === filters.resort_id?.toString())?.name === item.resort_name;
-      
-//       const matchesOutlet = !filters.outlet_name || 
-//         filters.outlet_name === '' || 
-//         item.outlet_name === filters.outlet_name;
-      
-//       const matchesMealType = !filters.meal_type || 
-//         filters.meal_type === '' || 
-//         item.meal_type === filters.meal_type;
-      
-//       const matchesMealPlan = !filters.meal_plan || 
-//         filters.meal_plan === '' || 
-//         item.meal_plan === filters.meal_plan;
-      
-//       const matchesStatus = !filters.status || 
-//         filters.status === '' || 
-//         item.status === filters.status;
+  // Fetch resorts on component mount
+  useEffect(() => {
+    const fetchResorts = async () => {
+      try {
+        setResortsLoading(true);
+        console.log("Fetching resorts...");
 
-//       const matchesTableNumber = !filters.table_number || 
-//         filters.table_number === '' || 
-//         item.table_number.includes(filters.table_number);
+        const response = await resortApi.getAllResorts();
+        const resortsData = response.data ?? [];
 
-//       const matchesCheckinDate = (!filters.checkinStartDate || item.check_in_date >= filters.checkinStartDate) &&
-//         (!filters.checkinEndDate || item.check_in_date <= filters.checkinEndDate);
-      
-//       return matchesResort && matchesOutlet && matchesMealType && matchesMealPlan && matchesStatus && matchesTableNumber && matchesCheckinDate;
-//     });
-//   };
+        setResorts(resortsData);
+        console.log("Resorts fetched:", resortsData);
+      } catch (error) {
+        console.error("Error fetching resorts:", error);
+      } finally {
+        setResortsLoading(false);
+      }
+    };
+
+    fetchResorts();
+  }, []);
+
+
 
   const handleFilterChange = (key: keyof ReportFilterData, value: string | number | null) => {
     const newFilters = {
@@ -135,6 +126,12 @@ export default function ReportFilters({
       <div className="flex items-center gap-2 mb-6">
         <Filter className="w-5 h-5 text-blue-600" />
         <h2 className="text-xl font-semibold text-gray-900">Advanced Filters</h2>
+        {resortsLoading && (
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            Loading...
+          </div>
+        )}
       </div>
 
       {error && (
@@ -241,8 +238,10 @@ export default function ReportFilters({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Meal Types</option>
-              {filterOptions.mealTypes.map(type => (
-                <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+              {mealTypes.map(type => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </select>
             <select
@@ -251,8 +250,10 @@ export default function ReportFilters({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Meal Plans</option>
-              {filterOptions.mealPlans.map(plan => (
-                <option key={plan} value={plan}>{plan.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</option>
+              {mealPlans.map(plan => (
+                <option key={plan.value} value={plan.value}>
+                  {plan.label}
+                </option>
               ))}
             </select>
             <select
