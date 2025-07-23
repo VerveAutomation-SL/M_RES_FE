@@ -98,6 +98,35 @@ export interface AnalyticsResponse {
   hourlyTrends: HourlyTrendsData[];
 }
 
+export interface ReportFilterData{
+  checkinStartDate?: string;
+  checkinEndDate?: string;
+  checkoutStartDate?: string;
+  checkoutEndDate?: string;
+  resort_id?:  | null;
+  outlet_name?: string | null;
+  room_id?: number | null;
+  table_number?: string | null;
+  meal_type?: string | null;
+  meal_plan?: string | null;
+  status?: string | null;
+};
+
+export interface checkInRecord{
+ id: number;
+  room_number: string;
+  resort_name: string;
+  outlet_name: string;
+  table_number: string;
+  meal_type: string;
+  meal_plan: string;
+  check_in_date: string;
+  check_in_time: string;
+  check_out_time?: string;
+  status: string;
+  checkout_remarks?: string;
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);
