@@ -5,9 +5,10 @@ import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
-import { Resort, Restaurant } from "@/lib/types";
+import { Resort } from "@/lib/types";
 import { ChevronRight, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import EditRestaurantModal from "@/components/layout/EditResturant";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -17,10 +18,9 @@ const Page = () => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedResort, setSelectedResort] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [showModal, setShowModal] = useState(false);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(
-    null as Restaurant | null
-  );
+  const [showaddModal, setShowaddModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<number>();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const Page = () => {
       }
     };
     fetchResorts();
-  }, []);
+  }, [refreshTrigger]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -56,7 +56,6 @@ const Page = () => {
     if (needsScrolling) {
       return "flex gap-4 overflow-x-auto custom-scrollbar pb-2";
     }
-
     // Static grid for 2-3 resorts
     if (resorts.length === 2) {
       return "grid grid-cols-1 md:grid-cols-2 gap-4";
@@ -74,12 +73,6 @@ const Page = () => {
     }
     return "bg-white shadow-sm w-full transition-transform duration-200 cursor-pointer";
   };
-
-  function handleRestaurantClick(rest: Restaurant): void {
-    console.log("Selected restaurant:", rest);
-    setSelectedRestaurant(rest);
-    setShowModal(true);
-  }
 
   const allRestaurants = resorts.flatMap((resort) => resort.restaurants || []);
 
@@ -102,13 +95,27 @@ const Page = () => {
     return matchesSearch && matchesResort && matchesStatus;
   });
 
-  const handleResturantCreated = () => {
-    console.log("Resturant created, refreshing...");
+  const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+  const handleRestaurantClick = (restaurantId: number) => {
+    console.log("Selected restaurant:", restaurantId);
+    setSelectedRestaurant(restaurantId);
+    setShowViewModal(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setShowaddModal(false);
+  };
+
+  const handelAddRestaurant = () => {
+    setShowaddModal(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    handelRefresh();
   };
 
   return (
@@ -117,7 +124,7 @@ const Page = () => {
         title="Restaurants Management"
         subtitle="Manage your restaurant listings and details."
         addButton="Add Restaurant"
-        onClick={() => console.log("Add Restaurant clicked")}
+        onClick={() => handelAddRestaurant()}
       />
 
       <div className="relative mb-4 md:mb-8">
@@ -262,7 +269,7 @@ const Page = () => {
                       <Card
                         key={restaurant.id}
                         classname="cursor-pointer hover:shadow-lg transition-all bg-white"
-                        onClick={() => handleRestaurantClick(restaurant)}
+                        onClick={() => handleRestaurantClick(restaurant.id)}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1">
@@ -363,7 +370,7 @@ const Page = () => {
                       <Card
                         key={restaurant.id}
                         classname="cursor-pointer hover:shadow-lg transition-all bg-white"
-                        onClick={() => handleRestaurantClick(restaurant)}
+                        onClick={() => handleRestaurantClick(restaurant.id)}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1">
@@ -483,11 +490,19 @@ const Page = () => {
         )}
       </div>
 
-      {showModal && (
+      {showaddModal && (
         <ResturantForm
-          isOpen={showModal}
-          onClose={handleCloseModal}
-          onSuccess={handleResturantCreated}
+          isOpen={showaddModal}
+          onClose={handleCloseAddModal}
+          onSuccess={handelRefresh}
+        />
+      )}
+      {showViewModal && selectedRestaurant && (
+        <EditRestaurantModal
+          restaurantId={selectedRestaurant}
+          onClose={handleCloseViewModal}
+          onUpdate={handelRefresh}
+          isOpen={showViewModal}
         />
       )}
 

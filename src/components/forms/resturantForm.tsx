@@ -1,62 +1,75 @@
 "use client";
-
-import { resortApi } from "@/lib/api";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createRestaurant, getAllResorts } from "@/lib/api/restaurants";
+import { Resort } from "@/lib/types";
 
 interface ResturantFormProps {
   isOpen?: boolean;
   onClose?: () => void;
   onSuccess?: () => void;
-  name?: string;
-  resort?: string;
 }
 
 export default function ResturantForm({
   isOpen = false,
   onClose,
   onSuccess,
-  name,
-  resort,
 }: ResturantFormProps) {
   const [formData, setFormData] = useState({
-    name: name || "",
-    resort: resort || "",
+    restaurantName: "",
+    resort_id: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // Add error state
+  const [resorts, setResorts] = useState<Resort[]>([]);
+
+  useEffect(() => {
+    const fetchResorts = async () => {
+      try {
+        const response = await getAllResorts();
+        console.log("📊 Resorts fetched:", response.data);
+        setResorts(response.data);
+      } catch (error) {
+        console.error("Error fetching resorts:", error);
+        setError("Failed to load resorts. Please refresh and try again.");
+      }
+    };
+    fetchResorts();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("🚀 Submitting restaurant form...");
     e.preventDefault();
     setLoading(true);
     setError(""); // Clear previous errors
 
+    console.log("🚀 Submitting restaurant form with data:", formData);
+
     try {
       // Validate required fields
-      if (!formData.name.trim() || !formData.resort.trim()) {
+      if (!formData.restaurantName.trim() || !formData.resort_id) {
         setError("Please fill in all required fields.");
         setLoading(false);
         return;
       }
 
-      console.log("🏨 Creating resort:", formData);
+      console.log("🏨 form data:", formData);
 
-      // Create resort payload (remove Rooms array as we fixed in backend)
-      const resortPayload = {
-        name: formData.name.trim(),
-        resort: formData.resort.trim(),
+      const Payload = {
+        restaurantName: formData.restaurantName.trim(),
+        resort_id: formData.resort_id,
+        status: "Open" as "Open" | "Close", // Default status
       };
 
-      const response = await resortApi.createResort(resortPayload);
+      const response = await createRestaurant(Payload);
 
       console.log("📊 Resort creation response:", response);
 
       if (response && response.success) {
         // Success - clear form and close modal
-        setFormData({ name: "", resort: "" });
+        setFormData({ restaurantName: "", resort_id: "" });
         setError("");
 
-        // Show success message
         alert("Resort created successfully!");
 
         // Call callbacks
@@ -93,19 +106,19 @@ export default function ResturantForm({
 
   const handleCancel = () => {
     // Reset form and error when canceling
-    setFormData({ name: "", resort: "" });
+    setFormData({ restaurantName: "", resort_id: "" });
     setError("");
     onClose?.();
   };
 
   // Clear error when user starts typing
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, name: e.target.value });
+    setFormData({ ...formData, restaurantName: e.target.value });
     if (error) setError(""); // Clear error when user types
   };
 
-  const handleresortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, resort: e.target.value });
+  const handleresortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({ ...formData, resort_id: e.target.value });
     if (error) setError(""); // Clear error when user types
   };
 
@@ -117,7 +130,7 @@ export default function ResturantForm({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <h3 className="text-lg font-semibold">Add New Resort</h3>
+            <h3 className="text-lg font-semibold">Add New Resturant</h3>
           </div>
           <button
             onClick={handleCancel}
@@ -156,12 +169,12 @@ export default function ResturantForm({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Resort Name*
+              Resturant Name*
             </label>
             <input
               type="text"
               required
-              value={formData.name}
+              value={formData.restaurantName}
               onChange={handleNameChange}
               className={`w-full px-3 py-2 border rounded-md focus:ring-amber-500 focus:border-transparent ${
                 error && error.toLowerCase().includes("name")
@@ -175,20 +188,34 @@ export default function ResturantForm({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              resort*
+              Resort Name*
             </label>
-            <input
-              type="text"
-              required
-              value={formData.resort}
+            <select
+              value={formData.resort_id}
               onChange={handleresortChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-transparent"
-              placeholder="e.g., Maldives, Indian Ocean"
+              className={`w-full px-3 py-3 border rounded-md focus:ring-amber-500 focus:border-transparent text-gray-700 ${
+                error && error.toLowerCase().includes("name")
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-300"
+              }`}
               disabled={loading}
-            />
+            >
+              <option value="" disabled>
+                Please select a resort
+              </option>
+              {resorts.map((resort) => (
+                <option
+                  key={resort.id}
+                  value={resort.id}
+                  className="text-gray-700 text-base border-none"
+                >
+                  {resort.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-3 pt-12">
             <button
               type="button"
               onClick={handleCancel}
@@ -200,7 +227,9 @@ export default function ResturantForm({
             <button
               type="submit"
               disabled={
-                loading || !formData.name.trim() || !formData.resort.trim()
+                loading ||
+                !formData.restaurantName.trim() ||
+                !formData.resort_id
               }
               className="flex-1 px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 disabled:opacity-50 cursor-pointer"
             >
