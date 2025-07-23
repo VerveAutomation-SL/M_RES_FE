@@ -20,7 +20,7 @@ const Page = () => {
     const fetchResorts = async () => {
       setLoading(true);
       try {
-        const response = await resortApi.getAllResorts();
+        const response = await resortApi.getAllResortsWithRooms();
         console.log("Fetched resorts:", response.data);
         if (response.success) {
           setResorts(response.data);
