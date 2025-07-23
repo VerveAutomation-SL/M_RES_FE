@@ -6,56 +6,57 @@ import DailyCheckInsChart from "@/components/charts/CheckInsChart";
 import HourlyTrendsChart from "@/components/charts/HourlyTrendsChart";
 import MealDistributionChart from "@/components/charts/MealDistrubtionChart";
 import Header from "@/components/layout/header";
-import { getAnalyticsData } from "@/lib/api/analyticsApi";
+import { exportExcelReport, exportPdfReport, getAnalyticsData } from "@/lib/api/analyticsApi";
 import { AnalyticsResponse, checkInRecord, ReportFilterData } from "@/lib/types";
 import { ChevronDown, Download, Eye, FileText, Sheet, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
+
 // Mock data structure based on your backend
-const mockCheckInData: checkInRecord[] = [
-  {
-    id: 1,
-    room_number: "101",
-    resort_name: "Dhigurah Resort",
-    outlet_name: "Main Restaurant",
-    table_number: "T15",
-    meal_type: "breakfast",
-    meal_plan: "all-inclusive",
-    check_in_date: "2025-07-20",
-    check_in_time: "08:30:00",
-    check_out_time: "09:15:00",
-    status: "checked-out",
-    checkout_remarks: "Great service"
-  },
-  {
-    id: 2,
-    room_number: "205",
-    resort_name: "Falhumaafushi Resort",
-    outlet_name: "Beachside Cafe",
-    table_number: "T08",
-    meal_type: "lunch",
-    meal_plan: "full-board",
-    check_in_date: "2025-07-20",
-    check_in_time: "12:45:00",
-    check_out_time: undefined,
-    status: "checked-in",
-    checkout_remarks: undefined
-  },
-  {
-    id: 3,
-    room_number: "308",
-    resort_name: "Dhigurah Resort",
-    outlet_name: "Pool Bar",
-    table_number: "T22",
-    meal_type: "dinner",
-    meal_plan: "half-board",
-    check_in_date: "2025-07-19",
-    check_in_time: "19:20:00",
-    check_out_time: "20:45:00",
-    status: "checked-out",
-    checkout_remarks: "Excellent food"
-  }
-];
+// const mockCheckInData: checkInRecord[] = [
+//   {
+//     id: 1,
+//     room_number: "101",
+//     resort_name: "Dhigurah Resort",
+//     outlet_name: "Main Restaurant",
+//     table_number: "T15",
+//     meal_type: "breakfast",
+//     meal_plan: "all-inclusive",
+//     check_in_date: "2025-07-20",
+//     check_in_time: "08:30:00",
+//     check_out_time: "09:15:00",
+//     status: "checked-out",
+//     checkout_remarks: "Great service"
+//   },
+//   {
+//     id: 2,
+//     room_number: "205",
+//     resort_name: "Falhumaafushi Resort",
+//     outlet_name: "Beachside Cafe",
+//     table_number: "T08",
+//     meal_type: "lunch",
+//     meal_plan: "full-board",
+//     check_in_date: "2025-07-20",
+//     check_in_time: "12:45:00",
+//     check_out_time: undefined,
+//     status: "checked-in",
+//     checkout_remarks: undefined
+//   },
+//   {
+//     id: 3,
+//     room_number: "308",
+//     resort_name: "Dhigurah Resort",
+//     outlet_name: "Pool Bar",
+//     table_number: "T22",
+//     meal_type: "dinner",
+//     meal_plan: "half-board",
+//     check_in_date: "2025-07-19",
+//     check_in_time: "19:20:00",
+//     check_out_time: "20:45:00",
+//     status: "checked-out",
+//     checkout_remarks: "Excellent food"
+//   }
+// ];
 
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "trends">("overview");
@@ -80,6 +81,7 @@ export default function AnalyticsPage() {
   const [filterLoading, setFilterLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
+  const [exportLoading, setExportLoading] = useState<'pdf' | 'excel' | null>(null);
 
   // Resort mapping 
   const resortNames: { [key: number]: string } = {
@@ -120,19 +122,58 @@ export default function AnalyticsPage() {
     });
   };
 
-  // Export functions
-  const handleExportPDF = () => {
-    console.log('📄 Exporting PDF with filters:', filters);
-    console.log('📄 Preview data:', previewData);
-    // TODO: Implement PDF export
-    alert('PDF export will be implemented');
+  // download helper function
+  const downloadFile = (blob: Blob, filename: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
-  const handleExportExcel = () => {
-    console.log('📊 Exporting Excel with filters:', filters);
-    console.log('📊 Preview data:', previewData);
-    // TODO: Implement Excel export
-    alert('Excel export will be implemented');
+  // Export functions
+  const handleExportPDF = async() => {
+    try{
+      setExportLoading('pdf');
+      console.log('📄 Exporting PDF with filters:', filters);
+
+      const pdfBlob = await exportPdfReport(filters);
+      const now = new Date();
+      const formatted = now.toISOString().replace(/[:.]/g, '-');
+      const filename = `checkins_report_${formatted}.pdf`;
+
+      downloadFile(pdfBlob, filename);
+      setExportDropdownOpen(false);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Failed to export PDF. Please try again later.');
+    }finally{
+      setExportLoading(null);
+    }
+    
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setExportLoading('excel');
+      console.log('📊 Exporting Excel with filters:', filters);
+      
+      const excelBlob = await exportExcelReport(filters);
+      const now = new Date();
+      const formatted = now.toISOString().replace(/[:.]/g, '-');
+      const filename = `checkin_report_${formatted}.xlsx`;
+      
+      downloadFile(excelBlob, filename);
+      setExportDropdownOpen(false);
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      alert('Failed to export Excel. Please try again.');
+    } finally {
+      setExportLoading(null);
+    }
   };
 
   // Fetch analytics data on component mount
@@ -259,8 +300,8 @@ export default function AnalyticsPage() {
                   <button
                     onClick={() => {
                       handleExportPDF();
-                      setExportDropdownOpen(false);
                     }}
+                    disabled={exportLoading !== null}
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <FileText className="w-5 h-5 text-red-500 flex-shrink-0" />
@@ -275,8 +316,8 @@ export default function AnalyticsPage() {
                   <button
                     onClick={() => {
                       handleExportExcel();
-                      setExportDropdownOpen(false);
                     }}
+                    disabled={exportLoading !== null}
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <Sheet className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -304,7 +345,6 @@ export default function AnalyticsPage() {
       <ReportFilters
         onFiltersChange={handleFiltersChange}
         onPreviewData={handlePreviewData}
-        mockData={mockCheckInData}
         loading={filterLoading}
       />
 

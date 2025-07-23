@@ -1,4 +1,4 @@
-import { AnalyticsResponse, ApiResponse } from "../types"
+import { AnalyticsResponse, ApiResponse, checkInRecord, ReportFilterData } from "../types"
 import { api } from "./config"
 
 export const getAnalyticsData = async () => {
@@ -11,12 +11,45 @@ export const getAnalyticsData = async () => {
     }
 }
 
-export const getPreviewData = async () => {
-    try {
-    const response = await api.post<{ success: boolean; data: CheckInRecord[] }>('/reports/preview', filters);
+// Get preview data with filters
+export const getPreviewData = async (filters: ReportFilterData): Promise<checkInRecord[]> => {
+  try {
+    const response = await api.post<{ success: boolean; data: checkInRecord[] }>('/reports/preview', filters);
     return response.data.data;
   } catch (error) {
     console.error("Error fetching preview data:", error);
+    throw error;
+  }
+};
+
+// Export Excel report
+export const exportExcelReport = async (filters: ReportFilterData): Promise<Blob> => {
+  try {
+    const response = await api.post('/reports/excel', filters,{
+        responseType:'blob',
+        headers:{
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting Excel report:", error);
+    throw error;
+  }
+};
+
+// Export PDF report
+export const exportPdfReport = async (filters: ReportFilterData): Promise<Blob> => {
+  try {
+    const response = await api.post('/reports/pdf', filters, {
+        responseType: 'blob',
+        headers: {
+            'Accept': 'application/pdf'
+        }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting PDF report:", error);
     throw error;
   }
 };

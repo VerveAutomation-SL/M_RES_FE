@@ -3,18 +3,17 @@
 import { Filter, Calendar, MapPin, Utensils, Eye, RefreshCw } from "lucide-react";
 import { useState} from "react";
 import { ReportFilterData, checkInRecord } from "@/lib/types";
+import { getPreviewData } from "@/lib/api/analyticsApi";
 
 interface ReportFiltersProps {
   onFiltersChange: (filters: ReportFilterData) => void;
   onPreviewData: (data: checkInRecord[]) => void;
-  mockData: checkInRecord[];
   loading?: boolean;
 }
 
 export default function ReportFilters({ 
   onFiltersChange, 
   onPreviewData, 
-  mockData, 
   loading 
 }: ReportFiltersProps) {
   const [filters, setFilters] = useState<ReportFilterData>({
@@ -31,51 +30,54 @@ export default function ReportFilters({
     status: ''
   });
 
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const filterOptions = {
     resorts: [
       { id: 1, name: 'Dhigurah Resort' },
       { id: 2, name: 'Falhumaafushi Resort' }
     ],
-    outlets: ['Main Restaurant', 'Beachside Cafe', 'Pool Bar', 'Sunset Lounge'],
+    outlets: ['Libai', 'Beach Resort', 'Pool Bar', 'Sunset Lounge'],
     mealTypes: ['breakfast', 'lunch', 'dinner'],
     mealPlans: ['all-inclusive', 'full-board', 'half-board'],
     statuses: ['checked-in', 'checked-out']
   };
 
   // Filter the data based on the selected filters
-  const filterData = (data: checkInRecord[]): checkInRecord[] => {
-    return data.filter(item => {
-      // Resort filtering - handle both empty and valid values
-      const matchesResort = !filters.resort_id || 
-        filters.resort_id === '' ||
-        filterOptions.resorts.find(r => r.id.toString() === filters.resort_id?.toString())?.name === item.resort_name;
+//   const filterData = (data: checkInRecord[]): checkInRecord[] => {
+//     return data.filter(item => {
+//       // Resort filtering - handle both empty and valid values
+//       const matchesResort = !filters.resort_id || 
+//         filters.resort_id === '' ||
+//         filterOptions.resorts.find(r => r.id.toString() === filters.resort_id?.toString())?.name === item.resort_name;
       
-      const matchesOutlet = !filters.outlet_name || 
-        filters.outlet_name === '' || 
-        item.outlet_name === filters.outlet_name;
+//       const matchesOutlet = !filters.outlet_name || 
+//         filters.outlet_name === '' || 
+//         item.outlet_name === filters.outlet_name;
       
-      const matchesMealType = !filters.meal_type || 
-        filters.meal_type === '' || 
-        item.meal_type === filters.meal_type;
+//       const matchesMealType = !filters.meal_type || 
+//         filters.meal_type === '' || 
+//         item.meal_type === filters.meal_type;
       
-      const matchesMealPlan = !filters.meal_plan || 
-        filters.meal_plan === '' || 
-        item.meal_plan === filters.meal_plan;
+//       const matchesMealPlan = !filters.meal_plan || 
+//         filters.meal_plan === '' || 
+//         item.meal_plan === filters.meal_plan;
       
-      const matchesStatus = !filters.status || 
-        filters.status === '' || 
-        item.status === filters.status;
+//       const matchesStatus = !filters.status || 
+//         filters.status === '' || 
+//         item.status === filters.status;
 
-      const matchesTableNumber = !filters.table_number || 
-        filters.table_number === '' || 
-        item.table_number.includes(filters.table_number);
+//       const matchesTableNumber = !filters.table_number || 
+//         filters.table_number === '' || 
+//         item.table_number.includes(filters.table_number);
 
-      const matchesCheckinDate = (!filters.checkinStartDate || item.check_in_date >= filters.checkinStartDate) &&
-        (!filters.checkinEndDate || item.check_in_date <= filters.checkinEndDate);
+//       const matchesCheckinDate = (!filters.checkinStartDate || item.check_in_date >= filters.checkinStartDate) &&
+//         (!filters.checkinEndDate || item.check_in_date <= filters.checkinEndDate);
       
-      return matchesResort && matchesOutlet && matchesMealType && matchesMealPlan && matchesStatus && matchesTableNumber && matchesCheckinDate;
-    });
-  };
+//       return matchesResort && matchesOutlet && matchesMealType && matchesMealPlan && matchesStatus && matchesTableNumber && matchesCheckinDate;
+//     });
+//   };
 
   const handleFilterChange = (key: keyof ReportFilterData, value: string | number | null) => {
     const newFilters = {
@@ -90,14 +92,20 @@ export default function ReportFilters({
 
   const handlePreview = async () => {
     try {
+        setPreviewLoading(true);
+        setError(null);
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    //   await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Filter the data and send to parent
-      const filteredData = filterData(mockData);
+      const filteredData = await getPreviewData(filters);
       onPreviewData(filteredData);
     } catch (error) {
       console.error("Error filtering data:", error);
+      setError("Failed to fetch preview data. Please try again.");
+      onPreviewData([]);
+    }finally{
+        setPreviewLoading(false);
     }
   };
 
@@ -119,6 +127,7 @@ export default function ReportFilters({
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
     onPreviewData([]);
+    setError(null);
   };
 
   return (
@@ -127,6 +136,12 @@ export default function ReportFilters({
         <Filter className="w-5 h-5 text-blue-600" />
         <h2 className="text-xl font-semibold text-gray-900">Advanced Filters</h2>
       </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-700 text-sm">{error}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
         {/* Date Range Filters */}
@@ -267,6 +282,7 @@ export default function ReportFilters({
 
         <button
           onClick={clearFilters}
+          disabled={previewLoading||loading}
           className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
         >
           Clear Filters
