@@ -15,17 +15,21 @@ interface TabsProps {
   onTabClick?: (tabName: string) => void;
 }
 
-export default function Tabs({ items, className, activeItem, onTabClick }: TabsProps) {
-
+export default function Tabs({
+  items,
+  className,
+  activeItem,
+  onTabClick,
+}: TabsProps) {
   return (
     <nav className={cn("flex border-b border-gray-200", className)}>
-      {items.map((item) => {
+      {items?.map((item) => {
         const isActive = activeItem === item.name;
 
         return (
           <button
             key={item.name}
-            onClick={()=> onTabClick?.(item.name)}
+            onClick={() => onTabClick?.(item.name)}
             className={cn(
               "px-4 py-2 text-sm font-medium whitespace-nowrap",
               isActive

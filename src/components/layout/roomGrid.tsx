@@ -1,168 +1,232 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
-import Tabs from "./tabs";
-import { roomNumbers, tabItems, rooms } from "@/lib/data";
 import { Plus } from "lucide-react";
-
-type ResortName = "dhigurah" | "falhumaafushi";
+import { resortApi } from "@/lib/api";
+import { Resort } from "@/lib/types";
+import RoomForm from "../forms/roomForm";
 
 interface ResortNavigationProps {
-  activeResort: ResortName;
-  onResortChange: (resort: ResortName) => void;
+  resorts: Resort[];
+  activeResort: number;
+  onResortChange: (resortId: number) => void;
 }
 
-// Simplified version of the Navigation component
 const ResortNavigation = ({
+  resorts,
   activeResort,
   onResortChange,
 }: ResortNavigationProps) => {
   return (
     <div className="flex items-center justify-between bg-white rounded-lg px-4 py-2 shadow-md text-xs lg:text-base mb-6 transition-all duration-200">
-      <button
-        onClick={() => onResortChange("dhigurah")}
-        className={`flex-1 py-1 font-medium rounded-md transition-colors cursor-pointer ${
-          activeResort === "dhigurah"
-            ? "text-gray-900 bg-gray-200"
-            : "text-gray-600 hover:text-gray-900"
-        }`}
-      >
-        <span className=""> Dhigurah Island</span>
-      </button>
-
-      <button
-        onClick={() => onResortChange("falhumaafushi")}
-        className={`flex-1 py-1 font-medium rounded-md transition-colors cursor-pointer ${
-          activeResort === "falhumaafushi"
-            ? "text-gray-900 bg-gray-200"
-            : "text-gray-600 hover:text-gray-900"
-        }`}
-      >
-        <span className="text-nowrap"> Falhumaafushi Island</span>
-      </button>
+      {resorts.map((resort) => (
+        <button
+          key={resort.id}
+          onClick={() => onResortChange(resort.id)}
+          className={`flex-1 py-1 font-medium rounded-md transition-colors cursor-pointer mx-1 ${
+            activeResort === resort.id
+              ? "text-gray-900 bg-gray-200"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          <span className="text-nowrap">{resort.name}</span>
+        </button>
+      ))}
     </div>
   );
-};
-
-const getFilteredRooms = (
-  tabName: string,
-  searchTerm: string,
-  activeResort: ResortName
-) => {
-  let filteredRooms: number[] = [];
-
-  // Special handling for "All" tab
-  if (tabName === "All") {
-    filteredRooms = rooms[activeResort];
-  } else {
-    // Existing tab filtering logic
-    switch (tabName) {
-      case "100-130":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 100 && room <= 130
-        );
-        break;
-      case "200-218":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 200 && room <= 218
-        );
-        break;
-      case "300-343":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 300 && room <= 343
-        );
-        break;
-      case "600-693":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 600 && room <= 693
-        );
-        break;
-      case "800-820":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 800 && room <= 820
-        );
-        break;
-      case "840-897":
-        filteredRooms = roomNumbers.filter(
-          (room) => room >= 840 && room <= 897
-        );
-        break;
-      default:
-        filteredRooms = rooms[activeResort] || []; // Fallback to resort rooms if tab not recognized
-    }
-  }
-
-  // Filter by search term
-  if (searchTerm.trim()) {
-    return filteredRooms.filter((room) =>
-      room.toString().startsWith(searchTerm.trim())
-    );
-  }
-  return filteredRooms;
 };
 
 interface RoomGridProps {
   addButton?: string;
   onClick?: () => void;
+  mode?: "view-details" | "check-in";
+  externalResorts?: Resort[];
+  externalActiveResort?: number | null;
+  onExternalResortChange?: (resortId: number) => void;
 }
 
-const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
-  // Manage both resort and tab selection in this component
-  const [activeResort, setActiveResort] = useState<ResortName>("dhigurah");
-  const [activeTab, setActiveTab] = useState("All"); // Default to "all" tab
+const RoomGrid = ({
+  addButton,
+  mode,
+  externalResorts,
+  externalActiveResort,
+  onExternalResortChange,
+}: RoomGridProps) => {
+  // Internal state (fallback when no external state provided)
+  const [internalResorts, setInternalResorts] = useState<Resort[]>([]);
+  const [internalActiveResort, setInternalActiveResort] = useState<
+    number | null
+  >(null);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showRoomModal, setShowRoomModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Get the appropriate tab items based on active resort
-  const currentTabItems = tabItems[activeResort as keyof typeof tabItems];
+  // Use external state if provided, otherwise use internal state
+  const useExternalState =
+    externalResorts && externalActiveResort && onExternalResortChange;
+  const resorts = useExternalState ? externalResorts : internalResorts;
+  const activeResort = useExternalState
+    ? externalActiveResort
+    : internalActiveResort;
 
-  // Pass activeResort to getFilteredRooms
-  const filteredRooms = getFilteredRooms(activeTab, searchTerm, activeResort);
+  // Fetch resorts only if NOT using external state
+  useEffect(() => {
+    if (useExternalState) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchResorts = async () => {
+      try {
+        console.log("🏨 RoomGrid: Fetching resorts...");
+        const response = await resortApi.getAllResortsWithRooms();
+
+        if (
+          response &&
+          response.success &&
+          Array.isArray(response.data) &&
+          response.data.length > 0
+        ) {
+          const sortedResorts = response.data.sort((a, b) => a.id - b.id);
+          setInternalResorts(sortedResorts);
+          setInternalActiveResort(sortedResorts[0].id);
+          console.log(
+            "✅ RoomGrid: Resorts loaded, active resort:",
+            sortedResorts[0].id
+          );
+        } else {
+          console.warn("❌ RoomGrid: No resorts found");
+          setInternalResorts([]);
+          setInternalActiveResort(null);
+        }
+      } catch (error) {
+        console.error("💥 RoomGrid: Failed to fetch resorts:", error);
+        setInternalResorts([]);
+        setInternalActiveResort(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResorts();
+  }, [useExternalState]);
 
   // Handle resort change
-  const handleResortChange = (resort: ResortName) => {
-    setActiveResort(resort);
-    // Reset tab to "all" when changing resorts
-    setActiveTab("All");
-  };
-
-  // Handle tab click
-  const handleTabClick = (tabName: string) => {
-    setActiveTab(tabName);
+  const handleResortChange = (resortId: number) => {
+    if (useExternalState) {
+      // Use external handler
+      onExternalResortChange!(resortId);
+    } else {
+      // Use internal handler
+      if (resortId === internalActiveResort) return;
+      console.log(
+        `🔄 RoomGrid: Changing resort from ${internalActiveResort} to ${resortId}`
+      );
+      setInternalActiveResort(resortId);
+    }
+    setSearchTerm(""); // Clear search when changing resorts
   };
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
   };
 
-  // Get resort display name
-  const resortDisplayName =
-    activeResort === "dhigurah" ? "Dhigurah Island" : "Falhumaafushi Island";
+  const handleAddRoom = () => {
+    setShowRoomModal(true);
+  };
+
+  // Update the room creation handler to force ButtonGrid refresh
+  const handleRoomCreated = () => {
+    console.log("🎉 Room created, refreshing grid...");
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  // Add effect to refetch resorts when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      console.log("🔄 RoomGrid: Refreshing due to trigger change...");
+      // The ButtonGrid will handle its own refresh via the key prop or internal logic
+    }
+  }, [refreshTrigger]);
+
+  const handleRoomModalClose = () => {
+    setShowRoomModal(false);
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container my-2 lg:my-4">
+        <div className="bg-white shadow-sm rounded-xl overflow-hidden">
+          <div className="p-6">
+            <div className="text-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Loading rooms...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state when no resorts
+  if (resorts.length === 0) {
+    return (
+      <div className="container my-2 lg:my-4">
+        <div className="bg-white shadow-sm rounded-xl overflow-hidden">
+          <div className="p-6">
+            <div className="text-center p-8">
+              <p className="text-gray-600">
+                No resorts available. Please add a resort first.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render ButtonGrid until we have a valid activeResort
+  if (activeResort === null) {
+    return (
+      <div className="container my-2 lg:my-4">
+        <div className="bg-white shadow-sm rounded-xl overflow-hidden">
+          <div className="p-6">
+            <div className="text-center p-4">Initializing...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="container my-2 lg:my-4">
         {/* Resort Navigation */}
         <ResortNavigation
+          resorts={resorts}
           activeResort={activeResort}
           onResortChange={handleResortChange}
         />
 
         {/* Room Grid */}
-        <div className="bg-white shadow-sm">
+        <div className="bg-white shadow-sm rounded-xl overflow-hidden">
           <div className="p-6">
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                {resortDisplayName} Rooms
+                {resorts.find((r) => r.id === activeResort)?.name || "Resort"}{" "}
+                Rooms
               </h2>
               <div className="flex items-center space-x-5">
                 <SearchBar onSearch={handleSearch} />
                 {addButton && (
                   <button
                     className="flex items-center p-1 lg:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
-                    onClick={onClick}
+                    onClick={handleAddRoom}
                   >
                     <Plus className="w-3 h-3 lg:w-5 lg:h-5 mr-2" />
                     <span className="items-center">{addButton}</span>
@@ -171,34 +235,26 @@ const RoomGrid = ({ addButton, onClick }: RoomGridProps) => {
               </div>
             </div>
 
-            {/* Search results count */}
-            {searchTerm && (
-              <div className="mb-4 text-sm text-gray-600">
-                Found {filteredRooms.length}{" "}
-                {filteredRooms.length === 1 ? "room" : "rooms"} matching &quot;
-                {searchTerm}&quot;
-              </div>
-            )}
-
-            {/* Room Tabs */}
-            <Tabs
-              items={currentTabItems}
-              activeItem={activeTab}
-              className="mb-4"
-              onTabClick={handleTabClick}
+            {/* Room Grid */}
+            <ButtonGrid
+              resortId={activeResort || 0}
+              searchTerm={searchTerm}
+              mode={mode}
+              key={`${activeResort}-${refreshTrigger}`}
             />
-
-            {/* Room Buttons */}
-            {filteredRooms.length > 0 ? (
-              <ButtonGrid rooms={filteredRooms} />
-            ) : (
-              <div className="text-center p-8 text-gray-500">
-                No rooms found matching your search.
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Room Form Modal */}
+      {showRoomModal && (
+        <RoomForm
+          isOpen={showRoomModal}
+          onClose={handleRoomModalClose}
+          onSuccess={handleRoomCreated}
+          selectedResort={resorts.find((r) => r.id === activeResort)?.name}
+        />
+      )}
     </>
   );
 };

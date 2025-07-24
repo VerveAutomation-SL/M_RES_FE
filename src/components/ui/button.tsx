@@ -8,6 +8,8 @@ interface ButtonProps {
   className?: string;
   variant?: string;
   size?: string;
+  name?: string;
+  value?: string;
 }
 
 const Button = ({
@@ -18,6 +20,8 @@ const Button = ({
   className,
   variant,
   size,
+  name,
+  value,
 }: ButtonProps) => {
   return (
     <button
@@ -26,6 +30,8 @@ const Button = ({
       onClick={onClick}
       className={`${className} ${variant}`}
       data-size={size}
+      name={name}
+      value={value}
     >
       {children}
     </button>

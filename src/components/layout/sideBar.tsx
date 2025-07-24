@@ -7,7 +7,7 @@ import Link from "next/link";
 const SideBar = () => {
   const navigationItems = [
     { href: "/", icon: Home, label: "Dashboard", section: "Overview" },
-    { href: "/checkins", icon: Users, label: "Check-ins", section: "Overview" },
+    { href: "/check-in", icon: Users, label: "Check-ins", section: "Overview" },
     { href: "/analytics", icon: BarChart3, label: "Analytics", section: "Overview" },
     { href: "/resorts", icon: MapPin, label: "Resorts", section: "Management" },
     { href: "/restaurants", icon: Users, label: "Restaurants", section: "Management" },
