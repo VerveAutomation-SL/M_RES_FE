@@ -30,3 +30,27 @@ export const mealPlans = [
     { value: "full-board", label: "Full Board" },
     { value: "half-board", label: "Half Board" },
 ];
+
+export const getCurrentMealType = () => {
+  const now = new Date();
+  const currentTime = now.toTimeString().split(' ')[0];
+
+  if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
+    return "breakfast";
+  } else if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
+    return "lunch";
+  } else if (currentTime >= MEAL_TIMES.dinner.start && currentTime <= MEAL_TIMES.dinner.end) {
+    return "dinner";
+  }
+  
+  // Return next meal if outside periods
+  if (currentTime < MEAL_TIMES.breakfast.start) {
+    return "breakfast";
+  } else if (currentTime < MEAL_TIMES.lunch.start) {
+    return "lunch";
+  } else if (currentTime < MEAL_TIMES.dinner.start) {
+    return "dinner";
+  } else {
+    return "breakfast";
+  }
+};

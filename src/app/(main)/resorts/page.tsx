@@ -4,8 +4,9 @@ import Header from "@/components/layout/header";
 import RoomGrid from "@/components/layout/roomGrid";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
-import { resortApi } from "@/lib/api";
-import { Resort } from "@/lib/types";
+import { checkInApi, resortApi } from "@/lib/api";
+import { getCurrentMealType } from "@/lib/data";
+import { Resort} from "@/lib/types";
 import { ChevronRight, MapPin } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 
@@ -15,6 +16,9 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Add state for check-in stats
+  const [resortStats, setResortStats] = useState<Record<number, any>>({});
 
   useEffect(() => {
     const fetchResorts = async () => {
@@ -33,6 +37,56 @@ const Page = () => {
     };
     fetchResorts();
   }, [refreshTrigger]);
+
+  // Fetch check-in stats for each resort
+  useEffect(() => {
+    const fetchResortStats = async () => {
+      if (resorts.length > 0) {
+        const statsPromises = resorts.map(async (resort) => {
+          try {
+            // Get today's check-ins
+            const todayResponse = await checkInApi.getTodayCheckIns(resort.id);
+            
+            // Get current check-in status for active diners
+            const currentMeal = getCurrentMealType();
+            const activeResponse = await checkInApi.getCheckInStatus(resort.id, currentMeal);
+            
+            // Process the data
+            const todayCheckInsCount = todayResponse?.data?.length || 0;
+            const activeCheckInsCount = activeResponse?.data?.filter((item: any) => item.checked_in)?.length || 0;
+            
+            return { 
+              resortId: resort.id, 
+              stats: { 
+                todayCheckIns: todayCheckInsCount,
+                activeCheckIns: activeCheckInsCount 
+              } 
+            };
+          } catch (error) {
+            console.error(`Error fetching stats for resort ${resort.id}:`, error);
+            return { 
+              resortId: resort.id, 
+              stats: { 
+                todayCheckIns: 0, 
+                activeCheckIns: 0 
+              } 
+            };
+          }
+        });
+        
+        const results = await Promise.all(statsPromises);
+        const statsMap = results.reduce((acc, { resortId, stats }) => {
+          acc[resortId] = stats;
+          return acc;
+        }, {} as Record<number, any>);
+        
+        console.log('Resort stats:', statsMap); // Debug log
+        setResortStats(statsMap);
+      }
+    };
+    
+    fetchResortStats();
+  }, [resorts]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -141,7 +195,7 @@ const Page = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
                     <div>
-                      <div className="text-xl md:text-2xl font-bold text-gray-900">
+                      <div className="text-xl md:text-2xl font-bold text-blue-600">
                         {resort.Rooms.length}
                       </div>
                       <div className="text-xs md:text-sm text-gray-600">
@@ -149,23 +203,19 @@ const Page = () => {
                       </div>
                     </div>
                     <div>
-                      <div className="text-xl md:text-2xl font-bold text-red-500">
-                        {
-                          resort.Rooms.filter(
-                            (room) => room.status === "available"
-                          ).length
-                        }
+                      <div className="text-xl md:text-2xl font-bold text-green-500">
+                        {resortStats[resort.id]?.todayCheckIns || 0}
                       </div>
                       <div className="text-xs md:text-sm text-gray-600">
-                        Booked
+                        Today&apos;s Check-ins
                       </div>
                     </div>
                     <div>
-                      <div className="text-xl md:text-2xl font-bold text-green-500">
-                        {resort.id}
+                      <div className="text-xl md:text-2xl font-bold text-red-500">
+                        {resortStats[resort.id]?.activeCheckIns || 0}
                       </div>
                       <div className="text-xs md:text-sm text-gray-600">
-                        Available
+                        Currently Dining
                       </div>
                     </div>
                   </div>
@@ -194,3 +244,5 @@ const Page = () => {
 };
 
 export default Page;
+
+

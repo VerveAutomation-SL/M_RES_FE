@@ -7,7 +7,7 @@ import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
 import { Room } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
-import { MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
+import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 
 
 interface ButtonGridProps {
@@ -15,30 +15,6 @@ interface ButtonGridProps {
   resortId: number;
   searchTerm?: string;
 }
-
-const getCurrentMealType = () => {
-  const now = new Date();
-  const currentTime = now.toTimeString().split(' ')[0];
-
-  if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
-    return "breakfast";
-  } else if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
-    return "lunch";
-  } else if (currentTime >= MEAL_TIMES.dinner.start && currentTime <= MEAL_TIMES.dinner.end) {
-    return "dinner";
-  }
-  
-  // Return next meal if outside periods
-  if (currentTime < MEAL_TIMES.breakfast.start) {
-    return "breakfast";
-  } else if (currentTime < MEAL_TIMES.lunch.start) {
-    return "lunch";
-  } else if (currentTime < MEAL_TIMES.dinner.start) {
-    return "dinner";
-  } else {
-    return "breakfast";
-  }
-};
 
 const isWithinMealPeriod = (mealType: string) => {
   const now = new Date();
