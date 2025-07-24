@@ -7,6 +7,9 @@ import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
 import { Room } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
+import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
+import { CheckInDetails } from "@/lib/types";
+import TooltipWithAsyncContent from "./tooltipWithAsyncContent";
 
 
 interface ButtonGridProps {
@@ -14,51 +17,6 @@ interface ButtonGridProps {
   resortId: number;
   searchTerm?: string;
 }
-
-// Room series for each resort
-const ROOM_SERIES = {
-  1: [
-    { name: "600-693", start: 600, end: 693 },
-    { name: "800-820", start: 800, end: 820 },
-    { name: "840-897", start: 840, end: 897 },
-  ],
-  2: [
-    { name: "100-130", start: 100, end: 130 },
-    { name: "200-218", start: 200, end: 218 },
-    { name: "300-343", start: 300, end: 343 },
-  ],
-};
-
-// Meal times Constants
-const MEAL_TIMES = {
-  breakfast: { start: "06:00:00", end: "11:00:00" },
-  lunch: { start: "12:00:00", end: "16:00:00" },
-  dinner: { start: "18:00:00", end: "23:00:00" },
-};
-
-const getCurrentMealType = () => {
-  const now = new Date();
-  const currentTime = now.toTimeString().split(' ')[0];
-  
-  if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
-    return "breakfast";
-  } else if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
-    return "lunch";
-  } else if (currentTime >= MEAL_TIMES.dinner.start && currentTime <= MEAL_TIMES.dinner.end) {
-    return "dinner";
-  }
-  
-  // Return next meal if outside periods
-  if (currentTime < MEAL_TIMES.breakfast.start) {
-    return "breakfast";
-  } else if (currentTime < MEAL_TIMES.lunch.start) {
-    return "lunch";
-  } else if (currentTime < MEAL_TIMES.dinner.start) {
-    return "dinner";
-  } else {
-    return "breakfast";
-  }
-};
 
 const isWithinMealPeriod = (mealType: string) => {
   const now = new Date();
@@ -97,6 +55,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsRoomId, setDetailsRoomId] = useState<number | null>(null);
   const [roomsWithIds, setRoomsWithIds] = useState<RoomData[]>([]);
+  const [checkInDetailsCache, setCheckInDetailsCache] = useState<Record<string, CheckInDetails>>({});
+  const [loadingTooltip, setLoadingTooltip] = useState<string | null>(null);
 
   // group rooms by series
   const groupRoomsBySeries = (roomNumbers : number[]) =>{
@@ -251,13 +211,52 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       const newMealType = getCurrentMealType();
       if (newMealType !== mealType) {
         setMealType(newMealType);
+        // Clear cache when meal type changes
+        setCheckInDetailsCache({});
       }
     }, 30000);
 
     return () => clearInterval(interval);
   }, [resortId, mealType, refreshTrigger]);
 
-  // Add this effect to re-fetch rooms when refreshTrigger changes
+  const fetchCheckInDetailsForTooltip = async (roomNumber: string) => {
+    const cacheKey = `${resortId}-${roomNumber}-${mealType}`;
+    
+    // Return cached data if available
+    if (checkInDetailsCache[cacheKey]) {
+      return checkInDetailsCache[cacheKey];
+    }
+
+    try {
+      setLoadingTooltip(roomNumber);
+      const roomId = getRoomIdByNumber(roomNumber);
+      
+      if (!roomId) {
+        console.warn(`Room ID not found for room ${roomNumber}`);
+        return null;
+      }
+
+      const response = await checkInApi.getCheckInDetails(resortId, roomId, mealType);
+      
+      if (response?.success && response.data) {
+        // Cache the result
+        setCheckInDetailsCache(prev => ({
+          ...prev,
+          [cacheKey]: response.data
+        }));
+        
+        return response.data;
+      }
+    } catch (error) {
+      console.error(`Failed to fetch check-in details for room ${roomNumber}:`, error);
+    } finally {
+      setLoadingTooltip(null);
+    }
+    
+    return null;
+  };
+
+  // this effect to re-fetch rooms when refreshTrigger changes
   useEffect(() => {
     const refetchRooms = async () => {
       if (refreshTrigger > 0) { // Only refetch if trigger was actually incremented
@@ -452,6 +451,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       const newMealType = getCurrentMealType();
       if (newMealType !== mealType) {
         setMealType(newMealType);
+        // Clear cache when meal type changes
+        setCheckInDetailsCache({});
       }
     }, 30000);
 
@@ -513,19 +514,47 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
         <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
           {displayRooms.map((roomNumber) => {
             const buttonColor = getRoomButtonColor(roomNumber);
+            const roomStatus = roomStatusData.find(
+              room => room.room_number === roomNumber.toString()
+            );
+            const isCheckedIn = roomStatus ? roomStatus.checked_in : false;
+            const cacheKey = `${resortId}-${roomNumber}-${mealType}`;
+            const cachedDetails = checkInDetailsCache[cacheKey];
 
-            return (
-            <button
-              key={roomNumber}
-              onClick={() => handleRoomClick(roomNumber)}
-              className={`h-10 w-full ${buttonColor} text-white text-sm font-medium cursor-pointer transition-colors duration-200`}
-              title={`Room ${roomNumber}`}
-            >
-              {roomNumber}
-            </button>
-          );
-        })}
-      </div>
+            // Create the room button
+            const roomButton = (
+              <button
+                key={roomNumber}
+                onClick={() => handleRoomClick(roomNumber)}
+                className={`h-10 w-full ${buttonColor} text-white text-sm font-medium cursor-pointer transition-colors duration-200 relative`}
+                title={!isCheckedIn ? `Room ${roomNumber}` : undefined}
+              >
+                {roomNumber}
+                {loadingTooltip === roomNumber.toString() && (
+                  <div className="absolute top-1 right-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </button>
+            );
+
+            // If room is checked in, wrap with tooltip
+            if (isCheckedIn && mode === "check-in") {
+              return (
+                <TooltipWithAsyncContent
+                  key={roomNumber}
+                  roomNumber={roomNumber.toString()}
+                  fetchDetails={fetchCheckInDetailsForTooltip}
+                  cachedDetails={cachedDetails}
+                >
+                  {roomButton}
+                </TooltipWithAsyncContent>
+              );
+            }
+
+            return roomButton;
+          })}
+        </div>
       ) : (
         <div className="text-center p-4">No rooms available for this series.</div>
       )}

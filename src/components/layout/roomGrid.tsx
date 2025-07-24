@@ -17,7 +17,7 @@ interface ResortNavigationProps {
 const ResortNavigation = ({
   resorts,
   activeResort,
-  onResortChange
+  onResortChange,
 }: ResortNavigationProps) => {
   return (
     <div className="flex items-center justify-between bg-white rounded-lg px-4 py-2 shadow-md text-xs lg:text-base mb-6 transition-all duration-200">
@@ -47,25 +47,30 @@ interface RoomGridProps {
   onExternalResortChange?: (resortId: number) => void;
 }
 
-const RoomGrid = ({ 
-  addButton, 
-  mode, 
+const RoomGrid = ({
+  addButton,
+  mode,
   externalResorts,
   externalActiveResort,
-  onExternalResortChange 
+  onExternalResortChange,
 }: RoomGridProps) => {
   // Internal state (fallback when no external state provided)
   const [internalResorts, setInternalResorts] = useState<Resort[]>([]);
-  const [internalActiveResort, setInternalActiveResort] = useState<number | null>(null);
+  const [internalActiveResort, setInternalActiveResort] = useState<
+    number | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showRoomModal, setShowRoomModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Use external state if provided, otherwise use internal state
-  const useExternalState = externalResorts && externalActiveResort && onExternalResortChange;
+  const useExternalState =
+    externalResorts && externalActiveResort && onExternalResortChange;
   const resorts = useExternalState ? externalResorts : internalResorts;
-  const activeResort = useExternalState ? externalActiveResort : internalActiveResort;
+  const activeResort = useExternalState
+    ? externalActiveResort
+    : internalActiveResort;
 
   // Fetch resorts only if NOT using external state
   useEffect(() => {
@@ -77,7 +82,7 @@ const RoomGrid = ({
     const fetchResorts = async () => {
       try {
         console.log("🏨 RoomGrid: Fetching resorts...");
-        const response = await resortApi.getAllResorts();
+        const response = await resortApi.getAllResortsWithRooms();
 
         if (
           response &&
@@ -88,7 +93,10 @@ const RoomGrid = ({
           const sortedResorts = response.data.sort((a, b) => a.id - b.id);
           setInternalResorts(sortedResorts);
           setInternalActiveResort(sortedResorts[0].id);
-          console.log("✅ RoomGrid: Resorts loaded, active resort:", sortedResorts[0].id);
+          console.log(
+            "✅ RoomGrid: Resorts loaded, active resort:",
+            sortedResorts[0].id
+          );
         } else {
           console.warn("❌ RoomGrid: No resorts found");
           setInternalResorts([]);
@@ -114,7 +122,9 @@ const RoomGrid = ({
     } else {
       // Use internal handler
       if (resortId === internalActiveResort) return;
-      console.log(`🔄 RoomGrid: Changing resort from ${internalActiveResort} to ${resortId}`);
+      console.log(
+        `🔄 RoomGrid: Changing resort from ${internalActiveResort} to ${resortId}`
+      );
       setInternalActiveResort(resortId);
     }
     setSearchTerm(""); // Clear search when changing resorts
@@ -208,7 +218,8 @@ const RoomGrid = ({
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                {resorts.find(r => r.id === activeResort)?.name || "Resort"} Rooms
+                {resorts.find((r) => r.id === activeResort)?.name || "Resort"}{" "}
+                Rooms
               </h2>
               <div className="flex items-center space-x-5">
                 <SearchBar onSearch={handleSearch} />
@@ -241,7 +252,7 @@ const RoomGrid = ({
           isOpen={showRoomModal}
           onClose={handleRoomModalClose}
           onSuccess={handleRoomCreated}
-          selectedResort={resorts.find(r => r.id === activeResort)?.name}
+          selectedResort={resorts.find((r) => r.id === activeResort)?.name}
         />
       )}
     </>

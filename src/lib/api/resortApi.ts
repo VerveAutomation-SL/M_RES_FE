@@ -2,9 +2,9 @@ import { ApiResponse, Resort } from "../types";
 import { api } from "./config";
 
 // Get all resorts
-export const getAllResorts = async () => {
+export const getAllResortsWithRooms = async () => {
     try {
-        const response = await api.get<ApiResponse<Resort[]>>('/resorts');
+        const response = await api.get<ApiResponse<Resort[]>>('/resorts/with-rooms');
         return response.data;
     } catch (error) {
         console.error('Error fetching resorts:', error);

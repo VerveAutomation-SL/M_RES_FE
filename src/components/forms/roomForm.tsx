@@ -37,7 +37,7 @@ export default function RoomForm({
         const fetchResorts = async () => {
             try {
                 console.log("🏨 Fetching resorts for room form...");
-                const response = await resortApi.getAllResorts();
+                const response = await resortApi.getAllResortsWithRooms();
                 
                 if (response && response.success && Array.isArray(response.data)) {
                     setResorts(response.data);
@@ -126,27 +126,26 @@ export default function RoomForm({
             }
         } catch (error) {
             console.error("💥 Error creating room:", error);
-            const errorMessage = error instanceof Error ? error.message : "An error occurred while creating the room.";
-            if(error.response){
-                const {status, data} = error.response;
-                if(status === 409){
+            if (typeof error === "object" && error !== null && "response" in error) {
+                const { status, data } = (error as any).response;
+                if (status === 409) {
                     const errorMessage = data?.message || `Room number ${formData.room_number} already exists. Please choose a different room number.`;
                     setError(errorMessage);
-                }else if(status === 400){
+                } else if (status === 400) {
                     const errorMessage = data?.message || "Invalid room data. Please check your input.";
                     setError(errorMessage);
                 }
                 else {
-                // Other server errors
-                const errorMessage = data?.message || "Server error occurred. Please try again.";
-                setError(errorMessage);
+                    // Other server errors
+                    const errorMessage = data?.message || "Server error occurred. Please try again.";
+                    setError(errorMessage);
                 }
-            } else if (error.request) {
+            } else if (typeof error === "object" && error !== null && "request" in error) {
                 // Network error
                 setError("Network error. Please check your connection and try again.");
             } else {
                 // Other errors
-                const errorMessage = error.message || "An unexpected error occurred while creating the room.";
+                const errorMessage = (error as any).message || "An unexpected error occurred while creating the room.";
                 setError(errorMessage);
             }
         } finally {

@@ -28,7 +28,7 @@ export default function CheckInPage() {
     const fetchResorts = async () => {
       try {
         console.log("🏨 CheckInPage: Fetching resorts...");
-        const response = await resortApi.getAllResorts();
+        const response = await resortApi.getAllResortsWithRooms();
 
         if (
           response &&
