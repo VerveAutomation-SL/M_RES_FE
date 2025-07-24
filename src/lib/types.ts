@@ -74,15 +74,60 @@ export interface RoomFormData {
   name?: string; 
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  count?: number;
-  message?: string;
-  error?: string;
+export interface CheckInAnalyticsData{
+  resort_id: number;
+  total_checkins: number;
+  checkin_date: string;
 }
 
-// types/AppError.ts
+export interface MealDistributionData {
+  meal_type: string;
+  meals_count: string;
+  meals_percentage: string;
+}
+
+export interface HourlyTrendsData{
+  hour:number;
+  time:string;
+  checkIns:number;  
+}
+
+export interface AnalyticsResponse {
+  checkInsLastWeek: CheckInAnalyticsData[];
+  mealDistribution: MealDistributionData[];
+  hourlyTrends: HourlyTrendsData[];
+}
+
+export interface ReportFilterData{
+  checkinStartDate?: string;
+  checkinEndDate?: string;
+  checkoutStartDate?: string;
+  checkoutEndDate?: string;
+  resort_id?:  | null;
+  outlet_name?: string | null;
+  room_id?: number | null;
+  table_number?: string | null;
+  meal_type?: string | null;
+  meal_plan?: string | null;
+  status?: string | null;
+};
+
+export interface checkInRecord{
+ id: number;
+  room_number: string;
+  resort_name: string;
+  outlet_name: string;
+  table_number: string;
+  meal_type: string;
+  meal_plan: string;
+  check_in_date: string;
+  check_in_time: string;
+  check_out_date?: string;
+  check_out_time?: string;
+  status: string;
+  checkout_remarks?: string;
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);

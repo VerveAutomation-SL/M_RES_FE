@@ -31,6 +31,11 @@ export const mealPlans = [
     { value: "half-board", label: "Half Board" },
 ];
 
+export const statuses =[
+  {value : "checked-in", label: "Checked In"},
+  {value : "checked-out", label: "Checked Out"},
+]
+
 export const getCurrentMealType = () => {
   const now = new Date();
   const currentTime = now.toTimeString().split(' ')[0];

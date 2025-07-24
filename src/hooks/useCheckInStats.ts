@@ -25,7 +25,7 @@ export const useCheckInStats = (resortId: number) => {
   // Meal time logic (same as ButtonGrid)
   const MEAL_TIMES = {
     breakfast: { start: "06:00:00", end: "10:30:00" },
-    lunch: { start: "12:00:00", end: "15:30:00" },
+    lunch: { start: "12:00:00", end: "16:00:00" },
     dinner: { start: "19:00:00", end: "22:30:00" }
   };
 
