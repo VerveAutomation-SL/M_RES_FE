@@ -8,6 +8,8 @@ import CheckInDetailsModal from "../forms/checkInDetails";
 import { Room } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
 import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
+import { CheckInDetails } from "@/lib/types";
+import TooltipWithAsyncContent from "./tooltipWithAsyncContent";
 
 
 interface ButtonGridProps {
@@ -53,6 +55,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsRoomId, setDetailsRoomId] = useState<number | null>(null);
   const [roomsWithIds, setRoomsWithIds] = useState<RoomData[]>([]);
+  const [checkInDetailsCache, setCheckInDetailsCache] = useState<Record<string, CheckInDetails>>({});
+  const [loadingTooltip, setLoadingTooltip] = useState<string | null>(null);
 
   // group rooms by series
   const groupRoomsBySeries = (roomNumbers : number[]) =>{
@@ -207,13 +211,52 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       const newMealType = getCurrentMealType();
       if (newMealType !== mealType) {
         setMealType(newMealType);
+        // Clear cache when meal type changes
+        setCheckInDetailsCache({});
       }
     }, 30000);
 
     return () => clearInterval(interval);
   }, [resortId, mealType, refreshTrigger]);
 
-  // Add this effect to re-fetch rooms when refreshTrigger changes
+  const fetchCheckInDetailsForTooltip = async (roomNumber: string) => {
+    const cacheKey = `${resortId}-${roomNumber}-${mealType}`;
+    
+    // Return cached data if available
+    if (checkInDetailsCache[cacheKey]) {
+      return checkInDetailsCache[cacheKey];
+    }
+
+    try {
+      setLoadingTooltip(roomNumber);
+      const roomId = getRoomIdByNumber(roomNumber);
+      
+      if (!roomId) {
+        console.warn(`Room ID not found for room ${roomNumber}`);
+        return null;
+      }
+
+      const response = await checkInApi.getCheckInDetails(resortId, roomId, mealType);
+      
+      if (response?.success && response.data) {
+        // Cache the result
+        setCheckInDetailsCache(prev => ({
+          ...prev,
+          [cacheKey]: response.data
+        }));
+        
+        return response.data;
+      }
+    } catch (error) {
+      console.error(`Failed to fetch check-in details for room ${roomNumber}:`, error);
+    } finally {
+      setLoadingTooltip(null);
+    }
+    
+    return null;
+  };
+
+  // this effect to re-fetch rooms when refreshTrigger changes
   useEffect(() => {
     const refetchRooms = async () => {
       if (refreshTrigger > 0) { // Only refetch if trigger was actually incremented
@@ -408,6 +451,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       const newMealType = getCurrentMealType();
       if (newMealType !== mealType) {
         setMealType(newMealType);
+        // Clear cache when meal type changes
+        setCheckInDetailsCache({});
       }
     }, 30000);
 
@@ -469,19 +514,47 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
         <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
           {displayRooms.map((roomNumber) => {
             const buttonColor = getRoomButtonColor(roomNumber);
+            const roomStatus = roomStatusData.find(
+              room => room.room_number === roomNumber.toString()
+            );
+            const isCheckedIn = roomStatus ? roomStatus.checked_in : false;
+            const cacheKey = `${resortId}-${roomNumber}-${mealType}`;
+            const cachedDetails = checkInDetailsCache[cacheKey];
 
-            return (
-            <button
-              key={roomNumber}
-              onClick={() => handleRoomClick(roomNumber)}
-              className={`h-10 w-full ${buttonColor} text-white text-sm font-medium cursor-pointer transition-colors duration-200`}
-              title={`Room ${roomNumber}`}
-            >
-              {roomNumber}
-            </button>
-          );
-        })}
-      </div>
+            // Create the room button
+            const roomButton = (
+              <button
+                key={roomNumber}
+                onClick={() => handleRoomClick(roomNumber)}
+                className={`h-10 w-full ${buttonColor} text-white text-sm font-medium cursor-pointer transition-colors duration-200 relative`}
+                title={!isCheckedIn ? `Room ${roomNumber}` : undefined}
+              >
+                {roomNumber}
+                {loadingTooltip === roomNumber.toString() && (
+                  <div className="absolute top-1 right-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </button>
+            );
+
+            // If room is checked in, wrap with tooltip
+            if (isCheckedIn && mode === "check-in") {
+              return (
+                <TooltipWithAsyncContent
+                  key={roomNumber}
+                  roomNumber={roomNumber.toString()}
+                  fetchDetails={fetchCheckInDetailsForTooltip}
+                  cachedDetails={cachedDetails}
+                >
+                  {roomButton}
+                </TooltipWithAsyncContent>
+              );
+            }
+
+            return roomButton;
+          })}
+        </div>
       ) : (
         <div className="text-center p-4">No rooms available for this series.</div>
       )}
