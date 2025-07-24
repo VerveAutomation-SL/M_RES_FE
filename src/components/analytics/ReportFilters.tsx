@@ -275,7 +275,7 @@ export default function ReportFilters({
         <button
           onClick={handlePreview}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
         >
           {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
           {loading ? 'Loading...' : 'Preview Data'}
@@ -284,7 +284,7 @@ export default function ReportFilters({
         <button
           onClick={clearFilters}
           disabled={previewLoading||loading}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
         >
           Clear Filters
         </button>

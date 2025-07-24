@@ -11,53 +11,6 @@ import { AnalyticsResponse, checkInRecord, ReportFilterData } from "@/lib/types"
 import { ChevronDown, Download, Eye, FileText, Sheet, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
-
-// Mock data structure based on your backend
-// const mockCheckInData: checkInRecord[] = [
-//   {
-//     id: 1,
-//     room_number: "101",
-//     resort_name: "Dhigurah Resort",
-//     outlet_name: "Main Restaurant",
-//     table_number: "T15",
-//     meal_type: "breakfast",
-//     meal_plan: "all-inclusive",
-//     check_in_date: "2025-07-20",
-//     check_in_time: "08:30:00",
-//     check_out_time: "09:15:00",
-//     status: "checked-out",
-//     checkout_remarks: "Great service"
-//   },
-//   {
-//     id: 2,
-//     room_number: "205",
-//     resort_name: "Falhumaafushi Resort",
-//     outlet_name: "Beachside Cafe",
-//     table_number: "T08",
-//     meal_type: "lunch",
-//     meal_plan: "full-board",
-//     check_in_date: "2025-07-20",
-//     check_in_time: "12:45:00",
-//     check_out_time: undefined,
-//     status: "checked-in",
-//     checkout_remarks: undefined
-//   },
-//   {
-//     id: 3,
-//     room_number: "308",
-//     resort_name: "Dhigurah Resort",
-//     outlet_name: "Pool Bar",
-//     table_number: "T22",
-//     meal_type: "dinner",
-//     meal_plan: "half-board",
-//     check_in_date: "2025-07-19",
-//     check_in_time: "19:20:00",
-//     check_out_time: "20:45:00",
-//     status: "checked-out",
-//     checkout_remarks: "Excellent food"
-//   }
-// ];
-
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "trends">("overview");
   const [filters, setFilters] = useState<ReportFilterData>({
@@ -286,7 +239,7 @@ export default function AnalyticsPage() {
           <div className="relative w-full sm:w-auto">
             <button 
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-white border-2 border-[var(--primary)] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-all duration-200 w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-white border-2 border-[var(--primary)] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-all duration-200 w-full sm:w-auto cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">Export Data</span>
@@ -295,18 +248,26 @@ export default function AnalyticsPage() {
             </button>
             
             {exportDropdownOpen && (
-              <div className="absolute left-0 sm:right-0 mt-2 w-full sm:w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+              <div className="absolute right-0 sm:right-0 mt-2 w-64 sm:w-72 bg-white rounded-lg shadow-xl border border-gray-200 z-50 min-w-max">
                 <div className="py-2">
                   <button
                     onClick={() => {
                       handleExportPDF();
                     }}
                     disabled={exportLoading !== null}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    <FileText className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    {exportLoading === 'pdf' ? (
+                      <div className="w-5 h-5 flex-shrink-0">
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-red-500 border-t-transparent"></div>
+                      </div>
+                    ) : (
+                      <FileText className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    )}
                     <div className="text-left flex-1">
-                      <div className="font-medium">Export as PDF</div>
+                      <div className="font-medium">
+                        {exportLoading === 'pdf' ? 'Generating PDF...' : 'Export as PDF'}
+                      </div>
                       <div className="text-xs text-gray-500">Formatted report document</div>
                     </div>
                   </button>
@@ -318,11 +279,19 @@ export default function AnalyticsPage() {
                       handleExportExcel();
                     }}
                     disabled={exportLoading !== null}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    <Sheet className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    {exportLoading === 'excel' ? (
+                      <div className="w-5 h-5 flex-shrink-0">
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-green-500 border-t-transparent"></div>
+                      </div>
+                    ) : (
+                      <Sheet className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    )}
                     <div className="text-left flex-1">
-                      <div className="font-medium">Export as Excel</div>
+                      <div className="font-medium">
+                        {exportLoading === 'excel' ? 'Generating Excel...' : 'Export as Excel'}
+                      </div>
                       <div className="text-xs text-gray-500">Spreadsheet with raw data</div>
                     </div>
                   </button>
@@ -331,10 +300,10 @@ export default function AnalyticsPage() {
             )}
           </div>
           
-          {/* Add click outside to close dropdown */}
+          {/* Backdrop for mobile with better z-index */}
           {exportDropdownOpen && (
             <div 
-              className="fixed inset-0 z-40  bg-opacity-25 sm:bg-transparent" 
+              className="fixed inset-0 z-40 bg-black bg-opacity-10 sm:bg-transparent" 
               onClick={() => setExportDropdownOpen(false)}
             />
           )}
