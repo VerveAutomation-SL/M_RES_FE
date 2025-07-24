@@ -1,7 +1,14 @@
 "use client";
 
-import { Filter, Calendar, MapPin, Utensils, Eye, RefreshCw } from "lucide-react";
-import { useEffect, useState} from "react";
+import {
+  Filter,
+  Calendar,
+  MapPin,
+  Utensils,
+  Eye,
+  RefreshCw,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { ReportFilterData, Resort, checkInRecord } from "@/lib/types";
 import { getPreviewData } from "@/lib/api/analyticsApi";
 import { resortApi } from "@/lib/api";
@@ -13,23 +20,23 @@ interface ReportFiltersProps {
   loading?: boolean;
 }
 
-export default function ReportFilters({ 
-  onFiltersChange, 
-  onPreviewData, 
-  loading 
+export default function ReportFilters({
+  onFiltersChange,
+  onPreviewData,
+  loading,
 }: ReportFiltersProps) {
   const [filters, setFilters] = useState<ReportFilterData>({
-    checkinStartDate: '',
-    checkinEndDate: '',
-    checkoutStartDate: '',
-    checkoutEndDate: '',
+    checkinStartDate: "",
+    checkinEndDate: "",
+    checkoutStartDate: "",
+    checkoutEndDate: "",
     resort_id: null,
-    outlet_name: '',
+    outlet_name: "",
     room_id: null,
-    table_number: '',
-    meal_type: '',
-    meal_plan: '',
-    status: ''
+    table_number: "",
+    meal_type: "",
+    meal_plan: "",
+    status: "",
   });
 
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -40,10 +47,10 @@ export default function ReportFilters({
 
   const filterOptions = {
     resorts: resorts,
-    outlets: ['Libai', 'Beach Resort', 'Pool Bar', 'Sunset Lounge'],
-    mealTypes: mealTypes.map(type => type.value),
-    mealPlans: mealPlans.map(plan => plan.value),
-    statuses: statuses.map(status => status.value)
+    outlets: ["Libai", "Beach Resort", "Pool Bar", "Sunset Lounge"],
+    mealTypes: mealTypes.map((type) => type.value),
+    mealPlans: mealPlans.map((plan) => plan.value),
+    statuses: statuses.map((status) => status.value),
   };
 
   // Fetch resorts on component mount
@@ -68,24 +75,25 @@ export default function ReportFilters({
     fetchResorts();
   }, []);
 
-
-
-  const handleFilterChange = (key: keyof ReportFilterData, value: string | number | null) => {
+  const handleFilterChange = (
+    key: keyof ReportFilterData,
+    value: string | number | null
+  ) => {
     const newFilters = {
       ...filters,
-      [key]: value
+      [key]: value,
     };
     setFilters(newFilters);
-    
+
     // Notify parent about filter changes
     onFiltersChange(newFilters);
   };
 
   const handlePreview = async () => {
     try {
-        setPreviewLoading(true);
-        setError(null);
-      
+      setPreviewLoading(true);
+      setError(null);
+
       // Filter the data and send to parent
       const filteredData = await getPreviewData(filters);
       onPreviewData(filteredData);
@@ -93,26 +101,26 @@ export default function ReportFilters({
       console.error("Error filtering data:", error);
       setError("Failed to fetch preview data. Please try again.");
       onPreviewData([]);
-    }finally{
-        setPreviewLoading(false);
+    } finally {
+      setPreviewLoading(false);
     }
   };
 
   const clearFilters = () => {
     const clearedFilters: ReportFilterData = {
-      checkinStartDate: '',
-      checkinEndDate: '',
-      checkoutStartDate: '',
-      checkoutEndDate: '',
+      checkinStartDate: "",
+      checkinEndDate: "",
+      checkoutStartDate: "",
+      checkoutEndDate: "",
       resort_id: null,
-      outlet_name: '',
+      outlet_name: "",
       room_id: null,
-      table_number: '',
-      meal_type: '',
-      meal_plan: '',
-      status: ''
+      table_number: "",
+      meal_type: "",
+      meal_plan: "",
+      status: "",
     };
-    
+
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
     onPreviewData([]);
@@ -123,7 +131,9 @@ export default function ReportFilters({
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
       <div className="flex items-center gap-2 mb-6">
         <Filter className="w-5 h-5 text-blue-600" />
-        <h2 className="text-xl font-semibold text-gray-900">Advanced Filters</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          Advanced Filters
+        </h2>
         {resortsLoading && (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <RefreshCw className="w-4 h-4 animate-spin" />
@@ -148,15 +158,19 @@ export default function ReportFilters({
           <div className="space-y-2">
             <input
               type="date"
-              value={filters.checkinStartDate || ''}
-              onChange={(e) => handleFilterChange('checkinStartDate', e.target.value)}
+              value={filters.checkinStartDate || ""}
+              onChange={(e) =>
+                handleFilterChange("checkinStartDate", e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="Start Date"
             />
             <input
               type="date"
-              value={filters.checkinEndDate || ''}
-              onChange={(e) => handleFilterChange('checkinEndDate', e.target.value)}
+              value={filters.checkinEndDate || ""}
+              onChange={(e) =>
+                handleFilterChange("checkinEndDate", e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="End Date"
             />
@@ -171,15 +185,19 @@ export default function ReportFilters({
           <div className="space-y-2">
             <input
               type="date"
-              value={filters.checkoutStartDate || ''}
-              onChange={(e) => handleFilterChange('checkoutStartDate', e.target.value)}
+              value={filters.checkoutStartDate || ""}
+              onChange={(e) =>
+                handleFilterChange("checkoutStartDate", e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="Start Date"
             />
             <input
               type="date"
-              value={filters.checkoutEndDate || ''}
-              onChange={(e) => handleFilterChange('checkoutEndDate', e.target.value)}
+              value={filters.checkoutEndDate || ""}
+              onChange={(e) =>
+                handleFilterChange("checkoutEndDate", e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="End Date"
             />
@@ -194,29 +212,42 @@ export default function ReportFilters({
           </h3>
           <div className="space-y-2">
             <select
-              value={filters.resort_id || ''}
-              onChange={(e) => handleFilterChange('resort_id', e.target.value ? Number(e.target.value) : null)}
+              value={filters.resort_id || ""}
+              onChange={(e) =>
+                handleFilterChange(
+                  "resort_id",
+                  e.target.value ? Number(e.target.value) : null
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Resorts</option>
-              {filterOptions.resorts.map(resort => (
-                <option key={resort.id} value={resort.id}>{resort.name}</option>
+              {filterOptions.resorts.map((resort) => (
+                <option key={resort.id} value={resort.id}>
+                  {resort.name}
+                </option>
               ))}
             </select>
             <select
-              value={filters.outlet_name || ''}
-              onChange={(e) => handleFilterChange('outlet_name', e.target.value)}
+              value={filters.outlet_name || ""}
+              onChange={(e) =>
+                handleFilterChange("outlet_name", e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Outlets</option>
-              {filterOptions.outlets.map(outlet => (
-                <option key={outlet} value={outlet}>{outlet}</option>
+              {filterOptions.outlets.map((outlet) => (
+                <option key={outlet} value={outlet}>
+                  {outlet}
+                </option>
               ))}
             </select>
             <input
               type="text"
-              value={filters.table_number || ''}
-              onChange={(e) => handleFilterChange('table_number', e.target.value)}
+              value={filters.table_number || ""}
+              onChange={(e) =>
+                handleFilterChange("table_number", e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="Table Number (e.g., T15)"
             />
@@ -231,36 +262,36 @@ export default function ReportFilters({
           </h3>
           <div className="space-y-2">
             <select
-              value={filters.meal_type || ''}
-              onChange={(e) => handleFilterChange('meal_type', e.target.value)}
+              value={filters.meal_type || ""}
+              onChange={(e) => handleFilterChange("meal_type", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Meal Types</option>
-              {mealTypes.map(type => (
+              {mealTypes.map((type) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
               ))}
             </select>
             <select
-              value={filters.meal_plan || ''}
-              onChange={(e) => handleFilterChange('meal_plan', e.target.value)}
+              value={filters.meal_plan || ""}
+              onChange={(e) => handleFilterChange("meal_plan", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Meal Plans</option>
-              {mealPlans.map(plan => (
+              {mealPlans.map((plan) => (
                 <option key={plan.value} value={plan.value}>
                   {plan.label}
                 </option>
               ))}
             </select>
             <select
-              value={filters.status || ''}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
+              value={filters.status || ""}
+              onChange={(e) => handleFilterChange("status", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Status</option>
-              {statuses.map(status =>(
+              {statuses.map((status) => (
                 <option key={status.value} value={status.value}>
                   {status.label}
                 </option>
@@ -277,13 +308,17 @@ export default function ReportFilters({
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
         >
-          {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
-          {loading ? 'Loading...' : 'Preview Data'}
+          {loading ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : (
+            <Eye className="w-4 h-4" />
+          )}
+          {loading ? "Loading..." : "Preview Data"}
         </button>
 
         <button
           onClick={clearFilters}
-          disabled={previewLoading||loading}
+          disabled={previewLoading || loading}
           className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
         >
           Clear Filters
@@ -292,5 +327,3 @@ export default function ReportFilters({
     </div>
   );
 }
-
-
