@@ -8,6 +8,10 @@ export interface Resort {
   id: number;
   name: string;
   location: string;
+  restaurants?: Restaurant[];
+  rooms?: Room[];
+  createdAt?: string;
+  updatedAt?: string;
   Rooms: Room[];
 }
 
@@ -18,6 +22,24 @@ export interface Room {
   status: "available" | "occupied" ;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Restaurant {
+  id: number;
+  restaurantName: string;
+  resort_id: number;
+  diningTables: DiningTable[]; 
+  status: 'Open' | 'Closed';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DiningTable {
+  id: number;
+  tableNumber: string;
+  restaurant_id: number;
+  status: 'available' | 'occupied';
+  Restaurant?: Restaurant;
 }
 
 export interface CheckIn {
@@ -134,4 +156,5 @@ export class AppError extends Error {
     this.name = 'AppError';
   }
 }
+
 

@@ -1,3 +1,4 @@
+
 // Room series for each resort
 export const ROOM_SERIES = {
   1: [
@@ -59,3 +60,4 @@ export const getCurrentMealType = () => {
     return "breakfast";
   }
 };
+
