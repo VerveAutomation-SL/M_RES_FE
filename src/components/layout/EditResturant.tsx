@@ -71,7 +71,6 @@ const EditRestaurantModal = ({
       setError("No restaurant data available.");
       return;
     }
-    console.log("Saving restaurant:", restaurant);
 
     setLoading(true);
     try {

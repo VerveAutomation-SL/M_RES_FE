@@ -72,6 +72,7 @@ export async function updateRestaurant(id: number, restaurantData: {
   status?: 'Open' | 'Close';
 }) {
   try {
+    console.log("Updating restaurant with ID:", id, "Data:", restaurantData);
     const response = await apibackend.put(`/restaurants/${id}`, restaurantData);
     return response.data;
   } catch (error) {

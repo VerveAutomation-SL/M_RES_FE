@@ -6,7 +6,7 @@ import Card from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
 import { Resort } from "@/lib/types";
-import { ChevronRight, Filter, MapPin, Search } from "lucide-react";
+import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import EditRestaurantModal from "@/components/layout/EditResturant";
 
@@ -221,26 +221,29 @@ const Page = () => {
                 </div>
               </div>
               <div>
-                <div className="flex flex-col lg:flex-row gap-4 mb-6">
-                  <div className="flex-1">
+                <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 mb-6 lg:items-center">
+                  {/* Search Input - Row 1 on Mobile, Takes More Space on Desktop */}
+                  <div className="w-full lg:flex-[2]">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
                         type="text"
-                        placeholder="Search restaurants by name"
+                        placeholder="Search restaurants"
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm"
                       />
                     </div>
                   </div>
-                  <div className="flex gap-2">
+
+                  {/* Location Filter - Row 2 on Mobile, Equal Space with Status on Desktop */}
+                  <div className="w-full lg:flex-1">
                     <div className="relative">
-                      <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
                       <select
                         value={selectedResort}
                         onChange={(e) => setSelectedResort(e.target.value)}
-                        className="pl-10 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 appearance-none bg-white"
+                        className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 appearance-none bg-white"
                       >
                         <option value="all">All Locations</option>
                         {resorts.map((resort) => (
@@ -249,16 +252,54 @@ const Page = () => {
                           </option>
                         ))}
                       </select>
+                      {/* Custom dropdown arrow */}
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="Open">Open</option>
-                      <option value="Close">Closed</option>
-                    </select>
+                  </div>
+
+                  {/* Status Filter - Row 3 on Mobile, Equal Space with Location on Desktop */}
+                  <div className="w-full lg:flex-1">
+                    <div className="relative">
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white appearance-none"
+                      >
+                        <option value="all">All Status</option>
+                        <option value="Open">Open</option>
+                        <option value="Close">Closed</option>
+                      </select>
+                      {/* Custom dropdown arrow */}
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -365,100 +406,103 @@ const Page = () => {
 
                 {/* Restaurant Cards - List View */}
                 {viewMode === "list" && (
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {filteredRestaurants.map((restaurant) => (
                       <Card
                         key={restaurant.id}
-                        classname="cursor-pointer hover:shadow-lg transition-all bg-white"
+                        classname="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200 hover:border-gray-300"
                         onClick={() => handleRestaurantClick(restaurant.id)}
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1">
-                            {restaurant.restaurantName} Restaurant
-                          </h3>
-                          <div
-                            className={`text-sm px-3 py-1 font-medium rounded-full ${
-                              restaurant.status === "Open"
-                                ? "bg-green-100 text-green-800 hover:bg-green-100"
-                                : "bg-red-100 text-red-800 hover:bg-red-100"
-                            }`}
-                          >
-                            {restaurant.status}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 text-gray-500 mb-2">
-                          <MapPin className="w-3 h-3" />
-                          <span className="text-sm">
-                            {
-                              resorts.find(
-                                (resort) => resort.id === restaurant.resort_id
-                              )?.name
-                            }{" "}
-                            Island
-                          </span>
-                        </div>
-
-                        {/* <div className="pt-0">
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-500">Type:</span>
-                              <div className="font-medium text-gray-900">
-                                {restaurant.id}
+                        <div className="p-1">
+                          {/* Header with Restaurant Name and Status */}
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                            <div className="flex flex-col items-start gap-2">
+                              <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-gray-900">
+                                {restaurant.restaurantName}
+                              </h3>
+                              <div className="text-xs sm:text-sm text-gray-500">
+                                <MapPin className="inline-block w-3 h-3 mr-1" />
+                                {resorts.find(
+                                  (resort) => resort.id === restaurant.resort_id
+                                )?.name || "Unknown Resort"}
                               </div>
                             </div>
-                            <div>
-                              <span className="text-gray-500">Capacity:</span>
-                              <div className="font-medium text-gray-900">
-                                {restaurant.id} guests
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-sm">
-                            <span className="text-gray-500">Cuisine:</span>
-                            <div className="font-medium text-gray-900">
-                              {restaurant.id}
-                            </div>
-                          </div>
-                          <div className="text-sm">
-                            <span className="text-gray-500">Hours:</span>
-                            <div className="font-medium text-gray-900">
-                              {restaurant.id}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-gray-400" />
-                              <span className="text-xs text-gray-500">
-                                Last updated: Today
+                            <div className="flex-shrink-0 mt-2 sm:mt-0">
+                              <span
+                                className={`inline-flex items-center px-2 py-1 lg:px-3 lg:py-2 text-sm md:text-base font-medium rounded-full ${
+                                  restaurant.status === "Open"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {restaurant.status}
                               </span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                              >
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                              >
-                                <MoreHorizontal className="w-3 h-3" />
-                              </Button>
+                          </div>
+
+                          {/* Restaurant Details - All in One Row */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
+                                Restaurant ID
+                              </span>
+                              <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
+                                #{restaurant.id}
+                              </span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
+                                Type
+                              </span>
+                              <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
+                                Full Service
+                              </span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
+                                Capacity
+                              </span>
+                              <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
+                                50-80 guests
+                              </span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
+                                Cuisine Type
+                              </span>
+                              <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
+                                International
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Second Row - Operating Hours */}
+                          <div className="mb-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
+                                Operating Hours
+                              </span>
+                              <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
+                                7:00 AM - 11:00 PM
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Footer with Timestamp and Edit Action */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <Clock className="w-3 h-3" />
+                              <span>
+                                Last updated:{" "}
+                                {restaurant.updatedAt
+                                  ? new Date(
+                                      restaurant.updatedAt
+                                    ).toLocaleDateString()
+                                  : "Today"}
+                              </span>
                             </div>
                           </div>
                         </div>
-                      </div> */}
                       </Card>
                     ))}
                   </div>
