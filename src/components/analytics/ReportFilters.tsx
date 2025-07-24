@@ -5,7 +5,7 @@ import { useEffect, useState} from "react";
 import { ReportFilterData, Resort, checkInRecord } from "@/lib/types";
 import { getPreviewData } from "@/lib/api/analyticsApi";
 import { resortApi } from "@/lib/api";
-import { mealPlans, mealTypes } from "@/lib/data";
+import { mealPlans, mealTypes, statuses } from "@/lib/data";
 
 interface ReportFiltersProps {
   onFiltersChange: (filters: ReportFilterData) => void;
@@ -43,7 +43,7 @@ export default function ReportFilters({
     outlets: ['Libai', 'Beach Resort', 'Pool Bar', 'Sunset Lounge'],
     mealTypes: mealTypes.map(type => type.value),
     mealPlans: mealPlans.map(plan => plan.value),
-    statuses: ['checked-in', 'checked-out']
+    statuses: statuses.map(status => status.value)
   };
 
   // Fetch resorts on component mount
@@ -85,8 +85,6 @@ export default function ReportFilters({
     try {
         setPreviewLoading(true);
         setError(null);
-      // Simulate API delay
-    //   await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Filter the data and send to parent
       const filteredData = await getPreviewData(filters);
@@ -262,8 +260,10 @@ export default function ReportFilters({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Status</option>
-              {filterOptions.statuses.map(status => (
-                <option key={status} value={status}>{status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</option>
+              {statuses.map(status =>(
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
               ))}
             </select>
           </div>

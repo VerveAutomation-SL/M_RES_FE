@@ -53,3 +53,8 @@ export const mealPlans = [
     { value: "full-board", label: "Full Board" },
     { value: "half-board", label: "Half Board" },
 ];
+
+export const statuses =[
+  {value : "checked-in", label: "Checked In"},
+  {value : "checked-out", label: "Checked Out"},
+]
