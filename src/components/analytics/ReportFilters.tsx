@@ -142,7 +142,7 @@ export default function ReportFilters({
         {/* Date Range Filters */}
         <div className="space-y-4">
           <h3 className="font-medium text-gray-700 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
+            <Calendar className="w-4 h-4 cursor-pointer" />
             Check-in Date Range
           </h3>
           <div className="space-y-2">
@@ -150,14 +150,14 @@ export default function ReportFilters({
               type="date"
               value={filters.checkinStartDate || ''}
               onChange={(e) => handleFilterChange('checkinStartDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="Start Date"
             />
             <input
               type="date"
               value={filters.checkinEndDate || ''}
               onChange={(e) => handleFilterChange('checkinEndDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="End Date"
             />
           </div>
@@ -173,14 +173,14 @@ export default function ReportFilters({
               type="date"
               value={filters.checkoutStartDate || ''}
               onChange={(e) => handleFilterChange('checkoutStartDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="Start Date"
             />
             <input
               type="date"
               value={filters.checkoutEndDate || ''}
               onChange={(e) => handleFilterChange('checkoutEndDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="End Date"
             />
           </div>
@@ -196,7 +196,7 @@ export default function ReportFilters({
             <select
               value={filters.resort_id || ''}
               onChange={(e) => handleFilterChange('resort_id', e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Resorts</option>
               {filterOptions.resorts.map(resort => (
@@ -206,7 +206,7 @@ export default function ReportFilters({
             <select
               value={filters.outlet_name || ''}
               onChange={(e) => handleFilterChange('outlet_name', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Outlets</option>
               {filterOptions.outlets.map(outlet => (
@@ -217,7 +217,7 @@ export default function ReportFilters({
               type="text"
               value={filters.table_number || ''}
               onChange={(e) => handleFilterChange('table_number', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               placeholder="Table Number (e.g., T15)"
             />
           </div>
@@ -233,7 +233,7 @@ export default function ReportFilters({
             <select
               value={filters.meal_type || ''}
               onChange={(e) => handleFilterChange('meal_type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Meal Types</option>
               {mealTypes.map(type => (
@@ -245,7 +245,7 @@ export default function ReportFilters({
             <select
               value={filters.meal_plan || ''}
               onChange={(e) => handleFilterChange('meal_plan', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Meal Plans</option>
               {mealPlans.map(plan => (
@@ -257,7 +257,7 @@ export default function ReportFilters({
             <select
               value={filters.status || ''}
               onChange={(e) => handleFilterChange('status', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
             >
               <option value="">All Status</option>
               {statuses.map(status =>(
