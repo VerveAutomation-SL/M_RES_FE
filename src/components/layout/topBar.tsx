@@ -21,45 +21,46 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
       [key: string]: Array<{ label: string; href?: string }>;
     } = {
       "/": [{ label: "Home", href: "/" }, { label: "Dashboard" }],
-      "/checkins": [
+      "/check-in": [
         { label: "Home", href: "/" },
-        { label: "Overview", href: "#" },
+        { label: "Overview"},
         { label: "Check-ins" },
       ],
       "/analytics": [
         { label: "Home", href: "/" },
-        { label: "Overview", href: "#" },
+        { label: "Overview"},
         { label: "Analytics" },
       ],
       "/resorts": [
         { label: "Home", href: "/" },
-        { label: "Management", href: "#" },
+        { label: "Management"},
         { label: "Resorts" },
       ],
       "/restaurants": [
         { label: "Home", href: "/" },
-        { label: "Management", href: "#" },
+        { label: "Management"},
         { label: "Restaurants" },
       ],
       "/users": [
         { label: "Home", href: "/" },
-        { label: "Management", href: "#" },
+        { label: "Management" },
         { label: "Users" },
       ],
       "/admin": [
         { label: "Home", href: "/" },
-        { label: "Management", href: "#" },
+        { label: "Management" },
         { label: "Admin Manager" },
       ],
     };
 
-    return (
-      routeBreadcrumbs[pathname] || [
-        { label: "Home", href: "/" },
-        { label: "Dashboard" },
-      ]
-    );
+    const routeCrumbs = routeBreadcrumbs[pathname] || [
+    { label: "Dashboard" }
+  ];
+  
+    return routeCrumbs.filter(crumb => crumb.label !== "Home");
   };
+
+  
 
   const currentBreadcrumbs = getBreadcrumbs();
 
