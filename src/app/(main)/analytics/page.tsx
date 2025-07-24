@@ -87,6 +87,14 @@ export default function AnalyticsPage() {
     window.URL.revokeObjectURL(url);
   };
 
+  // Helper function to format date and time
+  const formatDateTime = () => {
+    const now = new Date();
+    const date = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    //const time = now.toTimeString().split(' ')[0].slice(0, 5); // HH:MM
+    return { date };
+  };
+
   // Export functions
   const handleExportPDF = async() => {
     try{
@@ -94,9 +102,8 @@ export default function AnalyticsPage() {
       console.log('📄 Exporting PDF with filters:', filters);
 
       const pdfBlob = await exportPdfReport(filters);
-      const now = new Date();
-      const formatted = now.toISOString().replace(/[:.]/g, '-');
-      const filename = `checkins_report_${formatted}.pdf`;
+      const { date } = formatDateTime();
+      const filename = `checkins_report_${date}.pdf`;
 
       downloadFile(pdfBlob, filename);
       setExportDropdownOpen(false);
@@ -115,10 +122,9 @@ export default function AnalyticsPage() {
       console.log('📊 Exporting Excel with filters:', filters);
       
       const excelBlob = await exportExcelReport(filters);
-      const now = new Date();
-      const formatted = now.toISOString().replace(/[:.]/g, '-');
-      const filename = `checkin_report_${formatted}.xlsx`;
-      
+      const { date } = formatDateTime();
+      const filename = `checkins_report_${date}.xlsx`;
+
       downloadFile(excelBlob, filename);
       setExportDropdownOpen(false);
     } catch (error) {
