@@ -387,7 +387,7 @@ export default function AnalyticsPage() {
                       <div className="text-right">
                         <div className="text-xs text-gray-500">Check-out</div>
                         <div className="text-sm font-medium text-gray-900">
-                          {record.check_out_time ? formatTime(record.check_out_time) : 'N/A'}
+                          {record.check_out_date} {formatTime(record.check_out_time)}
                         </div>
                       </div>
                     </div>

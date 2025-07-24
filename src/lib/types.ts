@@ -122,6 +122,7 @@ export interface checkInRecord{
   meal_plan: string;
   check_in_date: string;
   check_in_time: string;
+  check_out_date?: string;
   check_out_time?: string;
   status: string;
   checkout_remarks?: string;
