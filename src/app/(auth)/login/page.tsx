@@ -50,16 +50,14 @@ const Page = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("Form submitted with data:", formData);
     e.preventDefault();
-    if (!validateForm()) {
+    setErrors(validateForm);
+    if (Object.keys(errors).length > 0) {
       console.error("Form validation failed:", errors);
       return;
     }
     setLoading(true);
     try {
-      console.log("Clicked role:", clickedRole);
-
       const response = await login(formData, clickedRole);
 
       console.log("Login response:", response);
@@ -74,15 +72,14 @@ const Page = () => {
     }
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = (): Record<string, string> => {
     const newError: Record<string, string> = {};
 
     if (!formData.userName.trim()) newError.name = "UserName is required";
-    if (formData.password.length < 6)
+    if (formData.password.length < 8)
       newError.password = "Password must be at least 8 characters long";
 
-    setErrors(newError);
-    return Object.keys(newError).length === 0;
+    return newError;
   };
 
   return (
