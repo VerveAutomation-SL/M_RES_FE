@@ -7,6 +7,7 @@ import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
 import { Room } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
+import { MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 
 
 interface ButtonGridProps {
@@ -15,31 +16,10 @@ interface ButtonGridProps {
   searchTerm?: string;
 }
 
-// Room series for each resort
-const ROOM_SERIES = {
-  1: [
-    { name: "600-693", start: 600, end: 693 },
-    { name: "800-820", start: 800, end: 820 },
-    { name: "840-897", start: 840, end: 897 },
-  ],
-  2: [
-    { name: "100-130", start: 100, end: 130 },
-    { name: "200-218", start: 200, end: 218 },
-    { name: "300-343", start: 300, end: 343 },
-  ],
-};
-
-// Meal times Constants
-const MEAL_TIMES = {
-  breakfast: { start: "06:00:00", end: "11:00:00" },
-  lunch: { start: "12:00:00", end: "16:00:00" },
-  dinner: { start: "18:00:00", end: "23:00:00" },
-};
-
 const getCurrentMealType = () => {
   const now = new Date();
   const currentTime = now.toTimeString().split(' ')[0];
-  
+
   if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
     return "breakfast";
   } else if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
