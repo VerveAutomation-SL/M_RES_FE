@@ -74,10 +74,19 @@ export interface RoomFormData {
   name?: string; 
 }
 
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  count?: number;
+  message?: string;
+  error?: string;
+}
+
+// types/AppError.ts
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);
     this.name = 'AppError';
   }
-  
 }
+
