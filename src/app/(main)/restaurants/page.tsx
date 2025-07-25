@@ -3,7 +3,7 @@ import ResturantForm from "@/components/forms/resturantForm";
 import Header from "@/components/layout/header";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import  Input  from "@/components/ui/input";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
 import { Resort } from "@/lib/types";
 import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
@@ -227,12 +227,11 @@ const Page = () => {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
-                        type="text"
-                        placeholder="Search restaurants"
-                        value={searchValue}
-                        onChange={(e) => setSearchValue(e.target.value)}
-                        className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm"
-                      />
+                          type="text"
+                          placeholder="Search restaurants"
+                          value={searchValue}
+                          onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setSearchValue(e.target.value)}
+                          className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm" name={""} required={false}                      />
                     </div>
                   </div>
 

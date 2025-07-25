@@ -1,47 +1,37 @@
-import { LucideIcon } from "lucide-react";
-import React from "react";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
-interface InputProps {
-  type: "text" | "password";
-  name: string;
-  placeholder?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
   error?: string;
-  icon: LucideIcon;
-  required: boolean;
-  disabled?: boolean;
-  className?: string;
 }
 
-const AuthInput = ({
-  type,
-  name,
-  placeholder,
-  value,
-  onChange,
-  icon: Icon,
-  required,
-  disabled,
-  className,
-}: InputProps) => {
-  return (
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <Icon className="h-5 w-5 text-[#8B6F47] opacity-70" />
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, label, error, ...props }, ref) => {
+    return (
+      <div className="space-y-1">
+        {label && (
+          <label className="block text-sm font-medium text-gray-700">
+            {label}
+          </label>
+        )}
+        <input
+          className={cn(
+            'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2',
+            error
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-amber-500',
+            className
+          )}
+          ref={ref}
+          {...props}
+        />
+        {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        required={required}
-        disabled={disabled}
-        className={className}
-      />
-    </div>
-  );
-};
+    );
+  }
+);
 
-export default AuthInput;
+Input.displayName = 'Input';
+
+export  default Input;

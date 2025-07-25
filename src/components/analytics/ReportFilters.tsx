@@ -60,7 +60,7 @@ export default function ReportFilters({
         setResortsLoading(true);
         console.log("Fetching resorts...");
 
-        const response = await resortApi.getAllResorts();
+        const response = await resortApi.getAllResortsWithRooms();
         const resortsData = response.data ?? [];
 
         setResorts(resortsData);
