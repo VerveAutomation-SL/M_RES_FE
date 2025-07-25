@@ -4,6 +4,11 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+export interface LoginFormData {
+    userName: string;
+    password: string;
+}
+
 export interface Resort {
   id: number;
   name: string;
@@ -135,7 +140,7 @@ export interface ReportFilterData{
 };
 
 export interface checkInRecord{
- id: number;
+  id: number;
   room_number: string;
   resort_name: string;
   outlet_name: string;
@@ -148,6 +153,8 @@ export interface checkInRecord{
   check_out_time?: string;
   status: string;
   checkout_remarks?: string;
+  Room?: Room;
+  createdAt?: string;
 }
 
 export class AppError extends Error {

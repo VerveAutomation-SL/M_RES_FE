@@ -54,7 +54,7 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
     };
 
     const routeCrumbs = routeBreadcrumbs[pathname] || [
-    { label: "Dashboard" }
+    { label: "Hi Admin!" }
   ];
   
     return routeCrumbs.filter(crumb => crumb.label !== "Home");

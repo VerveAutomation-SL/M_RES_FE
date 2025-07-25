@@ -4,10 +4,11 @@ import Button from "@/components/ui/button";
 import { Key, User } from "lucide-react";
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { LoginFormData } from "@/lib/types/auth";
+import { LoginFormData } from "@/lib/types";
 import AuthInput from "@/components/ui/input";
 import { checkAuthLogin, login } from "@/lib/api/auth";
 import { AppError } from "@/lib/types";
+import router from "next/router";
 
 const Page = () => {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -23,7 +24,7 @@ const Page = () => {
       try {
         const response = await checkAuthLogin();
         console.log("Authentication check response:", response);
-        // router.push("/dashboard");
+        router.push("/dashboard");
       } catch (err: unknown) {
         if (err instanceof AppError) {
           console.error(err.message);
