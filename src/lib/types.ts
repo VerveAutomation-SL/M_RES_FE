@@ -150,6 +150,28 @@ export interface checkInRecord{
   checkout_remarks?: string;
 }
 
+export interface User{
+  UserId: number;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: 'Admin' | 'Manager' | 'Host';
+  status: 'Active' | 'Inactive';
+  PermissionId: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Permission {
+  PermissionId: number;
+  restaurantId?: number;
+  meal_type: 'Breakfast'| 'Lunch'| 'Dinner'| 'All';
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);
