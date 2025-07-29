@@ -1,14 +1,14 @@
 "use client";
 import Header from "@/components/layout/header";
 import { User } from "@/lib/types";
-import { Trash2, UserIcon, View } from "lucide-react";
+import { UserIcon, View } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { getAllAdmins } from "@/lib/api/userApi";
 import Card from "@/components/ui/card";
 import Image from "next/image";
 import Button from "@/components/ui/button";
 import ViewUser from "@/components/forms/viewUser";
-import AddUserForm from "@/components/forms/addUser";
+import UserForm from "@/components/forms/addUser";
 
 const Page = () => {
   const [admins, setAdmins] = useState<User[]>([]);
@@ -18,6 +18,16 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<User | null>(null);
+  const [loginUser, setLoginUser] = useState<User | null>({
+    UserId: 0,
+    username: "",
+    email: "",
+    role: "Host",
+    status: "Active",
+    PermissionId: null,
+    createdAt: "",
+    updatedAt: "",
+  });
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -46,10 +56,8 @@ const Page = () => {
     setShowAddModal(true);
   };
   const handleEditAdmin = (admin: User) => {
-    console.log("Edit admin with ID:", admin);
     setSelectedAdmin(admin);
     setShowViewModal(true);
-    handelRefresh();
   };
 
   return (
@@ -59,7 +67,11 @@ const Page = () => {
         subtitle="Manage your admin accounts and permissions"
         addButton="Add Admin"
         onClick={handleAddAdmin}
-        disabled={loading || error !== null}
+        disabled={
+          loading || error !== null || loginUser?.role !== "Admin"
+            ? true
+            : false
+        }
       />
       <div className="flex-1">
         <div className="mx-auto">
@@ -75,12 +87,12 @@ const Page = () => {
                 <span className="ml-2 text-gray-700">Loading...</span>
               </div>
             ) : error ? (
-              <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-600">
+              <div className="flex flex-col items-center justify-center min-h-[100px] text-gray-600">
                 <div className="h-12 w-12 text-amber-500 mb-2" />
                 <p>Error loading administrators. Please try again later.</p>
               </div>
             ) : admins.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-600">
+              <div className="flex flex-col items-center justify-center min-h-[100px] text-gray-600">
                 <UserIcon className="h-12 w-12 text-amber-500 mb-2" />
                 <p>No administrators found</p>
               </div>
@@ -111,7 +123,7 @@ const Page = () => {
                               {admin.username}
                             </h3>
                             <div className="flex items-center gap-1 text-gray-500 text-sm">
-                              <span>Full Access</span>
+                              <span>{admin.permission?.description}</span>
                             </div>
                           </div>
                         </div>
@@ -135,18 +147,6 @@ const Page = () => {
                             >
                               <View className="w-5 h-5" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-gray-500 hover:text-red-600"
-                              onClick={() =>
-                                alert(
-                                  "Delete admin functionality not implemented yet"
-                                )
-                              }
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
                           </div>
                         </div>
                       </div>
@@ -163,15 +163,17 @@ const Page = () => {
           isOpen={showViewModal}
           onClose={() => setShowViewModal(false)}
           userId={selectedAdmin.UserId}
+          onSuccess={handelRefresh}
+          loginUser={loginUser ?? undefined}
         />
       )}
 
       {showaddModal && (
-        <AddUserForm
+        <UserForm
           isOpen={showaddModal}
           onClose={() => setShowAddModal(false)}
           onSuccess={handelRefresh}
-          role={"Admin"}
+          selectedRole={"Admin"}
         />
       )}
     </>

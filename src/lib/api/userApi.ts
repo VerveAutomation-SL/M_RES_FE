@@ -102,7 +102,7 @@ export async function deleteUser(userId: number) {
 
 export async function getAllPermissions() {
     try {
-        const response = await apibackend.get("/permissions");
+        const response = await apibackend.get("/permissions/");
         return response.data;
     } catch (error) {
         console.error("Error fetching permissions:", error);
@@ -113,3 +113,30 @@ export async function getAllPermissions() {
         }
     }
 }   
+export async function getAllUserPermissions() {
+    try {
+        const response = await apibackend.get("/permissions/user");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching permissions:", error);
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error fetching permissions", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching permissions", 500);
+        }
+    }
+}   
+
+export async function getAdminPermissions() {
+    try {
+        const response = await apibackend.get(`/permissions/admin`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching admin permissions:", error);
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error fetching admin permissions", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching admin permissions", 500);
+        }
+    }
+}
