@@ -92,14 +92,16 @@ const SideBar = () => {
                 Management
               </div>
 
-              {managementItems.map((item) => (
-                <NavItem
-                  key={item.label}
-                  href={item.href}
-                  icon={item.icon}
-                  label={item.label}
-                />
-              ))}
+              {managementItems
+                .filter((item) => !item.label.includes("Admin Manager"))
+                .map((item) => (
+                  <NavItem
+                    key={item.label}
+                    href={item.href}
+                    icon={item.icon}
+                    label={item.label}
+                  />
+                ))}
 
               {/* User Management Dropdown */}
               <div>
@@ -122,7 +124,7 @@ const SideBar = () => {
                     {/* Simple bar/line */}
                     <div className="border-t border-white/30 my-2" />
                     <Link
-                      href="/users"
+                      href="/managers"
                       className="flex items-center gap-2 px-2 py-2 rounded hover:bg-[#8B6F47] transition-colors text-sm"
                     >
                       <User className="h-4 w-4" />
