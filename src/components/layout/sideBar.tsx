@@ -1,7 +1,16 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
-import { Home, Users, BarChart3, MapPin, Settings, User, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Home,
+  Users,
+  BarChart3,
+  MapPin,
+  Settings,
+  User,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import Link from "next/link";
 
 const SideBar = () => {
@@ -10,14 +19,33 @@ const SideBar = () => {
   const navigationItems = [
     { href: "/", icon: Home, label: "Dashboard", section: "Overview" },
     { href: "/check-in", icon: Users, label: "Check-ins", section: "Overview" },
-    { href: "/analytics", icon: BarChart3, label: "Analytics", section: "Overview" },
+    {
+      href: "/analytics",
+      icon: BarChart3,
+      label: "Analytics",
+      section: "Overview",
+    },
     { href: "/resorts", icon: MapPin, label: "Resorts", section: "Management" },
-    { href: "/restaurants", icon: Users, label: "Restaurants", section: "Management" },
-    { href: "/admin", icon: Settings, label: "Admin Manager", section: "Management" },
+    {
+      href: "/restaurants",
+      icon: Users,
+      label: "Restaurants",
+      section: "Management",
+    },
+    {
+      href: "/admin",
+      icon: Settings,
+      label: "Admin Manager",
+      section: "Management",
+    },
   ];
 
-  const overviewItems = navigationItems.filter(item => item.section === "Overview");
-  const managementItems = navigationItems.filter(item => item.section === "Management");
+  const overviewItems = navigationItems.filter(
+    (item) => item.section === "Overview"
+  );
+  const managementItems = navigationItems.filter(
+    (item) => item.section === "Management"
+  );
 
   return (
     <>
@@ -51,13 +79,11 @@ const SideBar = () => {
               </div>
 
               {overviewItems.map((item) => (
-                <NavItem 
+                <NavItem
                   key={item.label}
                   href={item.href}
                   icon={item.icon}
-        
                   label={item.label}
-                  
                 />
               ))}
 
@@ -67,7 +93,7 @@ const SideBar = () => {
               </div>
 
               {managementItems.map((item) => (
-                <NavItem 
+                <NavItem
                   key={item.label}
                   href={item.href}
                   icon={item.icon}
@@ -82,8 +108,14 @@ const SideBar = () => {
                   onClick={() => setUserMgmtOpen((open) => !open)}
                 >
                   <Users className="h-5 w-5 lg:h-4 lg:w-4 flex-shrink-0" />
-                  <span className="text-base flex-1 text-left">User Management</span>
-                  {userMgmtOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  <span className="text-base flex-1 text-left">
+                    User Management
+                  </span>
+                  {userMgmtOpen ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
                 </button>
                 {userMgmtOpen && (
                   <div className="ml-10 mt-1 flex flex-col gap-1">
@@ -109,9 +141,9 @@ const SideBar = () => {
 
               {/* Now render Admin Manager below */}
               {managementItems
-                .filter(item => item.label === "Admin Manager")
+                .filter((item) => item.label === "Admin Manager")
                 .map((item) => (
-                  <NavItem 
+                  <NavItem
                     key={item.label}
                     href={item.href}
                     icon={item.icon}
