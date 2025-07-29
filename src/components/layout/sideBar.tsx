@@ -1,17 +1,18 @@
 'use client';
 
-import React from "react";
-import { Home, Users, BarChart3, MapPin, Settings, User } from "lucide-react";
+import React, { useState } from "react";
+import { Home, Users, BarChart3, MapPin, Settings, User, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 
 const SideBar = () => {
+  const [userMgmtOpen, setUserMgmtOpen] = useState(false);
+
   const navigationItems = [
     { href: "/", icon: Home, label: "Dashboard", section: "Overview" },
     { href: "/check-in", icon: Users, label: "Check-ins", section: "Overview" },
     { href: "/analytics", icon: BarChart3, label: "Analytics", section: "Overview" },
     { href: "/resorts", icon: MapPin, label: "Resorts", section: "Management" },
     { href: "/restaurants", icon: Users, label: "Restaurants", section: "Management" },
-    { href: "/users", icon: User, label: "Users", section: "Management" },
     { href: "/admin", icon: Settings, label: "Admin Manager", section: "Management" },
   ];
 
@@ -23,7 +24,7 @@ const SideBar = () => {
       {/* Sidebar - Always visible, responsive width */}
       <div className="fixed lg:static inset-y-0 left-0 z-40 w-16 sm:w-20 lg:w-64">
         <div className="bg-[var(--primary)] text-white flex flex-col h-screen">
-          <div className="px-2 lg:px-4 flex-1">
+          <div className="px-2 lg:px-4 flex-1 overflow-y-auto scrollbar-hide">
             {/* Logo Section */}
             <div className="flex items-center justify-center my-6 lg:my-10">
               <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-24 lg:h-24 bg-white rounded-full flex items-center justify-center">
@@ -45,7 +46,7 @@ const SideBar = () => {
             {/* Navigation */}
             <nav className="space-y-1 lg:space-y-2">
               {/* Overview Section - Only show on desktop */}
-              <div className="hidden lg:block text-white text-sm font-medium mb-2 px-3">
+              <div className="hidden lg:block text-white text-sm font-medium mb-2 px-4">
                 Overview
               </div>
 
@@ -61,7 +62,7 @@ const SideBar = () => {
               ))}
 
               {/* Management Section - Only show on desktop */}
-              <div className="hidden lg:block text-white text-sm font-medium mb-2 mt-4 px-3">
+              <div className="hidden lg:block text-white text-sm font-medium mb-2 mt-4 px-4">
                 Management
               </div>
 
@@ -73,6 +74,50 @@ const SideBar = () => {
                   label={item.label}
                 />
               ))}
+
+              {/* User Management Dropdown */}
+              <div>
+                <button
+                  className="flex items-center w-full gap-2 px-4 py-3 rounded hover:bg-[#7A5F3F] transition-colors"
+                  onClick={() => setUserMgmtOpen((open) => !open)}
+                >
+                  <Users className="h-5 w-5 lg:h-4 lg:w-4 flex-shrink-0" />
+                  <span className="text-base flex-1 text-left">User Management</span>
+                  {userMgmtOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {userMgmtOpen && (
+                  <div className="ml-10 mt-1 flex flex-col gap-1">
+                    {/* Simple bar/line */}
+                    <div className="border-t border-white/30 my-2" />
+                    <Link
+                      href="/users"
+                      className="flex items-center gap-2 px-2 py-2 rounded hover:bg-[#8B6F47] transition-colors text-sm"
+                    >
+                      <User className="h-4 w-4" />
+                      Managers
+                    </Link>
+                    <Link
+                      href="/hosts"
+                      className="flex items-center gap-2 px-2 py-2 rounded hover:bg-[#8B6F47] transition-colors text-sm"
+                    >
+                      <User className="h-4 w-4" />
+                      Hosts
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Now render Admin Manager below */}
+              {managementItems
+                .filter(item => item.label === "Admin Manager")
+                .map((item) => (
+                  <NavItem 
+                    key={item.label}
+                    href={item.href}
+                    icon={item.icon}
+                    label={item.label}
+                  />
+                ))}
             </nav>
           </div>
 
@@ -114,11 +159,10 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label }) => {
   return (
     <Link
       href={href}
-      className="flex items-center justify-center lg:justify-start gap-2 lg:gap-3 px-2 lg:px-4 py-3 lg:py-2 mx-1 lg:mx-2 rounded text-white hover:bg-[#7A5F3F] transition-colors group relative"
+      className="flex items-center justify-start gap-2 lg:gap-3 px-2 lg:px-4 py-3 lg:py-2 mx-1 lg:mx-2 rounded text-white hover:bg-[#7A5F3F] transition-colors group relative"
     >
       <Icon className="h-5 w-5 lg:h-4 lg:w-4 flex-shrink-0" />
-      <span className="hidden lg:inline text-base lg:text-lg">{label}</span>
-      
+      <span className="hidden lg:inline text-base">{label}</span>
       {/* Mobile/Tablet Tooltip */}
       <div className="lg:hidden absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
         {label}
