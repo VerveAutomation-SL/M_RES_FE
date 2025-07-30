@@ -19,7 +19,7 @@ export interface Room {
   id: number;
   room_number: string;
   resort_id: number;
-  status: "available" | "occupied" ;
+  status?: "available" | "occupied" ;
   createdAt: string;
   updatedAt: string;
 }
@@ -149,6 +149,30 @@ export interface checkInRecord{
   status: string;
   checkout_remarks?: string;
 }
+
+export interface User{
+  UserId: number;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: 'Admin' | 'Manager' | 'Host';
+  status: 'Active' | 'Inactive';
+  PermissionId: number | null;
+  permission?: Permission;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Permission {
+  PermissionId: number;
+  name: string;
+  restaurantId?: number;
+  meal_type: 'Breakfast'| 'Lunch'| 'Dinner'| 'All';
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 export interface LoginFormData {
     userName: string;
