@@ -150,6 +150,11 @@ export interface checkInRecord{
   checkout_remarks?: string;
 }
 
+export interface LoginFormData {
+    userName: string;
+    password: string;
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);

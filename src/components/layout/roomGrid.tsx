@@ -5,7 +5,7 @@ import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
 import { Plus } from "lucide-react";
 import { resortApi } from "@/lib/api";
-import { Resort } from "@/lib/types";
+import { Resort, Restaurant } from "@/lib/types";
 import RoomForm from "../forms/roomForm";
 
 interface ResortNavigationProps {
@@ -45,6 +45,8 @@ interface RoomGridProps {
   externalResorts?: Resort[];
   externalActiveResort?: number | null;
   onExternalResortChange?: (resortId: number) => void;
+  outlets: Restaurant[];
+  selectedOutlet: Restaurant; 
 }
 
 const RoomGrid = ({
@@ -53,6 +55,8 @@ const RoomGrid = ({
   externalResorts,
   externalActiveResort,
   onExternalResortChange,
+  outlets, 
+  selectedOutlet, 
 }: RoomGridProps) => {
   // Internal state (fallback when no external state provided)
   const [internalResorts, setInternalResorts] = useState<Resort[]>([]);
@@ -241,6 +245,8 @@ const RoomGrid = ({
               searchTerm={searchTerm}
               mode={mode}
               key={`${activeResort}-${refreshTrigger}`}
+              outlets={outlets}
+              selectedOutlet={selectedOutlet}
             />
           </div>
         </div>

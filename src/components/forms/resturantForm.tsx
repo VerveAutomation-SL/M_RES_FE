@@ -1,7 +1,7 @@
 "use client";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createRestaurant, getAllResorts } from "@/lib/api/restaurants";
+import { createRestaurant, getAllResorts } from "@/lib/api/restaurantsApi";
 import { Resort } from "@/lib/types";
 
 interface ResturantFormProps {

@@ -5,7 +5,7 @@ import CheckInForm from "../forms/checkInForm";
 import { checkInApi, roomApi } from "@/lib/api";
 import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
-import { Room } from "@/lib/types";
+import { Restaurant, Room } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
 import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 import { CheckInDetails } from "@/lib/types";
@@ -16,6 +16,8 @@ interface ButtonGridProps {
   mode?: "check-in" | "view-details";
   resortId: number;
   searchTerm?: string;
+  outlets: Restaurant[];
+  selectedOutlet: Restaurant;
 }
 
 const isWithinMealPeriod = (mealType: string) => {
@@ -42,7 +44,13 @@ interface RoomData {
   resortId: number;
 }
 
-const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGridProps) => {
+const ButtonGrid = ({
+  mode = "check-in",
+  resortId,
+  searchTerm = "",
+  outlets,
+  selectedOutlet,
+}: ButtonGridProps) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null); // Move this up
@@ -568,6 +576,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
           mealType={mealType}
           resortId={resortId}
           roomId={selectedRoomId}
+          outlets={outlets}
+          defaultOutlet={selectedOutlet}
           onCheckInSuccess={handleCheckInSuccess} 
         />
       )}

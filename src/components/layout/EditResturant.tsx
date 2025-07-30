@@ -6,7 +6,7 @@ import {
   getAllResorts,
   getRestaurantById,
   updateRestaurant,
-} from "@/lib/api/restaurants";
+} from "@/lib/api/restaurantsApi";
 
 interface EditRestaurantModalProps {
   isOpen: boolean;

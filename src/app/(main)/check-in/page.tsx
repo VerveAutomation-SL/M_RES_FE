@@ -5,21 +5,25 @@ import Header from "@/components/layout/header";
 import RoomGrid from "@/components/layout/roomGrid";
 import Card from "@/components/ui/card";
 import Modal from "@/components/ui/legend";
-import { MapPin, RefreshCw } from "lucide-react";
+import { MapPin, RefreshCw, Store } from "lucide-react";
 import { useCheckInStats } from "@/hooks/useCheckInStats";
-import { resortApi } from "@/lib/api";
-import { Resort } from "@/lib/types";
+import { resortApi, restaurantApi } from "@/lib/api";
+import { Resort, Restaurant } from "@/lib/types";
 
 export default function CheckInPage() {
   // Resort state management
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [activeResort, setActiveResort] = useState<number | null>(null);
   const [resortsLoading, setResortsLoading] = useState(true);
-  
+
   // Resort details
   const [resortName, setResortName] = useState<string>("Loading...");
   const [resortLocation, setResortLocation] = useState<string>("Loading...");
-  
+
+  const [outlets, setOutlets] = useState<Restaurant[]>([]);
+  const [outletsLoading, setOutletsLoading] = useState(true);
+  const [selectedOutlet, setSelectedOutlet] = useState<Restaurant>();
+
   // Stats hook using the shared activeResort
   const { stats, loading, error, refetch } = useCheckInStats(activeResort || 0);
 
@@ -39,7 +43,10 @@ export default function CheckInPage() {
           const sortedResorts = response.data.sort((a, b) => a.id - b.id);
           setResorts(sortedResorts);
           setActiveResort(sortedResorts[0].id);
-          console.log("✅ CheckInPage: Resorts loaded, active resort:", sortedResorts[0].id);
+          console.log(
+            "✅ CheckInPage: Resorts loaded, active resort:",
+            sortedResorts[0].id
+          );
         } else {
           console.warn("❌ CheckInPage: No resorts found");
           setResorts([]);
@@ -61,7 +68,7 @@ export default function CheckInPage() {
   useEffect(() => {
     const fetchResortDetails = async () => {
       if (!activeResort) return;
-      
+
       try {
         const response = await resortApi.getResortById(activeResort);
         if (response?.success && response.data) {
@@ -76,19 +83,49 @@ export default function CheckInPage() {
     fetchResortDetails();
   }, [activeResort]);
 
+  // Fetch outlets when activeResort changes
+  useEffect(() => {
+    const fetchOutlets = async () => {
+      setOutletsLoading(true);
+      try {
+        const result = await restaurantApi.getAllResortsWithRestaurants();
+        if (result?.success && Array.isArray(result.data)) {
+          const resort = result.data.find((r: Resort) => r.id === activeResort);
+          setOutlets(resort?.restaurants || []);
+        } else {
+          setOutlets([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch outlets:", error);
+        setOutlets([]);
+      } finally {
+        setOutletsLoading(false);
+      }
+    };
+    if (activeResort) fetchOutlets();
+  }, [activeResort]);
+
+  useEffect(() => {
+    if (!outletsLoading && outlets.length > 0) {
+      setSelectedOutlet(outlets[0] || {});
+    }
+  }, [outletsLoading, outlets]);
+
   // Handle resort change from RoomGrid navigation
   const handleResortChange = (resortId: number) => {
     if (resortId === activeResort) return;
-    
-    console.log(`🔄 CheckInPage: Resort changed from ${activeResort} to ${resortId}`);
+
+    console.log(
+      `🔄 CheckInPage: Resort changed from ${activeResort} to ${resortId}`
+    );
     setActiveResort(resortId);
   };
 
   const formatMealTime = (mealType: string) => {
     const mealTimes = {
       breakfast: "06:00 - 10:30",
-      lunch: "12:00 - 16:00", 
-      dinner: "19:00 - 22:30"
+      lunch: "12:00 - 16:00",
+      dinner: "19:00 - 22:30",
     };
     return mealTimes[mealType as keyof typeof mealTimes] || "";
   };
@@ -97,9 +134,9 @@ export default function CheckInPage() {
   if (resortsLoading) {
     return (
       <div className="space-y-6">
-        <Header 
-          title="Dining Check-ins" 
-          subtitle="The Residence Maldives - Daily Dining Management" 
+        <Header
+          title="Dining Check-ins"
+          subtitle="The Residence Maldives - Daily Dining Management"
         />
         <div className="text-center p-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -111,9 +148,9 @@ export default function CheckInPage() {
 
   return (
     <div className="space-y-6">
-      <Header 
-        title="Dining Check-ins" 
-        subtitle="The Residence Maldives - Daily Dining Management" 
+      <Header
+        title="Dining Check-ins"
+        subtitle="The Residence Maldives - Daily Dining Management"
       />
 
       <div className="flex flex-wrap gap-6 justify-between">
@@ -123,24 +160,30 @@ export default function CheckInPage() {
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 text-gray-950 mr-2 mb-1" />
-                <h1 className="font-semibold text-gray-900 text-2xl">{resortName}</h1>
+                <h1 className="font-semibold text-gray-900 text-2xl">
+                  {resortName}
+                </h1>
               </div>
-              <button 
+              <button
                 onClick={refetch}
                 disabled={loading}
                 className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-50"
                 title="Refresh statistics"
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-3">{resortLocation}</p>
-            
+
             {error ? (
               <div className="text-red-600 text-sm mb-4">{error}</div>
             ) : loading ? (
-              <div className="text-gray-500 text-sm mb-4">Loading statistics...</div>
+              <div className="text-gray-500 text-sm mb-4">
+                Loading statistics...
+              </div>
             ) : (
               <>
                 {/* Current Meal Period Info */}
@@ -154,12 +197,14 @@ export default function CheckInPage() {
                     </span>
                   </div>
                   <div className="mt-1">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      stats.isWithinMealPeriod 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {stats.isWithinMealPeriod ? 'ACTIVE' : 'INACTIVE'}
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        stats.isWithinMealPeriod
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {stats.isWithinMealPeriod ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </div>
                 </div>
@@ -174,7 +219,7 @@ export default function CheckInPage() {
                       Remainders for Check-in
                     </span>
                   </div>
-                  
+
                   <div className="text-center p-2 bg-red-50 rounded-lg">
                     <span className="block text-lg font-bold text-red-700">
                       {stats.currentPeriodCheckIns}
@@ -183,7 +228,7 @@ export default function CheckInPage() {
                       Check-ins in Current Period
                     </span>
                   </div>
-                  
+
                   <div className="text-center p-2 bg-blue-50 rounded-lg">
                     <span className="block text-lg font-bold text-blue-700">
                       {stats.totalTodayCheckIns}
@@ -212,22 +257,21 @@ export default function CheckInPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900 text-xl">
                 {/* Dynamic restaurant name based on resort */}
-                {resortName && resortName.toLowerCase().includes('water') 
-                  ? 'Aqua Restaurant' 
-                  : resortName && resortName.toLowerCase().includes('beach')
-                  ? 'Beachside Restaurant'
-                  : 'LIBAI Restaurant'
-                }
+                {selectedOutlet
+                  ? selectedOutlet.restaurantName || "Select Outlet"
+                  : "Select Outlet"}
               </h3>
-              <span className={`text-xs px-3 py-1 rounded-full ${
-                stats.isWithinMealPeriod 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {stats.isWithinMealPeriod ? 'OPEN' : 'CLOSED'}
+              <span
+                className={`text-xs px-3 py-1 rounded-full ${
+                  selectedOutlet?.status === "Open"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {selectedOutlet?.status === "Open" ? "Open" : "Closed"}
               </span>
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Current Meal:</span>
@@ -235,32 +279,69 @@ export default function CheckInPage() {
                   {stats.currentMealType.toUpperCase()}
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Service Hours:</span>
                 <span className="text-sm font-medium text-gray-900">
                   {formatMealTime(stats.currentMealType)}
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Active Diners:</span>
                 <span className="text-sm font-bold text-red-600">
                   {stats.currentPeriodCheckIns}
                 </span>
               </div>
+
+              <div className="mt-10 pt-3 border-t border-gray-100">
+                {outletsLoading ? (
+                  <div className="text-gray-500 text-sm">
+                    Loading outlets...
+                  </div>
+                ) : outlets.length === 0 ? (
+                  <div className="text-gray-400 text-sm">
+                    No outlets found for this resort.
+                  </div>
+                ) : (
+                  <div className="flex gap-2 overflow-x-auto pb-2 mt-4">
+                    {outlets.map((outlet, idx) => (
+                      <button
+                        key={outlet.id || idx}
+                        onClick={() => setSelectedOutlet(outlet)}
+                        className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
+                        ${
+                          selectedOutlet?.id === outlet.id
+                            ? "bg-amber-900 text-white border-amber-900"
+                            : "bg-amber-50 text-gray-700 border-amber-900 hover:bg-amber-100"
+                        }
+                      `}
+                      >
+                        <Store className="w-4 h-4" />
+                        <span className="text-xs">
+                          {outlet.restaurantName || `Outlet ${idx + 1}`}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </Card>
       </div>
 
+      {/* Outlets Section */}
+
       <Modal />
-      
-      <RoomGrid 
+
+      <RoomGrid
         mode="check-in"
         externalResorts={resorts}
         externalActiveResort={activeResort}
         onExternalResortChange={handleResortChange}
+        outlets={outlets}
+        selectedOutlet={selectedOutlet}
       />
     </div>
   );

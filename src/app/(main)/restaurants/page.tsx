@@ -4,7 +4,7 @@ import Header from "@/components/layout/header";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import  Input  from "@/components/ui/input";
-import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
+import { getAllResortsWithRestaurants } from "@/lib/api/restaurantsApi";
 import { Resort } from "@/lib/types";
 import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
