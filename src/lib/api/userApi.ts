@@ -140,3 +140,17 @@ export async function getAdminPermissions() {
         }
     }
 }
+
+export async function getActiveHosts() {
+    try {
+        const response = await apibackend.get('/users/active/hosts');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching active hosts:", error);
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error fetching active hosts", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching active hosts", 500);
+        }
+    }
+}
