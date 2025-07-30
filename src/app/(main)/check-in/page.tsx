@@ -107,7 +107,7 @@ export default function CheckInPage() {
 
   useEffect(() => {
     if (!outletsLoading && outlets.length > 0) {
-      setSelectedOutlet(outlets[0] || {});
+      setSelectedOutlet(outlets[0]);
     }
   }, [outletsLoading, outlets]);
 
