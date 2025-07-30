@@ -65,7 +65,7 @@ export default function ResortOverview({resort}:ResortOverviewProps){
           <MapPinned className="w-5 h-5 " />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-800 text-lg leading-tight">
+          <h3 className="font-semibold text-gray-800 text-xl leading-tight">
             {resort.name}
           </h3>
         </div>
@@ -75,7 +75,7 @@ export default function ResortOverview({resort}:ResortOverviewProps){
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="text-center">
           <div className="text-2xl font-bold text-gray-800 mb-1">
-            {stats.totalRooms}
+              {stats.totalRooms}
           </div>
           <div className="text-md text-gray-500">Total Rooms</div>
         </div>
@@ -97,23 +97,24 @@ export default function ResortOverview({resort}:ResortOverviewProps){
 
       {/* Outlets */}
       <div>
-        <h4 className="font-lg font-semibold text-gray-900 mb-3">Outlets</h4>
+        <h4 className="text-lg font-semibold text-gray-900 mb-3">Outlets</h4>
         <div className="space-y-2">
             {outletLoading ? (
                 <div className="animate-pulse">Loading...</div>
             ) : outlets && Array.isArray(outlets) && outlets.length > 0 ? (
-                // ✅ Display outlets with proper key and fallback
-                    outlets.map((outlet, index) => (
-                        <div 
-                            key={outlet.id || `outlet-${index}`} 
-                            className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                <div className="grid grid-cols-2 gap-3">
+                    {outlets.map((outlet, index) => (
+                        <div
+                          key={outlet.id || `outlet-${index}`}
+                          className="flex flex-col items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                         >
-                            <Store className="w-4 h-4 text-gray-600" />
-                            <span className="text-sm text-gray-700">
-                                {outlet.restaurantName || `Outlet ${index + 1}`}
-                            </span>
+                          <Store className="w-6 h-6 text-amber-900 mb-2" />
+                          <span className="text-sm text-gray-700 text-center">
+                            {outlet.restaurantName || `Outlet ${index + 1}`}
+                          </span>
                         </div>
-                    ))               
+                      ))}
+                </div>
             ) : (
                 <div className="text-sm text-gray-500 p-2">
                     No outlets found

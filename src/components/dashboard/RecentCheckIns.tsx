@@ -64,7 +64,7 @@ export default function RecentCheckIns() {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl p-6 mb-5 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-black">Recent Check-ins</h3>
@@ -87,6 +87,10 @@ export default function RecentCheckIns() {
               </div>
             </div>
           ))}
+        </div>
+      ) : checkIns.length === 0 ? (
+        <div className="text-gray-500 text-center py-8">
+          No recent check-ins for today.
         </div>
       ) : (
         <div className="space-y-4">

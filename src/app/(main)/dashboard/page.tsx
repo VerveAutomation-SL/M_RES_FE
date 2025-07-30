@@ -42,7 +42,7 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-5 mb-5">
                 <StatsCard
                     title="Total Rooms"
                     value={totalRooms.toString()}
@@ -52,9 +52,9 @@ export default function DashboardPage() {
                     icon={<Hotel />}
                 />
                 <StatsCard
-                    title={`Checked In (${mealType})`}
+                    title={`Checked In (${mealType[0].toUpperCase() + mealType.slice(1)})`}
                     value={checkedIn.toString()}
-                    subtitle={`Total check-ins for ${mealType}`}
+                    subtitle={`Total check-ins for ${mealType[0].toUpperCase() + mealType.slice(1)}`}
                     bgColor="bg-white"
                     textColor="text-red-600"
                     icon={<UserRoundCheck />}
@@ -62,7 +62,7 @@ export default function DashboardPage() {
                 <StatsCard
                     title="Available"
                     value={available.toString()}
-                    subtitle={`Available for ${mealType}`}
+                    subtitle={`Available for ${mealType[0].toUpperCase() + mealType.slice(1)}`}
                     bgColor="bg-white"
                     textColor="text-green-600"
                     icon={<SquareCheck />}
@@ -78,7 +78,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Resort Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
                 {resorts.map((resort) => (
                     <ResortOverview key={resort.id} resort={resort} />
                 ))}
