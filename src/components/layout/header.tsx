@@ -6,9 +6,16 @@ interface HeaderProps {
   subtitle: string;
   addButton?: string;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
-const Header = ({ title, subtitle, addButton, onClick }: HeaderProps) => {
+const Header = ({
+  title,
+  subtitle,
+  addButton,
+  onClick,
+  disabled = false,
+}: HeaderProps) => {
   return (
     <>
       <div className="block sm:flex justify-between py-2 md:py-6 transition-all duration-200">
@@ -20,7 +27,7 @@ const Header = ({ title, subtitle, addButton, onClick }: HeaderProps) => {
             {subtitle}
           </p>
         </div>
-        {addButton && (
+        {addButton && !disabled && (
           <button
             className="flex w-full p-2 justify-center items-center
                       sm:w-fit lg:px-4 lg:py-3 my-2 text-xs md:text-base text-white border-2 rounded-full bg-[var(--primary)] hover:bg-white hover:text-[var(--primary)] transition-all duration-200 cursor-pointer"
