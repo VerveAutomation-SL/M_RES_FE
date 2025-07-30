@@ -7,7 +7,7 @@ const Pagelayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex h-screen overflow-hidden">
       <SideBar />
       {/* Main content area - Only needs margin on mobile/tablet */}
-      <div className="flex-1 bg-[var(--background)] flex flex-col overflow-hidden ml-16 sm:ml-20 lg:ml-0">
+      <div className="flex-1 bg-[var(--background)] flex flex-col overflow-hidden">
         {/* Top Bar */}
         <TopBar />
         {/* Main content */}

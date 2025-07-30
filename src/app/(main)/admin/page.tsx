@@ -52,7 +52,6 @@ const Page = () => {
   };
 
   const handleAddAdmin = () => {
-    console.log("Add new admin clicked");
     setShowAddModal(true);
   };
   const handleEditAdmin = (admin: User) => {
@@ -63,9 +62,9 @@ const Page = () => {
   return (
     <>
       <Header
-        title="Admin Management"
-        subtitle="Manage your admin accounts and permissions"
-        addButton="Add Admin"
+        title="Manager Management"
+        subtitle="Manage your Manager accounts and permissions"
+        addButton="Add Managers"
         onClick={handleAddAdmin}
         disabled={
           loading || error !== null || loginUser?.role !== "Admin"

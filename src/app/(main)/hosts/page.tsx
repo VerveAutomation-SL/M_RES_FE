@@ -63,9 +63,9 @@ const Page = () => {
   return (
     <>
       <Header
-        title="User Management"
-        subtitle="Manage your User accounts and permissions"
-        addButton="Add Users"
+        title="Host Management"
+        subtitle="Manage your Host's accounts and permissions"
+        addButton="Add Hosts"
         onClick={handleAddUser}
         disabled={
           hostLoading ||
