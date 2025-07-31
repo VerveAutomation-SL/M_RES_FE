@@ -569,13 +569,13 @@ export default function AnalyticsPage() {
 
       {activeTab === "overview" ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
             <DailyCheckInsChart data={dailyCheckInsData} />
             <MealDistributionChart data={mealDistributionData} />
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 mb-5">
           <HourlyTrendsChart data={hourlyTrendsData} />
         </div>
       )}

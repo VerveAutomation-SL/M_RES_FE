@@ -212,26 +212,12 @@ export default function CheckInForm({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Outlet*
             </label>
-            <select
-              required
+            <input
+              type="text"
               value={formData.outlet_name}
-              onChange={(e) =>
-                setFormData({ ...formData, outlet_name: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"
-            >
-              <option value="">Select outlet</option>
-              {(outlets || [])
-                .filter((outlet) => outlet.status === 'Open')
-                .map((outlet) => (
-                <option
-                  key={outlet.id}
-                  value={outlet.restaurantName}
-                >
-                  {outlet.restaurantName}
-                </option>
-              ))}
-            </select>
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

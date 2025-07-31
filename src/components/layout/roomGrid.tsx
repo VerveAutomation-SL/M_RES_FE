@@ -244,7 +244,7 @@ const RoomGrid = ({
               searchTerm={searchTerm}
               mode={mode}
               key={`${activeResort}-${refreshTrigger}`}
-              outlets={outlets}
+              outlets={outlets ?? []}
               selectedOutlet={selectedOutlet}
             />
           </div>
