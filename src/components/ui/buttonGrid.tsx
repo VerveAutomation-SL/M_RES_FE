@@ -494,8 +494,10 @@ const ButtonGrid = ({
     <>
       {/* Room Series Tabs */}
       {tabItems.length > 1 && (
-        <div className="mb-4">
-          <Tabs items={tabItems} activeItem={activeTab} onTabClick={handleTabClick} />
+        <div className="mb-4 overflow-x-auto">
+          <div className="flex flex-nowrap gap-2 sm:gap-4">
+            <Tabs items={tabItems} activeItem={activeTab} onTabClick={handleTabClick} />
+          </div>
         </div>
       )}
 
@@ -519,7 +521,7 @@ const ButtonGrid = ({
 
       {/* Room Number Grid */}
       {displayRooms.length > 0 ? (
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
           {displayRooms.map((roomNumber) => {
             const buttonColor = getRoomButtonColor(roomNumber);
             const roomStatus = roomStatusData.find(

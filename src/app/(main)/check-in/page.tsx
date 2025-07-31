@@ -153,14 +153,14 @@ export default function CheckInPage() {
         subtitle="The Residence Maldives - Daily Dining Management"
       />
 
-      <div className="flex flex-wrap gap-6 justify-between">
+      <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-6 lg:justify-between">
         {/* Resort Statistics Card */}
-        <Card classname="w-[48%] gap-4 bg-white">
+        <Card classname="w-full lg:w-[48%] gap-4 bg-white">
           <div className="grid grid-cols-1">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 text-gray-950 mr-2 mb-1" />
-                <h1 className="font-semibold text-gray-900 text-2xl">
+                <h1 className="font-semibold text-gray-900 text-xl sm:text-2xl">
                   {resortName}
                 </h1>
               </div>
@@ -210,9 +210,9 @@ export default function CheckInPage() {
                 </div>
 
                 {/* Statistics */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <span className="block text-lg font-bold text-green-700">
+                    <span className="block text-lg sm:text-2xl font-bold text-green-700">
                       {stats.availableForCheckIn}
                     </span>
                     <span className="text-xs text-green-600">
@@ -252,7 +252,7 @@ export default function CheckInPage() {
         </Card>
 
         {/* Restaurant Card - Dynamic restaurant name */}
-        <Card classname="w-[48%] gap-6 bg-white">
+        <Card classname="w-full lg:w-[48%] gap-4 bg-white">
           <div className="grid grid-cols-1">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900 text-xl">
@@ -309,7 +309,7 @@ export default function CheckInPage() {
                       <button
                         key={outlet.id || idx}
                         onClick={() => setSelectedOutlet(outlet)}
-                        className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
+                        className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap cursor-pointer
                         ${
                           selectedOutlet?.id === outlet.id
                             ? "bg-amber-900 text-white border-amber-900"
@@ -330,8 +330,6 @@ export default function CheckInPage() {
           </div>
         </Card>
       </div>
-
-      {/* Outlets Section */}
 
       <Modal />
 

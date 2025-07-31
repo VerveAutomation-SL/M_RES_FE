@@ -220,7 +220,9 @@ export default function CheckInForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"
             >
               <option value="">Select outlet</option>
-              {(outlets || []).map((outlet) => (
+              {(outlets || [])
+                .filter((outlet) => outlet.status === 'Open')
+                .map((outlet) => (
                 <option
                   key={outlet.id}
                   value={outlet.restaurantName}
