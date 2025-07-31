@@ -3,14 +3,18 @@ import ResturantForm from "@/components/forms/resturantForm";
 import Header from "@/components/layout/header";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
-import  Input  from "@/components/ui/input";
+import Input from "@/components/ui/input";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurants";
 import { Resort } from "@/lib/types";
 import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import EditRestaurantModal from "@/components/layout/EditResturant";
+import { useRouter } from "next/navigation";
+import { getDecodedUser } from "@/utils/decoedUser";
 
 const Page = () => {
+  const router = useRouter();
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [loadingResorts, setLoadingResorts] = useState(false);
@@ -23,7 +27,21 @@ const Page = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState<number>();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+
   useEffect(() => {
+    const user = getDecodedUser();
+    if (!user) {
+      setIsAuthenticated(false);
+      router.push("/login");
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchResorts = async () => {
       setLoadingResorts(true);
       try {
@@ -37,7 +55,7 @@ const Page = () => {
       }
     };
     fetchResorts();
-  }, [refreshTrigger]);
+  }, [isAuthenticated, refreshTrigger]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -227,11 +245,16 @@ const Page = () => {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
-                          type="text"
-                          placeholder="Search restaurants"
-                          value={searchValue}
-                          onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setSearchValue(e.target.value)}
-                          className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm" name={""} required={false}                      />
+                        type="text"
+                        placeholder="Search restaurants"
+                        value={searchValue}
+                        onChange={(e: {
+                          target: { value: React.SetStateAction<string> };
+                        }) => setSearchValue(e.target.value)}
+                        className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm"
+                        name={""}
+                        required={false}
+                      />
                     </div>
                   </div>
 

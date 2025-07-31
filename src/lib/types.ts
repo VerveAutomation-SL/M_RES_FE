@@ -158,6 +158,7 @@ export interface checkInRecord{
 }
 
 export interface User{
+  exp?: number;
   UserId: number;
   username: string;
   email: string;
@@ -166,8 +167,8 @@ export interface User{
   status: 'Active' | 'Inactive';
   PermissionId: number | null;
   permission?: Permission;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Permission {

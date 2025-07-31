@@ -9,8 +9,12 @@ import Image from "next/image";
 import Button from "@/components/ui/button";
 import ViewUser from "@/components/forms/viewUser";
 import UserForm from "@/components/forms/addUser";
+import { useRouter } from "next/navigation";
+import { getDecodedUser } from "@/utils/decoedUser";
 
 const Page = () => {
+  const router = useRouter();
+
   const [admins, setAdmins] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,18 +22,24 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>({
-    UserId: 0,
-    username: "",
-    email: "",
-    role: "Host",
-    status: "Active",
-    PermissionId: null,
-    createdAt: "",
-    updatedAt: "",
-  });
+  const [loginUser, setLoginUser] = useState<User | null>(null);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
 
   useEffect(() => {
+    const user = getDecodedUser();
+    if (!user) {
+      setIsAuthenticated(false);
+      router.push("/login");
+    } else {
+      setLoginUser(user);
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchAdmins = async () => {
       setLoading(true);
       setError(null);
@@ -45,7 +55,7 @@ const Page = () => {
       }
     };
     fetchAdmins();
-  }, [refreshTrigger]);
+  }, [isAuthenticated, refreshTrigger]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch

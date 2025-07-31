@@ -9,8 +9,12 @@ import Image from "next/image";
 import { User } from "@/lib/types";
 import { UserIcon, View } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getDecodedUser } from "@/utils/decoedUser";
 
 const Page = () => {
+  const router = useRouter();
+
   const [hostLoading, setHostLoading] = useState(false);
   const [hostError, setHostError] = useState("");
   const [hostData, setHostData] = useState<User[]>([]);
@@ -18,18 +22,24 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>({
-    UserId: 1,
-    username: "",
-    email: "",
-    role: "Host",
-    status: "Active",
-    PermissionId: null,
-    createdAt: "",
-    updatedAt: "",
-  });
+  const [loginUser, setLoginUser] = useState<User | null>(null);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
 
   useEffect(() => {
+    const user = getDecodedUser();
+    if (!user) {
+      setIsAuthenticated(false);
+      router.push("/login");
+    } else {
+      setLoginUser(user);
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchHosts = async () => {
       setHostLoading(true);
       try {
@@ -45,7 +55,7 @@ const Page = () => {
     };
 
     fetchHosts();
-  }, [refreshTrigger]);
+  }, [isAuthenticated, refreshTrigger, router]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch

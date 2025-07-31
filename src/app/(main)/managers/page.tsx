@@ -6,11 +6,15 @@ import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { getAllManagers } from "@/lib/api/userApi";
 import { User } from "@/lib/types";
+import { getDecodedUser } from "@/utils/decoedUser";
 import { UserIcon, View } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
+  const router = useRouter();
+
   const [managerLoading, setManagerLoading] = useState(false);
   const [managerError, setManagerError] = useState("");
   const [managerData, setManagerData] = useState<User[]>([]);
@@ -19,18 +23,24 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>({
-    UserId: 9,
-    username: "",
-    email: "",
-    role: "Host",
-    status: "Active",
-    PermissionId: null,
-    createdAt: "",
-    updatedAt: "",
-  });
+  const [loginUser, setLoginUser] = useState<User | null>(null);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const user = getDecodedUser();
+    if (!user) {
+      setIsAuthenticated(false);
+      router.push("/login");
+    } else {
+      setLoginUser(user);
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchManagers = async () => {
       setManagerLoading(true);
       try {
@@ -47,7 +57,7 @@ const Page = () => {
       }
     };
     fetchManagers();
-  }, [refreshTrigger]);
+  }, [isAuthenticated, refreshTrigger]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch

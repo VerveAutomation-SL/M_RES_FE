@@ -16,6 +16,7 @@ import {
   checkInRecord,
   ReportFilterData,
 } from "@/lib/types";
+import { getDecodedUser } from "@/utils/decoedUser";
 import {
   ChevronDown,
   Download,
@@ -24,9 +25,12 @@ import {
   Sheet,
   Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AnalyticsPage() {
+  const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<"overview" | "trends">("overview");
   const [filters, setFilters] = useState<ReportFilterData>({
     checkinStartDate: "",
@@ -54,6 +58,18 @@ export default function AnalyticsPage() {
   const [exportLoading, setExportLoading] = useState<"pdf" | "excel" | null>(
     null
   );
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+
+  useEffect(() => {
+    const user = getDecodedUser();
+    if (!user) {
+      setIsAuthenticated(false);
+      router.push("/login");
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
 
   // Resort mapping
   const resortNames: { [key: number]: string } = {
@@ -156,6 +172,8 @@ export default function AnalyticsPage() {
 
   // Fetch analytics data on component mount
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchAnalyticsData = async () => {
       try {
         setLoading(true);
@@ -171,7 +189,7 @@ export default function AnalyticsPage() {
     };
 
     fetchAnalyticsData();
-  }, []);
+  }, [isAuthenticated]);
 
   // Transform functions with fallback mock data
   const transformDailyCheckInsData = () => {

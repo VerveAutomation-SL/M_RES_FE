@@ -8,30 +8,50 @@ import { resortApi } from "@/lib/api";
 import { Resort } from "@/lib/types";
 import { Hotel, SquareCheck, UserRoundCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
+import { getDecodedUser } from "@/utils/decoedUser";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
+
   const { totalRooms, activehosts, checkedIn, available, mealType, loading } =
     useMealPeriodCheckIns();
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [resortsLoading, setResortsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    fetchResorts();
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
 
-  const fetchResorts = async () => {
-    try {
-      setResortsLoading(true);
-      const resortsResponse = await resortApi.getAllResortsWithRooms();
-      if (resortsResponse.success && resortsResponse.data) {
-        setResorts(resortsResponse.data);
-      }
-    } catch (error) {
-      console.error("Error fetching resorts:", error);
-    } finally {
-      setResortsLoading(false);
+  useEffect(() => {
+    const user = getDecodedUser();
+    if (!user) {
+      setIsAuthenticated(false);
+      router.push("/login");
+    } else {
+      setIsAuthenticated(true);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const fetchResorts = async () => {
+      try {
+        setResortsLoading(true);
+        const resortsResponse = await resortApi.getAllResortsWithRooms();
+        if (resortsResponse.success && resortsResponse.data) {
+          setResorts(resortsResponse.data);
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          // Handle specific Axios error
+          console.error("Axios error:", error);
+        }
+      } finally {
+        setResortsLoading(false);
+      }
+    };
+    if (!isAuthenticated) return;
+    fetchResorts();
+  }, [isAuthenticated]);
 
   if (loading || resortsLoading) {
     return (

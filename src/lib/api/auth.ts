@@ -2,9 +2,9 @@ import apibackend from "../backendAPI";
 import axios from "axios";
 import { AppError } from "../types";
 
-export async function checkAuthLogin() {
+export async function tokenRefresh() {
     try {
-        const response = await apibackend.post("/token/verify");
+        const response = await apibackend.post("/token/refresh");
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -18,13 +18,11 @@ export async function checkAuthLogin() {
 
 export async function login(
   formData: { userName: string; password: string },
-  clickedRole: "Admin" | "User" | null
 ) {
   try {
     const response = await apibackend.post("/auth/login", {
       userName: formData.userName,
       password: formData.password,
-      role: clickedRole,
     }); 
     return response;
   } catch (error) {
