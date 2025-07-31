@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { checkInApi, resortApi, roomApi } from "@/lib/api";
 import { CheckInDetails } from "@/lib/types";
+import toast from "react-hot-toast";
 
 
 interface CheckInDetailsModalProps {
@@ -124,13 +125,13 @@ export default function CheckInDetailsModal({
 
       const response = await checkInApi.processCheckOut(checkOutData);
       if (response.success) {
-        alert("Check-out successful");
+        toast.success("Check-out successful");
 
         onCheckoutSuccess?.(roomNumber);
         setShowRemarksModal(false);
         onClose();
       } else {
-        alert("Check-out failed: " + response.message);
+        toast.error("Check-out failed: " + response.message);
         console.error("Check-out error:", response.message);
       }
     } catch (error) {
@@ -161,7 +162,7 @@ export default function CheckInDetailsModal({
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 cursor-pointer" />
           </button>
         </div>
 

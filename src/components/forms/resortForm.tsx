@@ -4,6 +4,7 @@ import { resortApi } from "@/lib/api";
 import { ResortFormData } from "@/lib/types";
 import { X } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ResortFormProps {
     isOpen?: boolean;
@@ -52,7 +53,7 @@ export default function ResortForm({isOpen = false, onClose, onSuccess, name, lo
                 setError('');
                 
                 // Show success message
-                alert("Resort created successfully!");
+                toast.success("Resort created successfully!");
                 
                 // Call callbacks
                 onSuccess?.();

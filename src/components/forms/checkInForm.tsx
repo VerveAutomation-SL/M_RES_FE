@@ -6,6 +6,7 @@ import { Clock, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { checkInApi } from "@/lib/api";
 import { resortApi } from "@/lib/api"; // Import the resortApi
+import toast from "react-hot-toast";
 
 interface CheckInFormProps {
   isOpen?: boolean;
@@ -109,13 +110,13 @@ export default function CheckInForm({
         !formData.meal_plan ||
         !formData.table_number
       ) {
-        alert("Please fill in all required fields.");
+        toast.error("Please fill in all required fields.");
         setLoading(false);
         return;
       }
 
       if (!roomId) {
-        alert("Room ID not found. Please try again.");
+        toast.error("Room ID not found. Please try again.");
         setLoading(false);
         return;
       }
@@ -139,7 +140,7 @@ export default function CheckInForm({
 
       if (response && response.success) {
         onCheckInSuccess?.(selectedRoom!);
-        alert("Check-in successful!");
+        toast.success("Check-in successful!");
         onClose?.();
       } else {
         alert(response?.message || "Failed to check in");
@@ -150,7 +151,7 @@ export default function CheckInForm({
         error instanceof Error
           ? error.message
           : "An error occurred during check-in";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -174,7 +175,7 @@ export default function CheckInForm({
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 cursor-pointer" />
           </button>
         </div>
         <div className="space-y-4">

@@ -10,6 +10,7 @@ import RoomDetails from "../layout/roomDetails";
 import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 import { CheckInDetails } from "@/lib/types";
 import TooltipWithAsyncContent from "./tooltipWithAsyncContent";
+import toast from "react-hot-toast";
 
 
 interface ButtonGridProps {
@@ -322,12 +323,12 @@ const ButtonGrid = ({
       const withinPeriod = isWithinMealPeriod(mealType);
       
       if (!withinPeriod) {
-        alert(`Check-in is only available during ${mealType} time period.`);
+        toast.error(`Check-in is only available during ${mealType} time period.`);
         return;
       }
 
       if (!roomId) {
-        alert(`Room ${roomNumber} not found.`);
+        toast.error(`Room ${roomNumber} not found.`);
         return;
       } 
       setSelectedRoom(roomNumber.toString());

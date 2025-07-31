@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { League_Spartan } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 const leagueSpartan = League_Spartan({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} antialiased`}
       >
+        <Toaster position="bottom-right" />
         {children}
       </body>
     </html>

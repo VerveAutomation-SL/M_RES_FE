@@ -45,8 +45,8 @@ interface RoomGridProps {
   externalResorts?: Resort[];
   externalActiveResort?: number | null;
   onExternalResortChange?: (resortId: number) => void;
-  outlets: Restaurant[];
-  selectedOutlet: Restaurant; 
+  outlets?: Restaurant[];
+  selectedOutlet?: Restaurant;
 }
 
 const RoomGrid = ({
@@ -228,7 +228,7 @@ const RoomGrid = ({
                 <SearchBar onSearch={handleSearch} />
                 {addButton && (
                   <button
-                    className="flex items-center p-1 sm:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
+                    className="flex w-full justify-center sm:w-fit items-center p-1 sm:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
                     onClick={handleAddRoom}
                   >
                     <Plus className="w-3 h-3 sm:w-5 sm:h-5 mr-2" />
