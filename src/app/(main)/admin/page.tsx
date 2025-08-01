@@ -9,6 +9,7 @@ import Image from "next/image";
 import Button from "@/components/ui/button";
 import ViewUser from "@/components/forms/viewUser";
 import UserForm from "@/components/forms/addUser";
+import { useAuthStore } from "@/store/authStore";
 
 const Page = () => {
   const [admins, setAdmins] = useState<User[]>([]);
@@ -18,16 +19,10 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>({
-    UserId: 0,
-    username: "",
-    email: "",
-    role: "Host",
-    status: "Active",
-    PermissionId: null,
-    createdAt: "",
-    updatedAt: "",
-  });
+
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in managers page");
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -44,8 +39,10 @@ const Page = () => {
         setLoading(false);
       }
     };
-    fetchAdmins();
-  }, [refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchAdmins();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
@@ -62,14 +59,12 @@ const Page = () => {
   return (
     <>
       <Header
-        title="Manager Management"
-        subtitle="Manage your Manager accounts and permissions"
-        addButton="Add Managers"
+        title="Admin Management"
+        subtitle="Manage your Admins accounts and permissions"
+        addButton="Add Admin"
         onClick={handleAddAdmin}
         disabled={
-          loading || error !== null || loginUser?.role !== "Admin"
-            ? true
-            : false
+          loading || error !== null || user?.role !== "Admin" ? true : false
         }
       />
       <div className="flex-1">
@@ -163,7 +158,7 @@ const Page = () => {
           onClose={() => setShowViewModal(false)}
           userId={selectedAdmin.UserId}
           onSuccess={handelRefresh}
-          loginUser={loginUser ?? undefined}
+          loginUser={user ?? undefined}
         />
       )}
 

@@ -1,13 +1,15 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import { Key, User } from "lucide-react";
+import { Eye, EyeOff, Key, User } from "lucide-react";
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { LoginFormData } from "@/lib/types/auth";
+import { LoginFormData } from "@/lib/types";
 import AuthInput from "@/components/ui/input";
-import { checkAuthLogin, login } from "@/lib/api/auth";
+import { login, tokenRefresh } from "@/lib/api/auth";
 import { AppError } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
 const Page = () => {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -16,14 +18,24 @@ const Page = () => {
   });
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [clickedRole, setClickedRole] = useState<"Admin" | "User" | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { autoLogin, login_user } = useAuthStore.getState();
+
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await checkAuthLogin();
+        const response = await tokenRefresh();
         console.log("Authentication check response:", response);
-        // router.push("/dashboard");
+        if (response.success) {
+          console.log(
+            "User is already authenticated, redirecting to dashboard."
+          );
+          autoLogin();
+          router.push("/dashboard");
+        }
       } catch (err: unknown) {
         if (err instanceof AppError) {
           console.error(err.message);
@@ -33,7 +45,7 @@ const Page = () => {
       }
     };
     checkAuth();
-  }, []);
+  }, [autoLogin, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,9 +70,13 @@ const Page = () => {
     }
     setLoading(true);
     try {
-      const response = await login(formData, clickedRole);
+      const response = await login(formData);
 
       console.log("Login response:", response);
+      if (response.data.success) {
+        login_user(response.data.accessToken);
+        router.push("/dashboard");
+      }
     } catch (err: unknown) {
       if (err instanceof AppError) {
         console.error(err.message);
@@ -126,7 +142,6 @@ const Page = () => {
                   value={formData.userName}
                   onChange={handleInputChange}
                   error={errors.name}
-                  icon={User}
                   required
                   disabled={isLoading}
                   className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
@@ -135,21 +150,32 @@ const Page = () => {
 
               {/* Password */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-4 mt-4 flex items-start pointer-events-none">
                   <Key className="h-5 w-5 text-[#8B6F47] opacity-70" />
                 </div>
                 <AuthInput
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="Enter Password"
                   value={formData.password}
                   onChange={handleInputChange}
                   error={errors.password}
-                  icon={Key}
                   required
                   disabled={isLoading}
-                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
+                  className="w-full pl-12 pr-12 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-4 mt-5 flex items-start text-[#8B6F47] opacity-70"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
                 <div className="text-right mt-2 sm:mt-3 mr-2">
                   <a
                     href="/forgot-password"
@@ -164,19 +190,10 @@ const Page = () => {
               <div className="flex flex-col sm:flex-row pt-4 sm:pt-6 gap-4 sm:gap-6">
                 <Button
                   type="submit"
-                  onClick={() => setClickedRole("Admin")}
                   disabled={isLoading}
                   className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? "SIGNING IN..." : "SIGN IN as Admin"}
-                </Button>
-                <Button
-                  type="submit"
-                  onClick={() => setClickedRole("User")}
-                  disabled={isLoading}
-                  className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? "SIGNING IN..." : "SIGN IN as User"}
+                  {isLoading ? "SIGNING IN..." : "SIGN IN "}
                 </Button>
               </div>
             </form>

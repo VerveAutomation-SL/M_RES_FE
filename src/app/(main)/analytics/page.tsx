@@ -16,6 +16,8 @@ import {
   checkInRecord,
   ReportFilterData,
 } from "@/lib/types";
+import { useAuthStore } from "@/store/authStore";
+import { getDecodedUser } from "@/utils/decoedUser";
 import {
   ChevronDown,
   Download,
@@ -54,6 +56,10 @@ export default function AnalyticsPage() {
   const [exportLoading, setExportLoading] = useState<"pdf" | "excel" | null>(
     null
   );
+
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in analytics page");
 
   // Resort mapping
   const resortNames: { [key: number]: string } = {
@@ -156,6 +162,8 @@ export default function AnalyticsPage() {
 
   // Fetch analytics data on component mount
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchAnalyticsData = async () => {
       try {
         setLoading(true);
@@ -169,9 +177,10 @@ export default function AnalyticsPage() {
         setLoading(false);
       }
     };
-
-    fetchAnalyticsData();
-  }, []);
+    if (!isLoading && isAuthenticated) {
+      fetchAnalyticsData();
+    }
+  }, [isAuthenticated, isLoading]);
 
   // Transform functions with fallback mock data
   const transformDailyCheckInsData = () => {

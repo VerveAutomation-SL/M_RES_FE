@@ -6,7 +6,8 @@ import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { checkInApi, resortApi } from "@/lib/api";
 import { getCurrentMealType } from "@/lib/data";
-import { Resort} from "@/lib/types";
+import { Resort } from "@/lib/types";
+import { useAuthStore } from "@/store/authStore";
 import { ChevronRight, MapPin } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 
@@ -20,7 +21,13 @@ const Page = () => {
   // Add state for check-in stats
   const [resortStats, setResortStats] = useState<Record<number, any>>({});
 
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in resorts page");
+
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchResorts = async () => {
       setLoading(true);
       try {
@@ -35,8 +42,10 @@ const Page = () => {
         setLoading(false);
       }
     };
-    fetchResorts();
-  }, [refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   // Fetch check-in stats for each resort
   useEffect(() => {
@@ -46,47 +55,57 @@ const Page = () => {
           try {
             // Get today's check-ins
             const todayResponse = await checkInApi.getTodayCheckIns(resort.id);
-            
+
             // Get current check-in status for active diners
             const currentMeal = getCurrentMealType();
-            const activeResponse = await checkInApi.getCheckInStatus(resort.id, currentMeal);
-            
+            const activeResponse = await checkInApi.getCheckInStatus(
+              resort.id,
+              currentMeal
+            );
+
             // Process the data
             const todayCheckInsCount = todayResponse?.data?.length || 0;
-            const activeCheckInsCount = activeResponse?.data?.filter((item: any) => item.checked_in)?.length || 0;
-            
-            return { 
-              resortId: resort.id, 
-              stats: { 
+            const activeCheckInsCount =
+              activeResponse?.data?.filter((item: any) => item.checked_in)
+                ?.length || 0;
+
+            return {
+              resortId: resort.id,
+              stats: {
                 todayCheckIns: todayCheckInsCount,
-                activeCheckIns: activeCheckInsCount 
-              } 
+                activeCheckIns: activeCheckInsCount,
+              },
             };
           } catch (error) {
-            console.error(`Error fetching stats for resort ${resort.id}:`, error);
-            return { 
-              resortId: resort.id, 
-              stats: { 
-                todayCheckIns: 0, 
-                activeCheckIns: 0 
-              } 
+            console.error(
+              `Error fetching stats for resort ${resort.id}:`,
+              error
+            );
+            return {
+              resortId: resort.id,
+              stats: {
+                todayCheckIns: 0,
+                activeCheckIns: 0,
+              },
             };
           }
         });
-        
+
         const results = await Promise.all(statsPromises);
         const statsMap = results.reduce((acc, { resortId, stats }) => {
           acc[resortId] = stats;
           return acc;
         }, {} as Record<number, any>);
-        
-        console.log('Resort stats:', statsMap); // Debug log
+
+        console.log("Resort stats:", statsMap); // Debug log
         setResortStats(statsMap);
       }
     };
-    
-    fetchResortStats();
-  }, [resorts]);
+
+    if (!isLoading && isAuthenticated) {
+      fetchResortStats();
+    }
+  }, [isAuthenticated, isLoading, resorts]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -244,5 +263,3 @@ const Page = () => {
 };
 
 export default Page;
-
-

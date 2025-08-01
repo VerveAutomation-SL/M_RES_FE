@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { checkInApi, roomApi } from '@/lib/api';
+import { getCurrentMealType, MEAL_TIMES } from '@/lib/data';
 
 interface CheckInStats {
   availableForCheckIn: number;
@@ -21,34 +22,6 @@ export const useCheckInStats = (resortId: number) => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-
-  // Meal time logic (same as ButtonGrid)
-  const MEAL_TIMES = {
-    breakfast: { start: "06:00:00", end: "10:30:00" },
-    lunch: { start: "12:00:00", end: "16:00:00" },
-    dinner: { start: "19:00:00", end: "22:30:00" }
-  };
-
-  const getCurrentMealType = () => {
-    const now = new Date();
-    const currentTime = now.toTimeString().split(' ')[0];
-    
-    if (currentTime >= MEAL_TIMES.breakfast.start && currentTime <= MEAL_TIMES.breakfast.end) {
-      return "breakfast";
-    } else if (currentTime >= MEAL_TIMES.lunch.start && currentTime <= MEAL_TIMES.lunch.end) {
-      return "lunch";
-    } else if (currentTime >= MEAL_TIMES.dinner.start && currentTime <= MEAL_TIMES.dinner.end) {
-      return "dinner";
-    } else if (currentTime < MEAL_TIMES.breakfast.start) {
-      return "breakfast";
-    } else if (currentTime < MEAL_TIMES.lunch.start) {
-      return "lunch";
-    } else if (currentTime < MEAL_TIMES.dinner.start) {
-      return "dinner";
-    } else {
-      return "breakfast";
-    }
-  };
 
   const isWithinMealPeriod = (mealType: string) => {
     const now = new Date();

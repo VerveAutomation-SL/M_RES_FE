@@ -54,7 +54,7 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
     };
 
     const routeCrumbs = routeBreadcrumbs[pathname] || [
-    { label: "Dashboard" }
+    { label: "Hi Admin!" }
   ];
   
     return routeCrumbs.filter(crumb => crumb.label !== "Home");
@@ -126,7 +126,9 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
           <Button
             variant="outline"
             size="sm"
-            className="flex items-center gap-1 bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-800 px-2 sm:px-3 py-1 sm:py-2 text-xs md:text-base rounded-full shadow-sm transition-colors"
+            className="flex items-center gap-1 bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-800 
+                      px-2 sm:px-3 py-1 sm:py-2 text-xs md:text-base rounded-full shadow-sm transition-colors cursor-pointer"
+            onClick={() => window.location.reload()}
           >
             <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
             <span className="hidden lg:inline">Refresh</span>

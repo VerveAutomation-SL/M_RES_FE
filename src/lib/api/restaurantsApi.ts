@@ -7,6 +7,21 @@ export async function getAllResorts() {
     const response = await apibackend.get("/resorts");
     return response.data;
   } catch (error) {
+    console.error("Error fetching Resorts:", error);
+    if (axios.isAxiosError(error)) {
+      throw new AppError(error.response?.data || "Error fetching Resorts", error.status || 500 
+      );
+    } else {
+        throw new AppError("An unexpected error occurred during fetching Resorts",500);
+    }
+  }
+}
+
+export async function getAllRestaurants() {
+  try {
+    const response = await apibackend.get("/restaurants");
+    return response.data;
+  } catch (error) {
     console.error("Error fetching restaurants:", error);
     if (axios.isAxiosError(error)) {
       throw new AppError(error.response?.data || "Error fetching restaurants", error.status || 500 

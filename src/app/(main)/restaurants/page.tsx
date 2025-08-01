@@ -9,6 +9,7 @@ import { Resort } from "@/lib/types";
 import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import EditRestaurantModal from "@/components/layout/EditResturant";
+import { useAuthStore } from "@/store/authStore";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,10 @@ const Page = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState<number>();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in restaurant page");
+
   useEffect(() => {
     const fetchResorts = async () => {
       setLoadingResorts(true);
@@ -36,8 +41,10 @@ const Page = () => {
         setLoadingResorts(false);
       }
     };
-    fetchResorts();
-  }, [refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -227,11 +234,16 @@ const Page = () => {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
-                          type="text"
-                          placeholder="Search restaurants"
-                          value={searchValue}
-                          onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setSearchValue(e.target.value)}
-                          className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm" name={""} required={false}                      />
+                        type="text"
+                        placeholder="Search restaurants"
+                        value={searchValue}
+                        onChange={(e: {
+                          target: { value: React.SetStateAction<string> };
+                        }) => setSearchValue(e.target.value)}
+                        className="pl-10 w-full text-sm placeholder:text-xs sm:placeholder:text-sm"
+                        name={""}
+                        required={false}
+                      />
                     </div>
                   </div>
 
@@ -312,7 +324,10 @@ const Page = () => {
                         onClick={() => handleRestaurantClick(restaurant.id)}
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1">
+                          <h3
+                            className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1 truncate"
+                            title={restaurant.restaurantName + " Restaurant"}
+                          >
                             {restaurant.restaurantName} Restaurant
                           </h3>
                           <div

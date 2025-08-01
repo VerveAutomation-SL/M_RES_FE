@@ -80,4 +80,14 @@ export const processCheckOut = async (checkOutData:{
     }
 };
 
-
+// get all check-in record
+export const getAllCheckInsToday = async (date?: string) => {
+    try {
+        const params = date? {params: { date }} : {};
+        const response = await api.get<ApiResponse<CheckIn[]>>('/checkins/today/all', params);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching all check-ins:', error);
+        throw error;
+    }
+};

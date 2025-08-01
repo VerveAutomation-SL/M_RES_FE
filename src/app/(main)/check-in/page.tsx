@@ -9,6 +9,7 @@ import { MapPin, RefreshCw, Store } from "lucide-react";
 import { useCheckInStats } from "@/hooks/useCheckInStats";
 import { restaurantApi } from "@/lib/api";
 import { Resort, Restaurant } from "@/lib/types";
+import { useAuthStore } from "@/store/authStore";
 import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
 import { useRouter } from "next/navigation";
 
@@ -32,6 +33,10 @@ export default function CheckInPage() {
 
   // Stats hook using the shared activeResort
   const { stats, loading, error, refetch } = useCheckInStats(userResort?.id || 0);
+
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in checkin page");
 
   // Fetch resorts on component mount
   useEffect(() => {
@@ -63,8 +68,10 @@ export default function CheckInPage() {
       }
     };
 
-    fetchResorts();
-  }, []);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading]);
 
   useEffect(() => {
   if (!loading && !error) {

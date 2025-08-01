@@ -6,6 +6,7 @@ import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { getAllManagers } from "@/lib/api/userApi";
 import { User } from "@/lib/types";
+import { useAuthStore } from "@/store/authStore";
 import { UserIcon, View } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -19,16 +20,10 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>({
-    UserId: 9,
-    username: "",
-    email: "",
-    role: "Host",
-    status: "Active",
-    PermissionId: null,
-    createdAt: "",
-    updatedAt: "",
-  });
+
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in managers page");
 
   useEffect(() => {
     const fetchManagers = async () => {
@@ -46,8 +41,10 @@ const Page = () => {
         setManagerLoading(false);
       }
     };
-    fetchManagers();
-  }, [refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchManagers();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
@@ -65,14 +62,14 @@ const Page = () => {
   return (
     <>
       <Header
-        title="User Management"
-        subtitle="Manage your User accounts and permissions"
-        addButton="Add Users"
+        title="Manager Management"
+        subtitle="Manage your Manager accounts and permissions"
+        addButton="Add Manager"
         onClick={handleAddUser}
         disabled={
           managerLoading ||
           !!managerError ||
-          !(loginUser?.role === "Admin" || loginUser?.role === "Manager")
+          !(user?.role === "Admin" || user?.role === "Manager")
         }
       />
       {/* Manager section */}
@@ -163,7 +160,7 @@ const Page = () => {
           onClose={() => setShowViewModal(false)}
           userId={selectedUser.UserId}
           onSuccess={handelRefresh}
-          loginUser={loginUser || undefined}
+          loginUser={user || undefined}
         />
       )}
 
