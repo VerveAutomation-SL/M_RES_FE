@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { ReportFilterData, Resort, checkInRecord } from "@/lib/types";
 import { getPreviewData } from "@/lib/api/analyticsApi";
-import { resortApi } from "@/lib/api";
+import { resortApi, restaurantApi } from "@/lib/api";
 import { mealPlans, mealTypes, statuses } from "@/lib/data";
 
 interface ReportFiltersProps {
@@ -44,10 +44,12 @@ export default function ReportFilters({
 
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [resortsLoading, setResortsLoading] = useState(true);
+  const [outlets, setOutlets] = useState<string[]>([]);
+  const [outletLoading, setOutletLoading] = useState(true);
 
   const filterOptions = {
     resorts: resorts,
-    outlets: ["Libai", "Beach Resort", "Pool Bar", "Sunset Lounge"],
+    outlets: outlets,
     mealTypes: mealTypes.map((type) => type.value),
     mealPlans: mealPlans.map((plan) => plan.value),
     statuses: statuses.map((status) => status.value),
@@ -73,6 +75,28 @@ export default function ReportFilters({
     };
 
     fetchResorts();
+  }, []);
+
+  // Fetch outlets on component mount
+  useEffect(() => {
+    const fetchOutlets = async () => {
+      try {
+        setOutletLoading(true);
+        console.log("Fetching outlets...");
+
+        const response = await restaurantApi.getAllRestaurants();
+        const outletsData = response.data ?? [];
+
+        setOutlets(outletsData.map((o: any) => o.restaurantName || o.name));
+        console.log("Outlets fetched:", outletsData);
+      } catch (error) {
+        console.error("Error fetching outlets:", error);
+      } finally {
+        setOutletLoading(false);
+      }
+    };
+
+    fetchOutlets();
   }, []);
 
   const handleFilterChange = (
@@ -134,7 +158,7 @@ export default function ReportFilters({
         <h2 className="text-xl font-semibold text-gray-900">
           Advanced Filters
         </h2>
-        {resortsLoading && (
+        {resortsLoading && outletLoading && (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <RefreshCw className="w-4 h-4 animate-spin" />
             Loading...

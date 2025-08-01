@@ -1,8 +1,9 @@
 "use client";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createRestaurant, getAllResorts } from "@/lib/api/restaurants";
+import { createRestaurant, getAllResorts } from "@/lib/api/restaurantsApi";
 import { Resort } from "@/lib/types";
+import toast from "react-hot-toast";
 
 interface ResturantFormProps {
   isOpen?: boolean;
@@ -70,7 +71,7 @@ export default function ResturantForm({
         setFormData({ restaurantName: "", resort_id: "" });
         setError("");
 
-        alert("Resort created successfully!");
+        toast.success(response.message);
 
         // Call callbacks
         onSuccess?.();
@@ -137,7 +138,7 @@ export default function ResturantForm({
             className="text-gray-400 hover:text-gray-600 cursor-pointer"
             disabled={loading}
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 cursor-pointer" />
           </button>
         </div>
 
@@ -233,7 +234,7 @@ export default function ResturantForm({
               }
               className="flex-1 px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 disabled:opacity-50 cursor-pointer"
             >
-              {loading ? "Creating..." : "Create Resort"}
+              {loading ? "Creating..." : "Create Restaurant"}
             </button>
           </div>
         </form>

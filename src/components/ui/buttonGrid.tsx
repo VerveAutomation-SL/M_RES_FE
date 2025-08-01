@@ -5,17 +5,20 @@ import CheckInForm from "../forms/checkInForm";
 import { checkInApi, roomApi } from "@/lib/api";
 import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
-import { Room } from "@/lib/types";
+import { Restaurant, Room } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
 import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 import { CheckInDetails } from "@/lib/types";
 import TooltipWithAsyncContent from "./tooltipWithAsyncContent";
+import toast from "react-hot-toast";
 
 
 interface ButtonGridProps {
   mode?: "check-in" | "view-details";
   resortId: number;
   searchTerm?: string;
+  outlets: Restaurant[];
+  selectedOutlet: Restaurant;
 }
 
 const isWithinMealPeriod = (mealType: string) => {
@@ -42,7 +45,13 @@ interface RoomData {
   resortId: number;
 }
 
-const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGridProps) => {
+const ButtonGrid = ({
+  mode = "check-in",
+  resortId,
+  searchTerm = "",
+  outlets,
+  selectedOutlet,
+}: ButtonGridProps) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null); // Move this up
@@ -314,12 +323,12 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
       const withinPeriod = isWithinMealPeriod(mealType);
       
       if (!withinPeriod) {
-        alert(`Check-in is only available during ${mealType} time period.`);
+        toast.error(`Check-in is only available during ${mealType} time period.`);
         return;
       }
 
       if (!roomId) {
-        alert(`Room ${roomNumber} not found.`);
+        toast.error(`Room ${roomNumber} not found.`);
         return;
       } 
       setSelectedRoom(roomNumber.toString());
@@ -486,8 +495,10 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
     <>
       {/* Room Series Tabs */}
       {tabItems.length > 1 && (
-        <div className="mb-4">
-          <Tabs items={tabItems} activeItem={activeTab} onTabClick={handleTabClick} />
+        <div className="mb-4 overflow-x-auto">
+          <div className="flex flex-nowrap gap-2 sm:gap-4">
+            <Tabs items={tabItems} activeItem={activeTab} onTabClick={handleTabClick} />
+          </div>
         </div>
       )}
 
@@ -511,7 +522,7 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
 
       {/* Room Number Grid */}
       {displayRooms.length > 0 ? (
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
           {displayRooms.map((roomNumber) => {
             const buttonColor = getRoomButtonColor(roomNumber);
             const roomStatus = roomStatusData.find(
@@ -568,6 +579,8 @@ const ButtonGrid = ({ mode = "check-in", resortId, searchTerm = "" }: ButtonGrid
           mealType={mealType}
           resortId={resortId}
           roomId={selectedRoomId}
+          outlets={outlets}
+          defaultOutlet={selectedOutlet}
           onCheckInSuccess={handleCheckInSuccess} 
         />
       )}

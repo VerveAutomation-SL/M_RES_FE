@@ -4,6 +4,7 @@ import { roomApi, resortApi } from "@/lib/api";
 import { Resort, RoomFormData } from "@/lib/types";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface RoomFormProps {
   isOpen?: boolean;
@@ -107,7 +108,7 @@ export default function RoomForm({
       console.log("📊 Room creation response:", response);
 
       if (response && response.success) {
-        alert("Room created successfully!");
+        toast.success("Room created successfully!");
 
         // Reset form
         setFormData({ room_number: "", resortId: 0, name: "" });

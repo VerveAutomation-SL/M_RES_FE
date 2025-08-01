@@ -20,7 +20,7 @@ const Header = ({
     <>
       <div className="block sm:flex justify-between py-2 md:py-6 transition-all duration-200">
         <div>
-          <h1 className="text-lg md:text-2xl lg:text-3xl text-[var(--primary)] font-extrabold">
+          <h1 className="text-xl md:text-2xl lg:text-3xl text-[var(--primary)] font-extrabold">
             {title}
           </h1>
           <p className="text-sm lg:text-lg text-[var(--secondary)] mt-1">

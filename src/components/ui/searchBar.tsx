@@ -15,20 +15,16 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   }, [searchValue, onSearch]);
 
   return (
-    <>
-      <div className="flex items-center border rounded-lg px-4 py-2 shadow-md bg-white transition-all duration-200">
-        <div className="flex items-center justify-center">
-          <Search className=" h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Enter Room number"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="pl-10 border-none focus:outline-none w-full text-sm lg:text-base text-gray-700 placeholder-gray-400"
-          />
-        </div>
-      </div>
-    </>
+    <div className="flex items-center border rounded-lg px-2 py-1 sm:px-4 sm:py-2 shadow-md bg-white transition-all duration-200 w-full max-w-xs sm:max-w-sm md:max-w-md">
+      <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
+      <input
+        type="text"
+        placeholder="Enter Room number"
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+        className="pl-2 sm:pl-4 border-none focus:outline-none w-full text-sm sm:text-base text-gray-700 placeholder-gray-400 bg-transparent"
+      />
+    </div>
   );
 };
 

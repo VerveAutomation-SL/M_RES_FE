@@ -5,11 +5,13 @@ import Header from "@/components/layout/header";
 import RoomGrid from "@/components/layout/roomGrid";
 import Card from "@/components/ui/card";
 import Modal from "@/components/ui/legend";
-import { MapPin, RefreshCw } from "lucide-react";
+import { MapPin, RefreshCw, Store } from "lucide-react";
 import { useCheckInStats } from "@/hooks/useCheckInStats";
-import { resortApi } from "@/lib/api";
-import { Resort } from "@/lib/types";
+import { restaurantApi } from "@/lib/api";
+import { Resort, Restaurant } from "@/lib/types";
 import { useAuthStore } from "@/store/authStore";
+import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
+import { useRouter } from "next/navigation";
 
 export default function CheckInPage() {
   // Resort state management
@@ -17,12 +19,20 @@ export default function CheckInPage() {
   const [activeResort, setActiveResort] = useState<number | null>(null);
   const [resortsLoading, setResortsLoading] = useState(true);
 
-  // Resort details
-  const [resortName, setResortName] = useState<string>("Loading...");
-  const [resortLocation, setResortLocation] = useState<string>("Loading...");
+  // Outlet state management
+  const [outlets, setOutlets] = useState<Restaurant[]>([]);
+  const [selectedOutlet, setSelectedOutlet] = useState<Restaurant>();
+
+  // Selector state management
+  const [showSelector, setShowSelector] = useState(true);
+  const [selectorForced, setSelectorForced] = useState(true);
+  const [userResort, setUserResort] = useState<Resort | null>(null);
+  const [userOutlet, setUserOutlet] = useState<Restaurant | null>(null);
+  const router = useRouter();
+  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toLocaleTimeString());
 
   // Stats hook using the shared activeResort
-  const { stats, loading, error, refetch } = useCheckInStats(activeResort || 0);
+  const { stats, loading, error, refetch } = useCheckInStats(userResort?.id || 0);
 
   const { isAuthenticated, isLoading, user } = useAuthStore();
 
@@ -32,31 +42,27 @@ export default function CheckInPage() {
   useEffect(() => {
     const fetchResorts = async () => {
       try {
-        console.log("🏨 CheckInPage: Fetching resorts...");
-        const response = await resortApi.getAllResortsWithRooms();
-
+        const response = await restaurantApi.getAllResortsWithRestaurants();
+        console.log("Fetched resorts:", response);
         if (
           response &&
           response.success &&
           Array.isArray(response.data) &&
           response.data.length > 0
         ) {
-          const sortedResorts = response.data.sort((a, b) => a.id - b.id);
-          setResorts(sortedResorts);
-          setActiveResort(sortedResorts[0].id);
-          console.log(
-            "✅ CheckInPage: Resorts loaded, active resort:",
-            sortedResorts[0].id
-          );
+          // Ensure every resort has a restaurants array
+          const resortsWithRestaurants = response.data.map((resort) => ({
+            ...resort,
+            restaurants: Array.isArray(resort.restaurants)
+              ? resort.restaurants
+              : [],
+          }));
+          setResorts(resortsWithRestaurants);
         } else {
-          console.warn("❌ CheckInPage: No resorts found");
           setResorts([]);
-          setActiveResort(null);
         }
       } catch (error) {
-        console.error("💥 CheckInPage: Failed to fetch resorts:", error);
         setResorts([]);
-        setActiveResort(null);
       } finally {
         setResortsLoading(false);
       }
@@ -67,25 +73,11 @@ export default function CheckInPage() {
     }
   }, [isAuthenticated, isLoading]);
 
-  // Fetch resort details when activeResort changes
   useEffect(() => {
-    const fetchResortDetails = async () => {
-      if (!activeResort) return;
-
-      try {
-        const response = await resortApi.getResortById(activeResort);
-        if (response?.success && response.data) {
-          setResortName(response.data.name);
-          setResortLocation(response.data.location);
-        }
-      } catch (error) {
-        console.error("Failed to fetch resort details:", error);
-      }
-    };
-    if (!isLoading && isAuthenticated) {
-      fetchResortDetails();
-    }
-  }, [activeResort, isAuthenticated, isLoading]);
+  if (!loading && !error) {
+    setLastUpdated(new Date().toLocaleTimeString());
+  }
+}, [loading, error, stats]);
 
   // Handle resort change from RoomGrid navigation
   const handleResortChange = (resortId: number) => {
@@ -122,6 +114,36 @@ export default function CheckInPage() {
     );
   }
 
+  // When user selects resort/outlet
+  const handleSelector = (resort, outlet) => {
+    setUserResort(resort);
+    setUserOutlet(outlet);
+    setActiveResort(resort.id);
+    setOutlets(resort.restaurants || []);
+    setSelectedOutlet(outlet);
+    setShowSelector(false);
+  };
+
+  // Handler to re-open selector
+  const handleChangeResortOutlet = () => {
+    setShowSelector(true);
+    setSelectorForced(false);
+  };
+
+  const handleSelectorClose = () => {
+    if (selectorForced) {
+      router.back();
+    }else{
+      setShowSelector(false);
+      setSelectorForced(false);
+    }
+  };
+
+  // Only render selector modal if needed
+  if (showSelector || !userResort || !userOutlet) {
+    return <ResortOutletSelector resorts={resorts} onSelect={handleSelector} onClose={handleSelectorClose} />;
+  }
+
   return (
     <div className="space-y-6">
       <Header
@@ -129,15 +151,15 @@ export default function CheckInPage() {
         subtitle="The Residence Maldives - Daily Dining Management"
       />
 
-      <div className="flex flex-wrap gap-6 justify-between">
+      <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-6 lg:justify-between">
         {/* Resort Statistics Card */}
-        <Card classname="w-[48%] gap-4 bg-white">
+        <Card classname="w-full lg:w-[48%] gap-4 bg-white">
           <div className="grid grid-cols-1">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 text-gray-950 mr-2 mb-1" />
-                <h1 className="font-semibold text-gray-900 text-2xl">
-                  {resortName}
+                <h1 className="font-semibold text-gray-900 text-xl sm:text-2xl">
+                  {userResort.name}
                 </h1>
               </div>
               <button
@@ -152,7 +174,7 @@ export default function CheckInPage() {
               </button>
             </div>
 
-            <p className="text-sm text-gray-600 mb-3">{resortLocation}</p>
+            <p className="text-sm text-gray-600 mb-3">{userResort.location}</p>
 
             {error ? (
               <div className="text-red-600 text-sm mb-4">{error}</div>
@@ -186,9 +208,9 @@ export default function CheckInPage() {
                 </div>
 
                 {/* Statistics */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <span className="block text-lg font-bold text-green-700">
+                    <span className="block text-lg sm:text-2xl font-bold text-green-700">
                       {stats.availableForCheckIn}
                     </span>
                     <span className="text-xs text-green-600">
@@ -219,7 +241,7 @@ export default function CheckInPage() {
                 <div className="mt-3 pt-2 border-t border-gray-200">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Total Rooms: {stats.totalRooms}</span>
-                    <span>Last Updated: {new Date().toLocaleTimeString()}</span>
+                    <span>Last Updated: {lastUpdated}</span>
                   </div>
                 </div>
               </>
@@ -228,26 +250,32 @@ export default function CheckInPage() {
         </Card>
 
         {/* Restaurant Card - Dynamic restaurant name */}
-        <Card classname="w-[48%] gap-6 bg-white">
+        <Card classname="w-full lg:w-[48%] gap-4 bg-white">
           <div className="grid grid-cols-1">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 text-xl">
-                {/* Dynamic restaurant name based on resort */}
-                {resortName && resortName.toLowerCase().includes("water")
-                  ? "Aqua Restaurant"
-                  : resortName && resortName.toLowerCase().includes("beach")
-                  ? "Beachside Restaurant"
-                  : "LIBAI Restaurant"}
-              </h3>
-              <span
-                className={`text-xs px-3 py-1 rounded-full ${
-                  stats.isWithinMealPeriod
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-600"
-                }`}
+            <div className="flex items-center justify-between mb-4 gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <h3
+                  className="font-semibold text-gray-900 text-xl truncate max-w-[12rem] sm:max-w-[16rem]"
+                  title={userOutlet.restaurantName}
+                >
+                  {userOutlet.restaurantName}
+                </h3>
+                <span
+                  className={`text-xs px-3 py-1 rounded-full ${
+                    selectedOutlet?.status === "Open"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {selectedOutlet?.status === "Open" ? "Open" : "Closed"}
+                </span>
+              </div>
+              <button
+                className="text-xs px-3 py-1 border border-amber-800 rounded-full text-amber-900 hover:bg-amber-100 transition flex-shrink-0"
+                onClick={handleChangeResortOutlet}
               >
-                {stats.isWithinMealPeriod ? "OPEN" : "CLOSED"}
-              </span>
+                Change Resort/Outlet
+              </button>
             </div>
 
             <div className="space-y-3">
@@ -271,6 +299,33 @@ export default function CheckInPage() {
                   {stats.currentPeriodCheckIns}
                 </span>
               </div>
+
+              <div className="mt-10 pt-3 border-t border-gray-100">
+                {(userResort.restaurants && userResort.restaurants.length > 0) ? (
+                  <div className="flex gap-2 overflow-x-auto pb-2 mt-4">
+                    {userResort.restaurants.map((outlet, idx) => (
+                      <div
+                        key={outlet.id || idx}
+                        className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
+                          ${userOutlet?.id === outlet.id
+                            ? "bg-amber-900 text-white border-amber-900"
+                            : "bg-amber-50 text-gray-700 border-amber-900"
+                          }
+                        `}
+                      >
+                        <Store className="w-4 h-4" />
+                        <span className="text-xs">
+                          {outlet.restaurantName || `Outlet ${idx + 1}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-gray-400 text-sm">
+                    No outlets found for this resort.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </Card>
@@ -283,6 +338,8 @@ export default function CheckInPage() {
         externalResorts={resorts}
         externalActiveResort={activeResort}
         onExternalResortChange={handleResortChange}
+        outlets={outlets}
+        selectedOutlet={selectedOutlet}
       />
     </div>
   );

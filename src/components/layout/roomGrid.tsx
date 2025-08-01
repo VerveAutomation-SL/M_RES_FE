@@ -5,7 +5,7 @@ import SearchBar from "../ui/searchBar";
 import ButtonGrid from "../ui/buttonGrid";
 import { Plus } from "lucide-react";
 import { resortApi } from "@/lib/api";
-import { Resort } from "@/lib/types";
+import { Resort, Restaurant } from "@/lib/types";
 import RoomForm from "../forms/roomForm";
 
 interface ResortNavigationProps {
@@ -45,6 +45,8 @@ interface RoomGridProps {
   externalResorts?: Resort[];
   externalActiveResort?: number | null;
   onExternalResortChange?: (resortId: number) => void;
+  outlets?: Restaurant[];
+  selectedOutlet?: Restaurant;
 }
 
 const RoomGrid = ({
@@ -53,6 +55,8 @@ const RoomGrid = ({
   externalResorts,
   externalActiveResort,
   onExternalResortChange,
+  outlets, 
+  selectedOutlet, 
 }: RoomGridProps) => {
   // Internal state (fallback when no external state provided)
   const [internalResorts, setInternalResorts] = useState<Resort[]>([]);
@@ -214,21 +218,20 @@ const RoomGrid = ({
 
         {/* Room Grid */}
         <div className="bg-white shadow-sm rounded-xl overflow-hidden">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Section Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {resorts.find((r) => r.id === activeResort)?.name || "Resort"}{" "}
-                Rooms
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                {resorts.find((r) => r.id === activeResort)?.name || "Resort"} Rooms
               </h2>
-              <div className="flex items-center space-x-5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-5">
                 <SearchBar onSearch={handleSearch} />
                 {addButton && (
                   <button
-                    className="flex items-center p-1 lg:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
+                    className="flex w-full justify-center sm:w-fit items-center p-1 sm:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
                     onClick={handleAddRoom}
                   >
-                    <Plus className="w-3 h-3 lg:w-5 lg:h-5 mr-2" />
+                    <Plus className="w-3 h-3 sm:w-5 sm:h-5 mr-2" />
                     <span className="items-center">{addButton}</span>
                   </button>
                 )}
@@ -241,6 +244,8 @@ const RoomGrid = ({
               searchTerm={searchTerm}
               mode={mode}
               key={`${activeResort}-${refreshTrigger}`}
+              outlets={outlets ?? []}
+              selectedOutlet={selectedOutlet}
             />
           </div>
         </div>
