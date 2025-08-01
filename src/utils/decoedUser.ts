@@ -51,3 +51,12 @@ export function getDecodedUser() {
     return null;
   }
 }
+
+export function getAccessToken() {
+  const accessToken = Cookies.get("accessToken");
+  if (!accessToken) {
+    console.warn("No access token found in cookies");
+    return null;
+  }
+  return accessToken;
+}

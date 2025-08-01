@@ -7,14 +7,11 @@ import Card from "@/components/ui/card";
 import { checkInApi, resortApi } from "@/lib/api";
 import { getCurrentMealType } from "@/lib/data";
 import { Resort } from "@/lib/types";
-import { getDecodedUser } from "@/utils/decoedUser";
+import { useAuthStore } from "@/store/authStore";
 import { ChevronRight, MapPin } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 
 const Page = () => {
-  const router = useRouter();
-
   const scrollRef = useRef<HTMLDivElement>(null);
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,17 +21,9 @@ const Page = () => {
   // Add state for check-in stats
   const [resortStats, setResortStats] = useState<Record<number, any>>({});
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+  console.log(user, "user in resorts page");
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -53,13 +42,13 @@ const Page = () => {
         setLoading(false);
       }
     };
-    fetchResorts();
-  }, [isAuthenticated, refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   // Fetch check-in stats for each resort
   useEffect(() => {
-    if (!isAuthenticated) return;
-
     const fetchResortStats = async () => {
       if (resorts.length > 0) {
         const statsPromises = resorts.map(async (resort) => {
@@ -113,8 +102,10 @@ const Page = () => {
       }
     };
 
-    fetchResortStats();
-  }, [isAuthenticated, resorts]);
+    if (!isLoading && isAuthenticated) {
+      fetchResortStats();
+    }
+  }, [isAuthenticated, isLoading, resorts]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {

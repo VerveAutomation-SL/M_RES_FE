@@ -9,12 +9,9 @@ import Image from "next/image";
 import { User } from "@/lib/types";
 import { UserIcon, View } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getDecodedUser } from "@/utils/decoedUser";
+import { useAuthStore } from "@/store/authStore";
 
 const Page = () => {
-  const router = useRouter();
-
   const [hostLoading, setHostLoading] = useState(false);
   const [hostError, setHostError] = useState("");
   const [hostData, setHostData] = useState<User[]>([]);
@@ -22,24 +19,12 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>(null);
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setLoginUser(user);
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+  console.log(user, "user in hosts page");
 
   useEffect(() => {
-    if (!isAuthenticated) return;
-
     const fetchHosts = async () => {
       setHostLoading(true);
       try {
@@ -53,9 +38,10 @@ const Page = () => {
         setHostLoading(false);
       }
     };
-
-    fetchHosts();
-  }, [isAuthenticated, refreshTrigger, router]);
+    if (!isLoading && isAuthenticated) {
+      fetchHosts();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
@@ -80,7 +66,7 @@ const Page = () => {
         disabled={
           hostLoading ||
           !!hostError ||
-          !(loginUser?.role === "Admin" || loginUser?.role === "Manager")
+          !(user?.role === "Admin" || user?.role === "Manager")
         }
       />
       {/* Hosts section */}
@@ -172,7 +158,7 @@ const Page = () => {
           onClose={() => setShowViewModal(false)}
           userId={selectedUser.UserId}
           onSuccess={handelRefresh}
-          loginUser={loginUser || undefined}
+          loginUser={user || undefined}
         />
       )}
 

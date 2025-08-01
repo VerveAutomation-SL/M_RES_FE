@@ -9,28 +9,17 @@ import { Resort } from "@/lib/types";
 import { Hotel, SquareCheck, UserRoundCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import { getDecodedUser } from "@/utils/decoedUser";
-import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in dashboard page");
 
   const { totalRooms, activehosts, checkedIn, available, mealType, loading } =
     useMealPeriodCheckIns();
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [resortsLoading, setResortsLoading] = useState<boolean>(true);
-
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
-
-  useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
 
   useEffect(() => {
     const fetchResorts = async () => {
@@ -49,11 +38,12 @@ export default function DashboardPage() {
         setResortsLoading(false);
       }
     };
-    if (!isAuthenticated) return;
-    fetchResorts();
-  }, [isAuthenticated]);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading]);
 
-  if (loading || resortsLoading) {
+  if (loading || resortsLoading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>

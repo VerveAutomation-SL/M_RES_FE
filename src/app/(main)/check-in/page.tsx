@@ -9,12 +9,9 @@ import { MapPin, RefreshCw } from "lucide-react";
 import { useCheckInStats } from "@/hooks/useCheckInStats";
 import { resortApi } from "@/lib/api";
 import { Resort } from "@/lib/types";
-import { getDecodedUser } from "@/utils/decoedUser";
-import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
 export default function CheckInPage() {
-  const router = useRouter();
-
   // Resort state management
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [activeResort, setActiveResort] = useState<number | null>(null);
@@ -27,17 +24,9 @@ export default function CheckInPage() {
   // Stats hook using the shared activeResort
   const { stats, loading, error, refetch } = useCheckInStats(activeResort || 0);
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+  console.log(user, "user in checkin page");
 
   // Fetch resorts on component mount
   useEffect(() => {
@@ -73,9 +62,10 @@ export default function CheckInPage() {
       }
     };
 
-    if (!isAuthenticated) return;
-    fetchResorts();
-  }, [isAuthenticated]);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading]);
 
   // Fetch resort details when activeResort changes
   useEffect(() => {
@@ -92,9 +82,10 @@ export default function CheckInPage() {
         console.error("Failed to fetch resort details:", error);
       }
     };
-    if (!isAuthenticated) return;
-    fetchResortDetails();
-  }, [activeResort, isAuthenticated]);
+    if (!isLoading && isAuthenticated) {
+      fetchResortDetails();
+    }
+  }, [activeResort, isAuthenticated, isLoading]);
 
   // Handle resort change from RoomGrid navigation
   const handleResortChange = (resortId: number) => {
