@@ -32,21 +32,6 @@ export async function getAllRestaurants() {
   }
 }
 
-export async function getAllRestaurants() {
-  try {
-    const response = await apibackend.get("/restaurants");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching restaurants:", error);
-    if (axios.isAxiosError(error)) {
-      throw new AppError(error.response?.data || "Error fetching restaurants", error.status || 500 
-      );
-    } else {
-        throw new AppError("An unexpected error occurred during fetching restaurants",500);
-    }
-  }
-}
-
 export async function getAllResortsWithRestaurants() {
   try {
     const response = await apibackend.get("/resorts/with-restaurants");
