@@ -335,7 +335,10 @@ const Page = () => {
                         onClick={() => handleRestaurantClick(restaurant.id)}
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1">
+                          <h3
+                            className="font-semibold text-gray-900 text-sm md:text-lg lg:text-xl leading-tight pr-2 flex-1 truncate"
+                            title={restaurant.restaurantName + " Restaurant"}
+                          >
                             {restaurant.restaurantName} Restaurant
                           </h3>
                           <div

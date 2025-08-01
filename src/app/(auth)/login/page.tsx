@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import { Key, User } from "lucide-react";
+import { Eye, EyeOff, Key, User } from "lucide-react";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { LoginFormData } from "@/lib/types";
@@ -18,6 +18,7 @@ const Page = () => {
   });
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -151,7 +152,7 @@ const Page = () => {
                   <Key className="h-5 w-5 text-[#8B6F47] opacity-70" />
                 </div>
                 <AuthInput
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="Enter Password"
                   value={formData.password}
@@ -159,8 +160,20 @@ const Page = () => {
                   error={errors.password}
                   required
                   disabled={isLoading}
-                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
+                  className="w-full pl-12 pr-12 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-4 mt-5 flex items-start text-[#8B6F47] opacity-70"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
                 <div className="text-right mt-2 sm:mt-3 mr-2">
                   <a
                     href="/forgot-password"
