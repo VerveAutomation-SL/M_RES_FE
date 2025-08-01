@@ -9,12 +9,9 @@ import { Resort } from "@/lib/types";
 import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import EditRestaurantModal from "@/components/layout/EditResturant";
-import { useRouter } from "next/navigation";
-import { getDecodedUser } from "@/utils/decoedUser";
+import { useAuthStore } from "@/store/authStore";
 
 const Page = () => {
-  const router = useRouter();
-
   const scrollRef = useRef<HTMLDivElement>(null);
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [loadingResorts, setLoadingResorts] = useState(false);
@@ -27,21 +24,11 @@ const Page = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState<number>();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in restaurant page");
 
   useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
     const fetchResorts = async () => {
       setLoadingResorts(true);
       try {
@@ -54,8 +41,10 @@ const Page = () => {
         setLoadingResorts(false);
       }
     };
-    fetchResorts();
-  }, [isAuthenticated, refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchResorts();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {

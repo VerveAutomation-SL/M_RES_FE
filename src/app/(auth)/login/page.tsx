@@ -6,10 +6,10 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { LoginFormData } from "@/lib/types";
 import AuthInput from "@/components/ui/input";
-import { tokenRefresh, login } from "@/lib/api/auth";
+import { login, tokenRefresh } from "@/lib/api/auth";
 import { AppError } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { setDecodedUser } from "@/utils/decoedUser";
+import { useAuthStore } from "@/store/authStore";
 
 const Page = () => {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -19,6 +19,8 @@ const Page = () => {
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
+
+  const { autoLogin, login_user } = useAuthStore.getState();
 
   const router = useRouter();
 
@@ -31,7 +33,7 @@ const Page = () => {
           console.log(
             "User is already authenticated, redirecting to dashboard."
           );
-          setDecodedUser(response.data.accessToken);
+          autoLogin();
           router.push("/dashboard");
         }
       } catch (err: unknown) {
@@ -43,7 +45,7 @@ const Page = () => {
       }
     };
     checkAuth();
-  }, [router]);
+  }, [autoLogin, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,7 +74,7 @@ const Page = () => {
 
       console.log("Login response:", response);
       if (response.data.success) {
-        setDecodedUser(response.data.accessToken);
+        login_user(response.data.accessToken);
         router.push("/dashboard");
       }
     } catch (err: unknown) {

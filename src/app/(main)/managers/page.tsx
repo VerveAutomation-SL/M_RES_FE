@@ -6,15 +6,12 @@ import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
 import { getAllManagers } from "@/lib/api/userApi";
 import { User } from "@/lib/types";
-import { getDecodedUser } from "@/utils/decoedUser";
+import { useAuthStore } from "@/store/authStore";
 import { UserIcon, View } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
-  const router = useRouter();
-
   const [managerLoading, setManagerLoading] = useState(false);
   const [managerError, setManagerError] = useState("");
   const [managerData, setManagerData] = useState<User[]>([]);
@@ -23,24 +20,12 @@ const Page = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showaddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [loginUser, setLoginUser] = useState<User | null>(null);
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setLoginUser(user);
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+  console.log(user, "user in managers page");
 
   useEffect(() => {
-    if (!isAuthenticated) return;
-
     const fetchManagers = async () => {
       setManagerLoading(true);
       try {
@@ -56,8 +41,10 @@ const Page = () => {
         setManagerLoading(false);
       }
     };
-    fetchManagers();
-  }, [isAuthenticated, refreshTrigger]);
+    if (!isLoading && isAuthenticated) {
+      fetchManagers();
+    }
+  }, [isAuthenticated, isLoading, refreshTrigger]);
 
   const handelRefresh = () => {
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
@@ -75,14 +62,14 @@ const Page = () => {
   return (
     <>
       <Header
-        title="User Management"
-        subtitle="Manage your User accounts and permissions"
-        addButton="Add Users"
+        title="Manager Management"
+        subtitle="Manage your Manager accounts and permissions"
+        addButton="Add Manager"
         onClick={handleAddUser}
         disabled={
           managerLoading ||
           !!managerError ||
-          !(loginUser?.role === "Admin" || loginUser?.role === "Manager")
+          !(user?.role === "Admin" || user?.role === "Manager")
         }
       />
       {/* Manager section */}
@@ -173,7 +160,7 @@ const Page = () => {
           onClose={() => setShowViewModal(false)}
           userId={selectedUser.UserId}
           onSuccess={handelRefresh}
-          loginUser={loginUser || undefined}
+          loginUser={user || undefined}
         />
       )}
 

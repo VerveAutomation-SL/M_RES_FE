@@ -16,6 +16,7 @@ import {
   checkInRecord,
   ReportFilterData,
 } from "@/lib/types";
+import { useAuthStore } from "@/store/authStore";
 import { getDecodedUser } from "@/utils/decoedUser";
 import {
   ChevronDown,
@@ -25,12 +26,9 @@ import {
   Sheet,
   Users,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AnalyticsPage() {
-  const router = useRouter();
-
   const [activeTab, setActiveTab] = useState<"overview" | "trends">("overview");
   const [filters, setFilters] = useState<ReportFilterData>({
     checkinStartDate: "",
@@ -59,17 +57,9 @@ export default function AnalyticsPage() {
     null
   );
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // ✅ initially null
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  useEffect(() => {
-    const user = getDecodedUser();
-    if (!user) {
-      setIsAuthenticated(false);
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+  console.log(user, "user in analytics page");
 
   // Resort mapping
   const resortNames: { [key: number]: string } = {
@@ -187,9 +177,10 @@ export default function AnalyticsPage() {
         setLoading(false);
       }
     };
-
-    fetchAnalyticsData();
-  }, [isAuthenticated]);
+    if (!isLoading && isAuthenticated) {
+      fetchAnalyticsData();
+    }
+  }, [isAuthenticated, isLoading]);
 
   // Transform functions with fallback mock data
   const transformDailyCheckInsData = () => {
