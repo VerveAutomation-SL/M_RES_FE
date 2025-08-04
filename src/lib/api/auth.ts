@@ -50,3 +50,29 @@ export async function logout() {
     }
   }
 }
+
+export async function forgotPassword(email: string) {
+  try{
+    const response = await apibackend.post("/auth/forgot-password", {email});
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new AppError(error.response?.data || "Request failed", error.status || 500);
+    } else {
+      throw new AppError("An unexpected error occurred", 500);
+    }
+  }
+}
+
+export async function resetPassword(token: string, password: string) {
+    try {
+        const response = await apibackend.post("/auth/reset-password", { token, password });
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Request failed", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred", 500);
+        }
+    }
+}

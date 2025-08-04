@@ -1,6 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/button";
+import { forgotPassword } from "@/lib/api/auth";
 import { useState } from "react";
 
 export default function ForgotPasswordPage() {
@@ -34,33 +35,16 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: email.trim().toLowerCase() 
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      await forgotPassword(email.trim().toLowerCase());
+      setSubmitted(true);
+    } catch (err: any) {
+      if (err.status === 404) {
         setSubmitted(true);
+      } else if (err.status === 429) {
+        setError("Too many requests. Please try again later.");
       } else {
-        // Handle specific error cases
-        if (response.status === 404) {
-          setSubmitted(true);
-        } else if (response.status === 429) {
-          setError("Too many requests. Please try again later.");
-        } else {
-          setError(data.message || "An error occurred. Please try again.");
-        }
+        setError(err.message || "An error occurred. Please try again.");
       }
-    } catch (err) {
-      console.error("Error submitting form:", err);
-      setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
