@@ -12,6 +12,7 @@ import { Resort, Restaurant } from "@/lib/types";
 import { useAuthStore } from "@/store/authStore";
 import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 
 export default function CheckInPage() {
   // Resort state management
@@ -51,7 +52,7 @@ export default function CheckInPage() {
           response.data.length > 0
         ) {
           // Ensure every resort has a restaurants array
-          const resortsWithRestaurants = response.data.map((resort) => ({
+          const resortsWithRestaurants = response.data.map((resort: Resort) => ({
             ...resort,
             restaurants: Array.isArray(resort.restaurants)
               ? resort.restaurants
@@ -62,6 +63,7 @@ export default function CheckInPage() {
           setResorts([]);
         }
       } catch (error) {
+        console.error("Failed to fetch resorts:", error);
         setResorts([]);
       } finally {
         setResortsLoading(false);
@@ -145,6 +147,7 @@ export default function CheckInPage() {
   }
 
   return (
+    <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
     <div className="space-y-6">
       <Header
         title="Dining Check-ins"
@@ -342,5 +345,6 @@ export default function CheckInPage() {
         selectedOutlet={selectedOutlet}
       />
     </div>
+    </ProtectedRoute>
   );
 }

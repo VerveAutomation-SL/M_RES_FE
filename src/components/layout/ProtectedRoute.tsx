@@ -2,26 +2,27 @@
 
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { toast } from "react-hot-toast"; // or your toast lib
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { setUserFromCookie, isAuthenticated, isLoading } = useAuthStore();
+const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) => {
+  const { isAuthenticated, isLoading, user } = useAuthStore();
   const router = useRouter();
-
-  console.log("ProtectedRoute mounted");
-
-  useEffect(() => {
-    console.log("Checking authentication status...");
-    setUserFromCookie();
-  }, [setUserFromCookie]);
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+    if (
+      !isLoading &&
+      (!isAuthenticated || !user || !allowedRoles.includes(user.role)) &&
+      !hasRedirected.current
+    ) {
+      toast.error("You do not have permission to access this page.");
+      hasRedirected.current = true;
+      router.back(); // or your preferred fallback
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, user, allowedRoles, router]);
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || !user || !allowedRoles.includes(user.role)) return null;
 
   return <>{children}</>;
 };
