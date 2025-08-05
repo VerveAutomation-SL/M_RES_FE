@@ -1,30 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { Edit3, Save, Trash2, X, XCircle, Eye, EyeOff } from "lucide-react";
-import { User } from "@/lib/types";
+import { Resort, Restaurant, User } from "@/lib/types";
 import {
   deleteUser,
   getUserDetails,
   updateUserDetails,
 } from "@/lib/api/userApi";
+import { restaurantApi} from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface EditUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: number;
-  loginUser?: User; // Add current logged-in user
   onSuccess?: () => void;
   onUpdate?: () => void;
   onDelete?: () => void;
+  pageRole?: "Admin" | "Manager" | "Host" ;
 }
 
 const EditUserModal = ({
   isOpen,
   onClose,
   userId,
-  loginUser,
   onSuccess,
   onUpdate,
   onDelete,
+  pageRole,
 }: EditUserModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<User>();
@@ -34,6 +36,14 @@ const EditUserModal = ({
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [emailError, setEmailError] = useState("");
   const [emailSuggestion, setEmailSuggestion] = useState("");
+  const [resorts, setResorts] = useState<Resort[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [mealTypes] = useState([
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "All"
+  ]);
 
   // Password related states
   const [password, setPassword] = useState("");
@@ -43,6 +53,12 @@ const EditUserModal = ({
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [changePassword, setChangePassword] = useState(false);
+
+  const [selectedResortId, setSelectedResortId] = useState<number | null>(null);
+
+  const filteredRestaurants = selectedResortId
+    ? restaurants.filter(r => r.resort_id === selectedResortId)
+    : [];
 
   useEffect(() => {
     if (isOpen && userId) {
@@ -66,45 +82,62 @@ const EditUserModal = ({
   }, [isOpen, userId, refreshTrigger]);
 
   // Check if logedin user can edit selected user
-  const canEditUser = () => {
-    if (!loginUser || !user) return false;
+  // const canEditUser = () => {
+  //   if (!loginUser || !user) return false;
 
-    // Admin can edit anyone
-    if (loginUser.role === "Admin") return true;
+  //   // Admin can edit anyone
+  //   if (loginUser.role === "Admin") return true;
 
-    // Manager can edit Hosts status and permissions
-    if (loginUser.role === "Manager" && user.role === "Host") return true;
+  //   // Manager can edit Hosts status and permissions
+  //   if (loginUser.role === "Manager" && user.role === "Host") return true;
 
-    // User can only edit their own details
-    return loginUser.UserId === user.UserId;
-  };
+  //   // User can only edit their own details
+  //   return loginUser.UserId === user.UserId;
+  // };
 
-  // Check if current user can edit specific fields
-  const canEditField = (field: string) => {
-    if (!loginUser || !user) return false;
+  // // Check if current user can edit specific fields
+  // const canEditField = (field: string) => {
+  //   if (!loginUser || !user) return false;
 
-    // Admin can edit all fields
-    if (loginUser.role === "Admin") return true;
+  //   // Admin can edit all fields
+  //   if (loginUser.role === "Admin") return true;
 
-    // Manager can only edit status and permission of hosts
-    if (loginUser.role === "Manager" && user.role === "Host") {
-      return field === "status" || field === "permission";
-    }
+  //   // Manager can only edit status and permission of hosts
+  //   if (loginUser.role === "Manager" && user.role === "Host") {
+  //     return field === "status" || field === "permission";
+  //   }
 
-    // User can edit their own details (but not status/permission/role)
-    if (loginUser.UserId === user.UserId) {
-      return !["status", "role"].includes(field);
-    }
+  //   // User can edit their own details (but not status/permission/role)
+  //   if (loginUser.UserId === user.UserId) {
+  //     return !["status", "role"].includes(field);
+  //   }
 
-    return false;
-  };
+  //   return false;
+  // };
 
-  // Check if current user can delete this user
-  const canDeleteUser = () => {
-    if (!loginUser || !user) return false;
-    // Only Admin can delete users
-    return loginUser.role === "Admin";
-  };
+  // // Check if current user can delete this user
+  // const canDeleteUser = () => {
+  //   if (!loginUser || !user) return false;
+  //   // Only Admin can delete users
+  //   return loginUser.role === "Admin";
+  // };
+
+  useEffect(()=>{
+    const fetchResorts = async () => {
+      const res = await restaurantApi.getAllResorts();
+      if (res.success) {
+        setResorts(res.data);
+      }
+    };
+    const fetchRestaurants = async () => {
+      const res = await restaurantApi.getAllRestaurants();
+      if (res.success) {
+        setRestaurants(res.data);
+      }
+    };
+    fetchResorts();
+    fetchRestaurants();
+  }, []);
 
   // Password validation function
   const validatePassword = (pwd: string) => {
@@ -251,21 +284,26 @@ const EditUserModal = ({
 
   // Handle status change with permission validation
   const handleStatusChange = (status: "Active" | "Inactive") => {
-    if (
-      status === "Active" &&
-      !user?.resortId &&
-      !user?.restaurantId &&
-      !user?.meal_type
-    ) {
-      setError(
-        "User must have a permission assigned before activating account"
-      );
-      return;
+    if (status === "Active") {
+      if (pageRole === "Manager") {
+        // Manager: must have at least one of resort, restaurant, or meal_type
+        if (!user?.resortId && !user?.restaurantId ) {
+          setError("Manager must be assigned to a resort or restaurant before activating.");
+          toast.error("Manager must be assigned to a resort or restaurant before activating.");
+          return;
+        }
+      } else if (pageRole === "Host") {
+        // Host: must have all assigned
+        if (!user?.resortId || !user?.restaurantId || !user?.meal_type) {
+          setError("Host must be assigned to a resort, restaurant, and meal type before activating.");
+          toast.error("Host must be assigned to a resort, restaurant, and meal type before activating.");
+          return;
+        }
+      }
+      // Admin: no assignment required
     }
     setUser((prev) => (prev ? { ...prev, status } : undefined));
-    if (error.includes("permission")) {
-      setError("");
-    }
+    if (error.includes("assign")) setError("");
   };
 
   const handleSave = async () => {
@@ -275,7 +313,6 @@ const EditUserModal = ({
     }
 
     // Validate email before saving (only if user can edit email)
-    if (canEditField("email")) {
       if (!user.email.trim()) {
         setEmailError("Email is required");
         return;
@@ -291,10 +328,9 @@ const EditUserModal = ({
         }
         return;
       }
-    }
 
     // Validate password if changing (only if user can change password)
-    if (changePassword && canEditField("password")) {
+    if (changePassword) {
       if (!password.trim()) {
         setPasswordError("Password is required when changing password");
         return;
@@ -335,7 +371,7 @@ const EditUserModal = ({
       const updateData = {
         ...user,
         status: user.status as "Active" | "Inactive",
-        ...(changePassword && canEditField("password") && { password }),
+        ...(changePassword && { password }),
       };
 
       console.log("Updating user with data:", updateData);
@@ -403,9 +439,8 @@ const EditUserModal = ({
   if (!isOpen || !user) return null;
 
   const hasValidationErrors =
-    (canEditField("email") && (!!emailError || !user.email.trim())) ||
+    (!!emailError || !user.email.trim()) ||
     (changePassword &&
-      canEditField("password") &&
       (!!passwordError ||
         !!confirmPasswordError ||
         !password.trim() ||
@@ -441,7 +476,7 @@ const EditUserModal = ({
               <h3 className="text-lg font-medium text-gray-900">
                 User Information
               </h3>
-              {!isEditing && canEditUser() && (
+              {!isEditing && (
                 <div className="flex gap-2">
                   <button
                     disabled={loading}
@@ -451,7 +486,7 @@ const EditUserModal = ({
                     <Edit3 className="w-4 h-4" />
                     Edit
                   </button>
-                  {canDeleteUser() && (
+                  {(
                     <button
                       onClick={() => setConfirmDelete(true)}
                       className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
@@ -490,7 +525,7 @@ const EditUserModal = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Username
                 </label>
-                {isEditing && canEditField("username") ? (
+                {isEditing ? (
                   <input
                     type="text"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -513,11 +548,11 @@ const EditUserModal = ({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email{" "}
-                  {canEditField("email") && (
+                  {(
                     <span className="text-red-500">*</span>
                   )}
                 </label>
-                {isEditing && canEditField("email") ? (
+                {isEditing ? (
                   <div>
                     <input
                       type="email"
@@ -557,7 +592,7 @@ const EditUserModal = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Role
                 </label>
-                {isEditing && canEditField("role") ? (
+                {isEditing ? (
                   <select
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     value={user.role}
@@ -673,7 +708,7 @@ const EditUserModal = ({
             </div>
 
             {/* Password Change Section */}
-            {isEditing && canEditField("password") && (
+            {isEditing && (
               <div className="mt-6 border-t border-gray-100 pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-md font-medium text-gray-900">
@@ -820,7 +855,7 @@ const EditUserModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Status
               </label>
-              {isEditing && canEditField("status") ? (
+              {isEditing ? (
                 <div>
                   <select
                     className="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -835,9 +870,9 @@ const EditUserModal = ({
                     <option value="Inactive">Inactive</option>
                     <option value="Active">Active</option>
                   </select>
-                  {user.status === "Active" && !user.PermissionId && (
+                  {user.status === "Active" && !user.resortId && !user.restaurantId && !user.meal_type && (
                     <p className="mt-1 text-sm text-amber-600">
-                      ⚠️ User must have a permission assigned to be activated
+                      ⚠️ User must have a resort, restaurant, or meal type assigned before activating.
                     </p>
                   )}
                 </div>
@@ -851,6 +886,96 @@ const EditUserModal = ({
                 >
                   {user.status}
                 </span>
+              )}
+            </div>
+
+            {/* Resort Select */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Resort
+              </label>
+              {isEditing ? (
+                <select
+                  value={selectedResortId || ""}
+                  onChange={e => {
+                    const resortId = Number(e.target.value);
+                    setSelectedResortId(resortId);
+                  }}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select Resort</option>
+                  {resorts.map(resort => (
+                    <option key={resort.id} value={resort.id}>
+                      {resort.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-900 font-medium py-2">
+                  {user.resortId
+                    ? resorts.find(resort => resort.id === user.resortId)?.name
+                    : "No Resort Assigned"}
+                </p>
+              )}
+            </div>
+
+            {/* Restaurant Select */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Restaurant
+              </label>
+              {isEditing ? (
+                <select
+                  value={user.restaurantId ?? ""}
+                  onChange={e =>
+                    setUser(prev => prev ? { ...prev, restaurantId: Number(e.target.value) } : prev)
+                  }
+                  required
+                  disabled={!selectedResortId}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select Restaurant</option>
+                  {filteredRestaurants.map(restaurant => (
+                    <option key={restaurant.id} value={restaurant.id}>
+                      {restaurant.restaurantName}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-900 font-medium py-2">
+                  {user.restaurantId
+                    ? restaurants.find(restaurant => restaurant.id === user.restaurantId)?.restaurantName
+                    : "No Restaurant Assigned"}
+                </p>
+              )}
+            </div>
+
+            {/* Meal Type Select */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Meal Type
+              </label>
+              {isEditing ? (
+                <select
+                  value={user.meal_type ?? ""}
+                  onChange={e =>
+                    setUser(prev => prev ? { ...prev, meal_type: e.target.value as "Breakfast" | "Lunch" | "Dinner"|"All" } : prev)
+                  }
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select Meal Type</option>
+                  {mealTypes.map(type => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-900 font-medium py-2">
+                  {user.meal_type || "No Meal Type Assigned"}
+                </p>
               )}
             </div>
 
@@ -892,6 +1017,22 @@ const EditUserModal = ({
                     : "N/A"}
                 </p>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Added By
+                </label>
+                <p className="text-gray-600 text-sm">
+                  {user.createdBy?.username || "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Edited By
+                </label>
+                <p className="text-gray-600 text-sm">
+                  {user.updatedBy?.username || "N/A"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -912,17 +1053,10 @@ const EditUserModal = ({
         {confirmDelete && (
           <div className="absolute inset-0 bg-white rounded-xl flex items-center justify-center">
             <div className="text-center p-8">
-              <div className="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Delete User
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-sm">
-                Are you sure you want to delete this user? This action cannot be
-                undone.
+              <p className="mb-4 text-lg font-semibold text-gray-800">
+                Are you sure you want to delete this user?
               </p>
-              <div className="flex gap-3 justify-center">
+              <div className="flex justify-center gap-4">
                 <button
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
                   onClick={handleDelete}
@@ -933,6 +1067,7 @@ const EditUserModal = ({
                 <button
                   className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors"
                   onClick={() => setConfirmDelete(false)}
+                  disabled={loading}
                 >
                   Cancel
                 </button>

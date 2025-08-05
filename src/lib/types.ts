@@ -166,8 +166,12 @@ export interface User{
   role: 'Admin' | 'Manager' | 'Host';
   status: 'Active' | 'Inactive';
   restaurantId?: number;
+  restaurant?: Restaurant;
   resortId?: number;
+  resorts?: Resort;
   meal_type?: 'Breakfast' | 'Lunch' | 'Dinner' | 'All';
+  createdBy?: User;
+  updatedBy?: User;
   createdAt?: string;
   updatedAt?: string;
 }

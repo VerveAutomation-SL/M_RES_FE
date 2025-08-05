@@ -3,7 +3,8 @@ import { ChevronLeft, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createUser } from "@/lib/api/userApi";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurantsApi";
-import { Resort } from "@/lib/types";
+import { Resort} from "@/lib/types";
+import toast from "react-hot-toast";
 
 interface UserFormProps {
   isOpen?: boolean;
@@ -23,12 +24,7 @@ export default function UserForm({
     email: "",
     password: "",
     confirmPassword: "",
-    role:
-      selectedRole === "Admin"
-        ? "Admin"
-        : selectedRole === "Manager"
-        ? "Manager"
-        : "Host",
+    role: selectedRole,
     restaurantId: null as number | null,
     resortId: null as number | null,
     meal_type: "All", // Set a single default value
@@ -36,7 +32,7 @@ export default function UserForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // Add error state
   const [currentStep, setCurrentStep] = useState(1);
-  const [resorts, setResorts] = useState<Resort[]>([]); // Adjust type as needed
+  const [resorts, setResorts] = useState<Resort[]>([]); 
 
   useEffect(() => {
     // fetch all restaurant and resort
@@ -253,7 +249,7 @@ export default function UserForm({
         });
         setError("");
         setCurrentStep(1);
-        alert("User created successfully!");
+        toast.success(`User ${formData.username} created successfully!`);
 
         // Call callbacks
         onSuccess?.();
@@ -318,36 +314,14 @@ export default function UserForm({
     if (error) setError(""); // Clear error when user types
   };
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData({ ...formData, role: e.target.value });
-    console.log("🚀 Role changed:", e.target.value);
-    if (error) setError(""); // Clear error when user types
-  };
-
-  const handleRestaurantIdChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const value = e.target.value;
-    setFormData({
-      ...formData,
-      restaurantId: value ? Number.parseInt(value) : null,
-    });
-    if (error) setError("");
-  };
-
-  const handleResortIdChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setFormData({
-      ...formData,
-      resortId: value ? Number.parseInt(value) : null,
-    });
-    if (error) setError("");
-  };
-
   const handleMealTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({ ...formData, meal_type: e.target.value });
     if (error) setError("");
   };
+
+  const filteredRestaurants = formData.resortId
+    ? resorts.find(r => r.id === formData.resortId)?.restaurants || []
+    : [];
 
   if (!isOpen) return null;
 
@@ -498,50 +472,11 @@ export default function UserForm({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Role*
                 </label>
-                <select
+                <input
                   value={formData.role}
-                  onChange={handleRoleChange}
-                  className={`w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700 ${
-                    error && error.toString().toLowerCase().includes("role")
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
-                  }`}
-                  disabled={loading}
-                  required
-                >
-                  {selectedRole === "Admin" && (
-                    <option
-                      value="Admin"
-                      className="text-base sm:text-sm text-gray-700"
-                    >
-                      Admin
-                    </option>
-                  )}
-
-                  {selectedRole === "User" && (
-                    <>
-                      <option
-                        value=""
-                        disabled
-                        className="text-base sm:text-sm text-gray-700"
-                      >
-                        Please select a role
-                      </option>
-                      <option
-                        value="Manager"
-                        className="text-base sm:text-sm text-gray-700"
-                      >
-                        Manager
-                      </option>
-                      <option
-                        value="Host"
-                        className="text-base sm:text-sm text-gray-700"
-                      >
-                        Host
-                      </option>
-                    </>
-                  )}
-                </select>
+                  disabled
+                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
+                />
               </div>
             </form>
           )}
@@ -554,27 +489,24 @@ export default function UserForm({
               </label>
               <select
                 value={formData.resortId || ""}
-                onChange={handleResortIdChange}
-                className={`w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700 ${
-                  error && error.toString().toLowerCase().includes("resort")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
+                onChange={e => {
+                  const resortId = Number(e.target.value);
+                  setFormData({
+                    ...formData,
+                    resortId,
+                    restaurantId: null, // Reset restaurant when resort changes
+                  });
+                  if (error) setError("");
+                }}
+                className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
                 disabled={loading}
+                required
               >
-                <option
-                  value=""
-                  disabled
-                  className="text-base sm:text-sm text-gray-700"
-                >
+                <option value="" disabled>
                   Please select a Resort
                 </option>
-                {resorts.map((resort) => (
-                  <option
-                    key={resort.id}
-                    value={resort.id}
-                    className="text-base sm:text-sm text-gray-700"
-                  >
+                {resorts.map(resort => (
+                  <option key={resort.id} value={resort.id}>
                     {resort.name}
                   </option>
                 ))}
@@ -586,28 +518,22 @@ export default function UserForm({
               </label>
               <select
                 value={formData.restaurantId || ""}
-                onChange={handleRestaurantIdChange}
-                className={`w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700 ${
-                  error && error.toString().toLowerCase().includes("restaurant")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                disabled={loading}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    restaurantId: e.target.value ? Number(e.target.value) : null,
+                  })
+                }
+                className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
+                disabled={loading || !formData.resortId}
+                required
               >
-                <option
-                  value=""
-                  disabled
-                  className="text-base sm:text-sm text-gray-700"
-                >
+                <option value="" disabled>
                   Please select a Restaurant
                 </option>
-                {resorts.map((resort) => (
-                  <option
-                    key={resort.id}
-                    value={resort.id}
-                    className="text-base sm:text-sm text-gray-700"
-                  >
-                    {resort.name}
+                {filteredRestaurants.map(restaurant => (
+                  <option key={restaurant.id} value={restaurant.id}>
+                    {restaurant.restaurantName}
                   </option>
                 ))}
               </select>
@@ -620,33 +546,14 @@ export default function UserForm({
                 <select
                   value={formData.meal_type}
                   onChange={handleMealTypeChange}
-                  className="w-full min-w-0 appearance-none px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
+                  className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
                   disabled={loading}
+                  required
                 >
-                  <option
-                    value="All"
-                    className="text-base sm:text-sm text-gray-700"
-                  >
-                    All
-                  </option>
-                  <option
-                    value="Breakfast"
-                    className="text-base sm:text-sm text-gray-700"
-                  >
-                    Breakfast
-                  </option>
-                  <option
-                    value="Lunch"
-                    className="text-base sm:text-sm text-gray-700"
-                  >
-                    Lunch
-                  </option>
-                  <option
-                    value="Dinner"
-                    className="text-base sm:text-sm text-gray-700"
-                  >
-                    Dinner
-                  </option>
+                  <option value="All">All</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
                 </select>
               </div>
             </form>
