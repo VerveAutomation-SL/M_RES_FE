@@ -165,8 +165,11 @@ export interface User{
   avatar?: string;
   role: 'Admin' | 'Manager' | 'Host';
   status: 'Active' | 'Inactive';
-  PermissionId: number | null;
-  permission?: Permission;
+  resortId?: number;
+  restaurantId?: number;
+  meal_type?: 'Breakfast' | 'Lunch' | 'Dinner' | 'All';
+  resort: Resort;
+  restaurant?: Restaurant;
   createdAt?: string;
   updatedAt?: string;
 }

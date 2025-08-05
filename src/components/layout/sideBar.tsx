@@ -15,13 +15,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
 const SideBar = () => {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
+  const { user } = useAuthStore();
 
   const navigationItems = [
     { href: "/dashboard", icon: Home, label: "Dashboard", section: "Overview" },
-    { href: "/check-in", icon: UserCheck, label: "Check-ins", section: "Overview" },
+    {
+      href: "/check-in",
+      icon: UserCheck,
+      label: "Check-ins",
+      section: "Overview",
+    },
     {
       href: "/analytics",
       icon: BarChart3,
@@ -130,9 +137,7 @@ const SideBar = () => {
                         className="flex items-center gap-2 px-2 py-2 lg:ml-4 rounded hover:bg-[#8B6F47] transition-colors text-sm"
                       >
                         <User className="h-4 w-4" />
-                        <span className="lg:hidden font-medium text-lg">
-                          M
-                        </span>
+                        <span className="lg:hidden font-medium text-lg">M</span>
                         <span className="hidden lg:inline">Managers</span>
                       </Link>
                       <Link
@@ -140,9 +145,7 @@ const SideBar = () => {
                         className="flex items-center gap-2 px-2 py-2 lg:ml-4 rounded hover:bg-[#8B6F47] transition-colors text-sm"
                       >
                         <User className="h-4 w-4 " />
-                        <span className="lg:hidden font-medium text-lg">
-                          H
-                        </span>
+                        <span className="lg:hidden font-medium text-lg">H</span>
                         <span className="hidden lg:inline">Hosts</span>
                       </Link>
                     </div>
@@ -165,26 +168,31 @@ const SideBar = () => {
           </div>
 
           {/* User Profile Section */}
-          <div className="p-2 lg:p-4 border-t border-[#7A5F3F]">
+          <Link
+            className="p-2 lg:p-4 border-t border-[#7A5F3F]"
+            href="/profile"
+          >
             <div className="flex items-center justify-center lg:justify-start gap-2 lg:gap-3">
               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#7A5F3F] rounded-full flex items-center justify-center group relative">
                 <User className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 {/* Mobile/Tablet Tooltip */}
                 <div className="lg:hidden absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                  Admin User
+                  {user?.username}
                 </div>
               </div>
               <div className="hidden lg:block flex-1 min-w-0">
-                <div className="text-sm font-medium text-white">Admin User</div>
+                <div className="text-sm font-medium text-white">
+                  {user?.role}
+                </div>
                 <div className="text-xs text-white opacity-80 truncate">
-                  admin@residence.mv
+                  {user?.email}
                 </div>
               </div>
             </div>
             <div className="hidden lg:block text-xs text-white opacity-60 mt-2 text-center lg:text-left">
               Powered by verveautomation.com
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </>
