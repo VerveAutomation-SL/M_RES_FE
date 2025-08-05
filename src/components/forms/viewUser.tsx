@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Edit3, Save, Trash2, X, XCircle, Eye, EyeOff } from "lucide-react";
-import { Permission, User } from "@/lib/types";
+import { User } from "@/lib/types";
 import {
   deleteUser,
-  getAdminPermissions,
-  getAllUserPermissions,
   getUserDetails,
   updateUserDetails,
 } from "@/lib/api/userApi";
@@ -30,7 +28,6 @@ const EditUserModal = ({
 }: EditUserModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<User>();
-  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -68,37 +65,7 @@ const EditUserModal = ({
     }
   }, [isOpen, userId, refreshTrigger]);
 
-  useEffect(() => {
-    if (!isEditing) return;
-    const fetchPermissions = async () => {
-      const permissiontype = user?.role === "Admin" ? "Admin" : "User";
-      if (permissiontype === "Admin") {
-        try {
-          const response = await getAdminPermissions();
-          if (response?.success && response.data) {
-            console.log("Fetched admin permissions:", response.data);
-            setPermissions(response.data);
-          }
-        } catch (err) {
-          console.error("Error fetching admin permissions", err);
-        }
-      } else {
-        try {
-          const response = await getAllUserPermissions();
-          if (response?.success && response.data) {
-            console.log("Fetched user permissions:", response.data);
-            setPermissions(response.data);
-          }
-        } catch (err) {
-          console.error("Error fetching user permissions", err);
-        }
-      }
-    };
-
-    fetchPermissions();
-  }, [isEditing, refreshTrigger, user?.role]);
-
-  // Check if current user can edit this user
+  // Check if logedin user can edit selected user
   const canEditUser = () => {
     if (!loginUser || !user) return false;
 
@@ -126,7 +93,7 @@ const EditUserModal = ({
 
     // User can edit their own details (but not status/permission/role)
     if (loginUser.UserId === user.UserId) {
-      return !["status", "permission", "role"].includes(field);
+      return !["status", "role"].includes(field);
     }
 
     return false;
@@ -284,7 +251,12 @@ const EditUserModal = ({
 
   // Handle status change with permission validation
   const handleStatusChange = (status: "Active" | "Inactive") => {
-    if (status === "Active" && !user?.PermissionId) {
+    if (
+      status === "Active" &&
+      !user?.resortId &&
+      !user?.restaurantId &&
+      !user?.meal_type
+    ) {
       setError(
         "User must have a permission assigned before activating account"
       );
@@ -341,7 +313,12 @@ const EditUserModal = ({
     }
 
     // Validate status change
-    if (user.status === "Active" && !user.PermissionId) {
+    if (
+      user.status === "Active" &&
+      !user.meal_type &&
+      !user.resortId &&
+      !user.restaurantId
+    ) {
       setError(
         "User must have a permission assigned before activating account"
       );
@@ -648,7 +625,7 @@ const EditUserModal = ({
               </div>
 
               {/* Permission section */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Permission
                 </label>
@@ -692,7 +669,7 @@ const EditUserModal = ({
                     {user.permission?.name || "No Permission"}
                   </p>
                 )}
-              </div>
+              </div> */}
             </div>
 
             {/* Password Change Section */}

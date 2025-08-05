@@ -169,7 +169,7 @@ const Page = () => {
           isOpen={showaddModal}
           onClose={() => setShowAddModal(false)}
           onSuccess={handelRefresh}
-          selectedRole={"User"}
+          selectedRole={"Manager"}
         />
       )}
     </>

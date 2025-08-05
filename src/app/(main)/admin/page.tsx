@@ -117,7 +117,7 @@ const Page = () => {
                               {admin.username}
                             </h3>
                             <div className="flex items-center gap-1 text-gray-500 text-sm">
-                              <span>{admin.permission?.description}</span>
+                              <span>{admin.email}</span>
                             </div>
                           </div>
                         </div>
