@@ -5,7 +5,7 @@ import React from "react";
 
 const Pagelayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["Admin", "Manager","Host"]}>
       <div className="flex h-screen overflow-hidden">
         <SideBar />
         {/* Main content area - Only needs margin on mobile/tablet */}

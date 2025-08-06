@@ -10,6 +10,7 @@ import { Hotel, SquareCheck, UserRoundCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { useAuthStore } from "@/store/authStore";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading, user } = useAuthStore();
@@ -52,6 +53,7 @@ export default function DashboardPage() {
   }
 
   return (
+    <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-5 mb-5">
         <StatsCard
@@ -102,5 +104,6 @@ export default function DashboardPage() {
       </div>
       <RecentCheckIns />
     </div>
+    </ProtectedRoute>
   );
 }

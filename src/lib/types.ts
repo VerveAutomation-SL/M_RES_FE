@@ -165,25 +165,16 @@ export interface User{
   avatar?: string;
   role: 'Admin' | 'Manager' | 'Host';
   status: 'Active' | 'Inactive';
-  resortId?: number;
   restaurantId?: number;
-  meal_type?: 'Breakfast' | 'Lunch' | 'Dinner' | 'All';
-  resort: Resort;
   restaurant?: Restaurant;
+  resortId?: number;
+  resorts?: Resort;
+  meal_type?: 'Breakfast' | 'Lunch' | 'Dinner' | 'All';
+  createdBy?: User;
+  updatedBy?: User;
   createdAt?: string;
   updatedAt?: string;
 }
-
-export interface Permission {
-  PermissionId: number;
-  name: string;
-  restaurantId?: number;
-  meal_type: 'Breakfast'| 'Lunch'| 'Dinner'| 'All';
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 
 export interface LoginFormData {
     userName: string;
