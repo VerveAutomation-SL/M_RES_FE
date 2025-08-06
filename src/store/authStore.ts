@@ -58,6 +58,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout_user: () => {
     Cookies.remove('accessToken');
+    localStorage.removeItem('checkin_resort');
+    localStorage.removeItem('checkin_outlet');
     set({
       user: null,
       isAuthenticated: false,

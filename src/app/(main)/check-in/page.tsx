@@ -96,6 +96,14 @@ export default function CheckInPage() {
     if (!isLoading && isAuthenticated && user) {
       fetchResorts();
       fetchUser(user.UserId);
+
+      const savedResort = localStorage.getItem("checkin_resort");
+      const savedOutlet = localStorage.getItem("checkin_outlet");
+      if(savedResort && savedOutlet){
+        setUserResort(JSON.parse(savedResort));
+        setUserOutlet(JSON.parse(savedOutlet));
+        setShowSelector(false);
+      }
     }
   }, [isAuthenticated, isLoading, user, user?.UserId, user?.role]);
 
@@ -148,6 +156,10 @@ export default function CheckInPage() {
     setOutlets(resort.restaurants || []);
     setSelectedOutlet(outlet);
     setShowSelector(false);
+
+    localStorage.setItem("checkin_resort", JSON.stringify(resort));
+    localStorage.setItem("checkin_outlet", JSON.stringify(outlet));
+
   };
 
   // Handler to re-open selector
@@ -300,12 +312,12 @@ export default function CheckInPage() {
                 </h3>
                 <span
                   className={`text-xs px-3 py-1 rounded-full ${
-                    selectedOutlet?.status === "Open"
+                    userOutlet?.status === "Open"
                       ? "bg-green-100 text-green-700"
                       : "bg-gray-100 text-gray-600"
                   }`}
                 >
-                  {selectedOutlet?.status === "Open" ? "Open" : "Closed"}
+                  {userOutlet?.status === "Open" ? "Open" : "Closed"}
                 </span>
               </div>
 

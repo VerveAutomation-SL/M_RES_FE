@@ -86,7 +86,8 @@ const Page = () => {
             {managerData.map((manager) => (
               <div
                 key={manager.UserId}
-                className="relative flex bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all border border-gray-100 overflow-hidden"
+                className="relative flex bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all border border-gray-100 overflow-hidden cursor-pointer"
+                onClick={() => handleEditUser(manager)}
               >
                 {/* Colored sidebar */}
                 <div
@@ -158,7 +159,6 @@ const Page = () => {
           onClose={() => setShowViewModal(false)}
           userId={selectedUser.UserId}
           onSuccess={handelRefresh}
-          loginUser={user || undefined}
           pageRole="Manager"
         />
       )}
