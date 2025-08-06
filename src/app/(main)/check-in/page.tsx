@@ -12,6 +12,8 @@ import { Resort, Restaurant } from "@/lib/types";
 import { useAuthStore } from "@/store/authStore";
 import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
 import { useRouter } from "next/navigation";
+import { getUserDetails } from "@/lib/api/userApi";
+import toast from "react-hot-toast";
 
 export default function CheckInPage() {
   // Resort state management
@@ -28,56 +30,80 @@ export default function CheckInPage() {
   const [selectorForced, setSelectorForced] = useState(true);
   const [userResort, setUserResort] = useState<Resort | null>(null);
   const [userOutlet, setUserOutlet] = useState<Restaurant | null>(null);
+  const [selectedResort, setSelectedResort] = useState<number | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(
+    null
+  );
+
   const router = useRouter();
-  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toLocaleTimeString());
+  const [lastUpdated, setLastUpdated] = useState<string>(
+    new Date().toLocaleTimeString()
+  );
 
   // Stats hook using the shared activeResort
-  const { stats, loading, error, refetch } = useCheckInStats(userResort?.id || 0);
+  const { stats, loading, error, refetch } = useCheckInStats(
+    userResort?.id || 0
+  );
 
   const { isAuthenticated, isLoading, user } = useAuthStore();
 
   console.log(user, "user in checkin page");
 
-  // Fetch resorts on component mount
-  useEffect(() => {
-    const fetchResorts = async () => {
-      try {
-        const response = await restaurantApi.getAllResortsWithRestaurants();
-        console.log("Fetched resorts:", response);
-        if (
-          response &&
-          response.success &&
-          Array.isArray(response.data) &&
-          response.data.length > 0
-        ) {
-          // Ensure every resort has a restaurants array
-          const resortsWithRestaurants = response.data.map((resort) => ({
-            ...resort,
-            restaurants: Array.isArray(resort.restaurants)
-              ? resort.restaurants
-              : [],
-          }));
-          setResorts(resortsWithRestaurants);
-        } else {
-          setResorts([]);
-        }
-      } catch (error) {
+  const fetchResorts = async () => {
+    try {
+      const response = await restaurantApi.getAllResortsWithRestaurants();
+      console.log("Fetched resorts:", response);
+      if (
+        response &&
+        response.success &&
+        Array.isArray(response.data) &&
+        response.data.length > 0
+      ) {
+        // Ensure every resort has a restaurants array
+        const resortsWithRestaurants = response.data.map((resort: Resort) => ({
+          ...resort,
+          restaurants: Array.isArray(resort.restaurants)
+            ? resort.restaurants
+            : [],
+        }));
+        setResorts(resortsWithRestaurants);
+      } else {
         setResorts([]);
-      } finally {
-        setResortsLoading(false);
       }
-    };
-
-    if (!isLoading && isAuthenticated) {
-      fetchResorts();
+    } catch (error) {
+      setResorts([]);
+      console.log(error, "Error fetching resorts");
+    } finally {
+      setResortsLoading(false);
     }
-  }, [isAuthenticated, isLoading]);
+  };
+
+  const fetchUser = async (UserId: number) => {
+    try {
+      const response = await getUserDetails(UserId);
+      console.log("Fetched user:", response.data);
+      if (response?.success) {
+        console.log("User data fetched successfully:", response.data);
+        setSelectedResort(response.data.resortId || null);
+        setSelectedRestaurant(response.data.restaurantId || null);
+      }
+    } catch (err) {
+      console.error("Error fetching user:", err);
+    }
+  };
 
   useEffect(() => {
-  if (!loading && !error) {
-    setLastUpdated(new Date().toLocaleTimeString());
-  }
-}, [loading, error, stats]);
+    if (!isLoading && isAuthenticated && user) {
+      fetchResorts();
+      fetchUser(user.UserId);
+    }
+  }, [isAuthenticated, isLoading, user, user?.UserId, user?.role]);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      setLastUpdated(new Date().toLocaleTimeString());
+    }
+  }, [loading, error, stats]);
 
   // Handle resort change from RoomGrid navigation
   const handleResortChange = (resortId: number) => {
@@ -126,14 +152,18 @@ export default function CheckInPage() {
 
   // Handler to re-open selector
   const handleChangeResortOutlet = () => {
-    setShowSelector(true);
-    setSelectorForced(false);
+    if (user?.role === "Admin") {
+      setShowSelector(true);
+      setSelectorForced(false);
+    } else {
+      toast.error("You do not have permission to change the resort or outlet.");
+    }
   };
 
   const handleSelectorClose = () => {
     if (selectorForced) {
       router.back();
-    }else{
+    } else {
       setShowSelector(false);
       setSelectorForced(false);
     }
@@ -141,7 +171,15 @@ export default function CheckInPage() {
 
   // Only render selector modal if needed
   if (showSelector || !userResort || !userOutlet) {
-    return <ResortOutletSelector resorts={resorts} onSelect={handleSelector} onClose={handleSelectorClose} />;
+    return (
+      <ResortOutletSelector
+        AllData={resorts}
+        onSelect={handleSelector}
+        onClose={handleSelectorClose}
+        assignResort={selectedResort}
+        assignRestaurant={selectedRestaurant}
+      />
+    );
   }
 
   return (
@@ -270,6 +308,7 @@ export default function CheckInPage() {
                   {selectedOutlet?.status === "Open" ? "Open" : "Closed"}
                 </span>
               </div>
+
               <button
                 className="text-xs px-3 py-1 border border-amber-800 rounded-full text-amber-900 hover:bg-amber-100 transition flex-shrink-0"
                 onClick={handleChangeResortOutlet}
@@ -301,15 +340,16 @@ export default function CheckInPage() {
               </div>
 
               <div className="mt-10 pt-3 border-t border-gray-100">
-                {(userResort.restaurants && userResort.restaurants.length > 0) ? (
+                {userResort.restaurants && userResort.restaurants.length > 0 ? (
                   <div className="flex gap-2 overflow-x-auto pb-2 mt-4">
                     {userResort.restaurants.map((outlet, idx) => (
                       <div
                         key={outlet.id || idx}
                         className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
-                          ${userOutlet?.id === outlet.id
-                            ? "bg-amber-900 text-white border-amber-900"
-                            : "bg-amber-50 text-gray-700 border-amber-900"
+                          ${
+                            userOutlet?.id === outlet.id
+                              ? "bg-amber-900 text-white border-amber-900"
+                              : "bg-amber-50 text-gray-700 border-amber-900"
                           }
                         `}
                       >
