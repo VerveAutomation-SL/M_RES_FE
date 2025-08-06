@@ -1,18 +1,16 @@
 "use client";
-import { X } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Permission } from "@/lib/types";
-import {
-  createUser,
-  getAdminPermissions,
-  getAllUserPermissions,
-} from "@/lib/api/userApi";
+import { createUser } from "@/lib/api/userApi";
+import { getAllResortsWithRestaurants } from "@/lib/api/restaurantsApi";
+import { Resort} from "@/lib/types";
+import toast from "react-hot-toast";
 
 interface UserFormProps {
   isOpen?: boolean;
   onClose?: () => void;
   onSuccess?: () => void;
-  selectedRole: string; // Role can be "Admin", "User"
+  selectedRole: string; // Role can be "Admin", "Manager", "Host"
 }
 
 export default function UserForm({
@@ -26,49 +24,34 @@ export default function UserForm({
     email: "",
     password: "",
     confirmPassword: "",
-    role: "",
-    PermissionId: "",
+    role: selectedRole,
+    restaurantId: null as number | null,
+    resortId: null as number | null,
+    meal_type: "All", // Set a single default value
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // Add error state
-  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [resorts, setResorts] = useState<Resort[]>([]); 
 
   useEffect(() => {
-    const fetchAllUserPermissions = async () => {
+    // fetch all restaurant and resort
+    const fetchResorts = async () => {
+      setLoading(true);
       try {
-        const response = await getAllUserPermissions();
-        console.log("📊 Permissions fetched:", response.data);
-        setPermissions(response.data);
+        const response = await getAllResortsWithRestaurants();
+        console.log("Fetched resorts:", response.data);
+        setResorts(response.data);
       } catch (error) {
-        console.error("Error fetching permissions:", error);
-        setError("Failed to load permissions. Please refresh and try again.");
+        console.error("Error fetching resorts:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    const fetchAdminPermissions = async () => {
-      try {
-        const response = await getAdminPermissions();
-        console.log("📊 Admin Permissions fetched:", response.data);
-        setPermissions(response.data);
-        setFormData((prev) => ({
-          ...prev,
-          PermissionId: String(response.data.at(0)?.PermissionId),
-          role: "Admin",
-        }));
-      } catch (error) {
-        console.error("Error fetching Admin permissions:", error);
-        setError(
-          "Failed to load Admin permissions. Please refresh and try again."
-        );
-      }
-    };
-
-    if (selectedRole === "Admin") {
-      fetchAdminPermissions();
-    } else {
-      fetchAllUserPermissions();
+    if (currentStep === 2) {
+      fetchResorts();
     }
-  }, [selectedRole]);
+  }, [currentStep]);
 
   // Enhanced email validation function with strict checking for all major providers
   const validateEmail = (email: string) => {
@@ -140,7 +123,7 @@ export default function UserForm({
     return passwordRegex.test(password);
   };
 
-  const validateForm = () => {
+  const validateStep1 = () => {
     if (!formData.username.trim()) {
       return "Username is required.";
     }
@@ -188,6 +171,33 @@ export default function UserForm({
     return null;
   };
 
+  const validateStep2 = () => {
+    if (!formData.username.trim()) {
+      return "Username is required.";
+    }
+    if (formData.username.length < 3) {
+      return "Username must be at least 3 characters long.";
+    }
+    if (!formData.email.trim()) {
+      return "Email is required.";
+    }
+  };
+
+  const handleNext = () => {
+    const validationError = validateStep1();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError("");
+    setCurrentStep(2);
+  };
+
+  const handleBack = () => {
+    setError("");
+    setCurrentStep(1);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     console.log("🚀 Submitting user form...");
     e.preventDefault();
@@ -197,8 +207,7 @@ export default function UserForm({
     console.log("🚀 Submitting user form with data:", formData);
 
     try {
-      // Validate required fields
-      const validationError = validateForm();
+      const validationError = validateStep2();
       if (validationError) {
         setError(validationError);
         setLoading(false);
@@ -212,10 +221,14 @@ export default function UserForm({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
         role: formData.role as "Admin" | "Manager" | "Host",
-        PermissionId: formData.PermissionId
-          ? parseInt(formData.PermissionId)
-          : null,
-        status: "Active" as "Active" | "Inactive",
+        restaurantId: formData.restaurantId ?? undefined,
+        resortId: formData.resortId ?? undefined,
+        meal_type: formData.meal_type as
+          | "All"
+          | "Breakfast"
+          | "Lunch"
+          | "Dinner",
+        status: "Inactive" as "Active" | "Inactive",
       };
 
       const response = await createUser(Payload);
@@ -230,11 +243,13 @@ export default function UserForm({
           password: "",
           confirmPassword: "",
           role: "",
-          PermissionId: "",
+          restaurantId: null,
+          resortId: null,
+          meal_type: "All",
         });
         setError("");
-
-        alert("User created successfully!");
+        setCurrentStep(1);
+        toast.success(`User ${formData.username} created successfully!`);
 
         // Call callbacks
         onSuccess?.();
@@ -267,9 +282,12 @@ export default function UserForm({
       password: "",
       confirmPassword: "",
       role: "",
-      PermissionId: "",
+      restaurantId: null,
+      resortId: null,
+      meal_type: "",
     });
     setError("");
+    setCurrentStep(1);
     onClose?.();
   };
 
@@ -296,17 +314,14 @@ export default function UserForm({
     if (error) setError(""); // Clear error when user types
   };
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData({ ...formData, role: e.target.value });
-    console.log("🚀 Role changed:", e.target.value);
-    if (error) setError(""); // Clear error when user types
+  const handleMealTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({ ...formData, meal_type: e.target.value });
+    if (error) setError("");
   };
 
-  const handlePermissionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("🚀 Permission changed:", e.target.value);
-    setFormData({ ...formData, PermissionId: e.target.value });
-    if (error) setError(""); // Clear error when user types
-  };
+  const filteredRestaurants = formData.resortId
+    ? resorts.find(r => r.id === formData.resortId)?.restaurants || []
+    : [];
 
   if (!isOpen) return null;
 
@@ -317,8 +332,19 @@ export default function UserForm({
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
+              {currentStep === 2 && (
+                <button
+                  onClick={handleBack}
+                  className="mr-3 text-gray-400 hover:text-gray-600 cursor-pointer p-1 rounded-md hover:bg-gray-100 transition-colors"
+                  disabled={loading}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-                Add New {selectedRole}
+                {currentStep === 1
+                  ? `Add New ${selectedRole}`
+                  : "Permission Details"}
               </h3>
             </div>
             <button
@@ -357,171 +383,181 @@ export default function UserForm({
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-            {/* Username Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username*
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleUsernameChange}
-                className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                  error && error.toString().toLowerCase().includes("username")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                placeholder="e.g., john_doe"
-                disabled={loading}
-                minLength={3}
-              />
-            </div>
+          {currentStep === 1 && (
+            <form className="space-y-4 sm:space-y-5">
+              {/* Username Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Username*
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={handleUsernameChange}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
+                    error && error.toString().toLowerCase().includes("username")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="e.g., john_doe"
+                  disabled={loading}
+                  minLength={3}
+                />
+              </div>
 
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email*
-              </label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleEmailChange}
-                className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                  error && error.toString().toLowerCase().includes("email")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                placeholder="e.g., john@example.com"
-                disabled={loading}
-              />
-            </div>
+              {/* Email Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email*
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleEmailChange}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
+                    error && error.toString().toLowerCase().includes("email")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="e.g., john@example.com"
+                  disabled={loading}
+                />
+              </div>
 
-            {/* Password Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password*
-              </label>
-              <input
-                type="password"
-                required
-                value={formData.password}
-                onChange={handlePasswordChange}
-                className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                  error && error.toString().toLowerCase().includes("password")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                placeholder="Min 8 chars, 1 upper, 1 lower, 1 number"
-                disabled={loading}
-                minLength={8}
-              />
-            </div>
+              {/* Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password*
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handlePasswordChange}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
+                    error && error.toString().toLowerCase().includes("password")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Min 8 chars, 1 upper, 1 lower, 1 number"
+                  disabled={loading}
+                  minLength={8}
+                />
+              </div>
 
-            {/* Confirm Password Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password*
-              </label>
-              <input
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                  error && error.toString().toLowerCase().includes("password")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                placeholder="Re-enter your password"
-                disabled={loading}
-              />
-            </div>
+              {/* Confirm Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password*
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
+                    error && error.toString().toLowerCase().includes("password")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Re-enter your password"
+                  disabled={loading}
+                />
+              </div>
 
-            {/* Role Field */}
-            <div>
+              {/* Role Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Role*
+                </label>
+                <input
+                  value={formData.role}
+                  disabled
+                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
+                />
+              </div>
+            </form>
+          )}
+
+          {currentStep === 2 && selectedRole !== "Admin" && (
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+              {/* Resort ID Field */}
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Role*
+                Resort
               </label>
               <select
-                value={formData.role}
-                onChange={handleRoleChange}
-                className={`w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700 ${
-                  error && error.toString().toLowerCase().includes("role")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
+                value={formData.resortId || ""}
+                onChange={e => {
+                  const resortId = Number(e.target.value);
+                  setFormData({
+                    ...formData,
+                    resortId,
+                    restaurantId: null, // Reset restaurant when resort changes
+                  });
+                  if (error) setError("");
+                }}
+                className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
                 disabled={loading}
                 required
               >
-                {selectedRole === "Admin" && (
-                  <option
-                    value="Admin"
-                    className="text-base sm:text-sm text-gray-700"
-                  >
-                    Admin
-                  </option>
-                )}
-
-                {selectedRole === "User" && (
-                  <>
-                    <option
-                      value=""
-                      disabled
-                      className="text-base sm:text-sm text-gray-700"
-                    >
-                      Please select a role
-                    </option>
-                    <option
-                      value="Manager"
-                      className="text-base sm:text-sm text-gray-700"
-                    >
-                      Manager
-                    </option>
-                    <option
-                      value="Host"
-                      className="text-base sm:text-sm text-gray-700"
-                    >
-                      Host
-                    </option>
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* Permission Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Permission
-              </label>
-              <select
-                value={formData.PermissionId}
-                onChange={handlePermissionChange}
-                className={`w-full min-w-0 appearance-none px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700 ${
-                  error && error.toString().toLowerCase().includes("permission")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                disabled={loading}
-              >
-                <option className="text-sm py-2 text-gray-700" value="">
-                  No specific permission
+                <option value="" disabled>
+                  Please select a Resort
                 </option>
-                {permissions.map((permission) => (
-                  <option
-                    key={permission.PermissionId}
-                    value={permission.PermissionId}
-                    className="text-base sm:text-sm py-2 text-gray-700"
-                  >
-                    {permission.name}
+                {resorts.map(resort => (
+                  <option key={resort.id} value={resort.id}>
+                    {resort.name}
                   </option>
                 ))}
               </select>
-            </div>
-          </form>
+
+              {/* Restaurant ID Field */}
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Restaurant
+              </label>
+              <select
+                value={formData.restaurantId || ""}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    restaurantId: e.target.value ? Number(e.target.value) : null,
+                  })
+                }
+                className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
+                disabled={loading || !formData.resortId}
+                required
+              >
+                <option value="" disabled>
+                  Please select a Restaurant
+                </option>
+                {filteredRestaurants.map(restaurant => (
+                  <option key={restaurant.id} value={restaurant.id}>
+                    {restaurant.restaurantName}
+                  </option>
+                ))}
+              </select>
+
+              {/* Meal Type Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Meal Type
+                </label>
+                <select
+                  value={formData.meal_type}
+                  onChange={handleMealTypeChange}
+                  className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
+                  disabled={loading}
+                  required
+                >
+                  <option value="All">All</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
+                </select>
+              </div>
+            </form>
+          )}
         </div>
 
         {/* Fixed Footer */}
@@ -535,21 +571,34 @@ export default function UserForm({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={
-                loading ||
-                !formData.username ||
-                !formData.email ||
-                !formData.password ||
-                !formData.confirmPassword ||
-                !formData.role
-              }
-              className="w-full sm:flex-1 px-4 py-3 sm:py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 disabled:opacity-50 cursor-pointer transition-colors text-base sm:text-sm font-medium"
-            >
-              {loading ? "Creating..." : "Create User"}
-            </button>
+
+            {/* Decide if we should show Next or Submit */}
+            {currentStep === 1 && selectedRole !== "Admin" ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={
+                  loading ||
+                  !formData.username ||
+                  !formData.email ||
+                  !formData.password ||
+                  !formData.confirmPassword ||
+                  !formData.role
+                }
+                className="w-full sm:flex-1 px-4 py-3 sm:py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 disabled:opacity-50 cursor-pointer transition-colors text-base sm:text-sm font-medium"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={loading || !formData.meal_type}
+                className="w-full sm:flex-1 px-4 py-3 sm:py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 disabled:opacity-50 cursor-pointer transition-colors text-base sm:text-sm font-medium"
+              >
+                {loading ? "Creating..." : "Create User"}
+              </button>
+            )}
           </div>
         </div>
       </div>

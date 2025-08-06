@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { checkInApi, resortApi, roomApi } from "@/lib/api";
 import { CheckInDetails } from "@/lib/types";
 import toast from "react-hot-toast";
-
+import { useAuthStore } from "@/store/authStore";
 
 interface CheckInDetailsModalProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface CheckInDetailsModalProps {
   roomId: number;
   resortId: number;
   mealType: string;
-  onCheckoutSuccess?: (roomNumber : string) => void;
+  onCheckoutSuccess?: (roomNumber: string) => void;
 }
 
 export default function CheckInDetailsModal({
@@ -22,9 +22,11 @@ export default function CheckInDetailsModal({
   roomId,
   resortId,
   mealType,
-  onCheckoutSuccess
+  onCheckoutSuccess,
 }: CheckInDetailsModalProps) {
-  const [checkInDetails, setCheckInDetails] = useState<CheckInDetails | null>(null);
+  const [checkInDetails, setCheckInDetails] = useState<CheckInDetails | null>(
+    null
+  );
   const [resortName, setResortName] = useState<string>("");
   const [roomNumber, setRoomNumber] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -32,6 +34,8 @@ export default function CheckInDetailsModal({
   const [showRemarksModal, setShowRemarksModal] = useState(false);
   const [remarks, setRemarks] = useState<string>("");
   const [checkOutLoading, setCheckOutLoading] = useState(false);
+
+  const { user } = useAuthStore();
 
   useEffect(() => {
     if (isOpen && roomId && resortId && mealType) {
@@ -42,13 +46,15 @@ export default function CheckInDetailsModal({
   const fetchCheckInDetails = async () => {
     setLoading(true);
     setError("");
-    
+
     try {
-      const [checkInResponse, resortResponse, roomResponse] = await Promise.all([
-        checkInApi.getCheckInDetails(resortId, roomId, mealType),
-        resortApi.getResortById(resortId),
-        roomApi.getRoomById(roomId)
-      ]);
+      const [checkInResponse, resortResponse, roomResponse] = await Promise.all(
+        [
+          checkInApi.getCheckInDetails(resortId, roomId, mealType),
+          resortApi.getResortById(resortId),
+          roomApi.getRoomById(roomId),
+        ]
+      );
 
       if (checkInResponse && checkInResponse.success && checkInResponse.data) {
         setCheckInDetails(checkInResponse.data);
@@ -67,7 +73,6 @@ export default function CheckInDetailsModal({
       } else {
         setRoomNumber(`Room ${roomId}`);
       }
-      
     } catch (error) {
       console.error("Failed to fetch check-in details:", error);
       setError("Failed to load check-in details");
@@ -78,18 +83,18 @@ export default function CheckInDetailsModal({
 
   const formatTime = (timeString: string) => {
     try {
-      if (timeString.includes('T')) {
-        return new Date(timeString).toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
+      if (timeString.includes("T")) {
+        return new Date(timeString).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
         });
       } else {
-        const [hours, minutes] = timeString.split(':');
+        const [hours, minutes] = timeString.split(":");
         const date = new Date();
         date.setHours(parseInt(hours), parseInt(minutes));
-        return date.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
+        return date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
         });
       }
     } catch {
@@ -99,10 +104,10 @@ export default function CheckInDetailsModal({
 
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
       });
     } catch {
       return dateString;
@@ -110,6 +115,10 @@ export default function CheckInDetailsModal({
   };
 
   const handleCheckoutClick = () => {
+    if (user?.role === "Host") {
+      toast.error("Only Admins and Manager can check out rooms");
+      return;
+    }
     setShowRemarksModal(true);
   };
 
@@ -120,7 +129,7 @@ export default function CheckInDetailsModal({
         resortId: resortId,
         roomId: roomId,
         mealType: mealType,
-        remarks: remarks
+        remarks: remarks,
       };
 
       const response = await checkInApi.processCheckOut(checkOutData);
@@ -146,7 +155,6 @@ export default function CheckInDetailsModal({
     setShowRemarksModal(false);
     setRemarks("");
   };
-
 
   if (!isOpen) return null;
 
@@ -200,7 +208,8 @@ export default function CheckInDetailsModal({
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Date and Time</p>
                   <p className="font-medium text-sm">
-                    {formatDate(checkInDetails.createdAt)} {formatTime(checkInDetails.check_in_time)}
+                    {formatDate(checkInDetails.createdAt)}{" "}
+                    {formatTime(checkInDetails.check_in_time)}
                   </p>
                 </div>
               </div>
@@ -209,15 +218,21 @@ export default function CheckInDetailsModal({
               <div className="grid grid-cols-3 gap-6">
                 {/* Restaurant Information */}
                 <div className="text-center">
-                  <h3 className="text-sm font-medium text-gray-500 mb-3">Restaurant Information</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">
+                    Restaurant Information
+                  </h3>
                   <div className="space-y-2">
-                    <p className="font-semibold text-lg">{checkInDetails.outlet_name}</p>
+                    <p className="font-semibold text-lg">
+                      {checkInDetails.outlet_name}
+                    </p>
                   </div>
                 </div>
 
                 {/* Resort Information */}
                 <div className="text-center">
-                  <h3 className="text-sm font-medium text-gray-500 mb-3">Resort Name</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">
+                    Resort Name
+                  </h3>
                   <div className="space-y-2">
                     <p className="font-medium">{resortName}</p>
                   </div>
@@ -232,7 +247,9 @@ export default function CheckInDetailsModal({
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-1">Meal Type</p>
-                  <p className="font-medium capitalize">{checkInDetails.meal_type}</p>
+                  <p className="font-medium capitalize">
+                    {checkInDetails.meal_type}
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-1">Meal Plan</p>
@@ -274,16 +291,21 @@ export default function CheckInDetailsModal({
                 <span className="mr-2">📝</span>
                 Remarks
               </h3>
-              <button 
+              <button
                 onClick={handleCloseRemarksModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
             {/* Content */}
             <div className="p-6 ">
-              <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} 
-              placeholder= "Enter your reason to checkout..." className="w-full h-32 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+              <textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Enter your reason to checkout..."
+                className="w-full h-32 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
             </div>
 
             {/* Actions */}
@@ -291,29 +313,28 @@ export default function CheckInDetailsModal({
               <button
                 onClick={handleCloseRemarksModal}
                 disabled={checkOutLoading}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer">
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
+              >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleConfirmCheckout}
                 disabled={checkOutLoading}
-                className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer">
-                  {checkOutLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Processing...
-                    </>
-                  ):("Confirm Check-out")}
+                className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {checkOutLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Processing...
+                  </>
+                ) : (
+                  "Confirm Check-out"
+                )}
               </button>
-
             </div>
-
           </div>
         </div>
       )}
     </div>
-
-    
-  
   );
 }

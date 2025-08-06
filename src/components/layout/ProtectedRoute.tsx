@@ -26,6 +26,8 @@ const ProtectedRoute = ({
       }
     } else {
       router.push("/login");
+      localStorage.removeItem("checkin_resort");
+      localStorage.removeItem("checkin_outlet");
     }
   }, [isAuthenticated, isLoading, user, allowedRoles, router]);
 
