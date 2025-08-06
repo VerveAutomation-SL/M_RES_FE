@@ -7,6 +7,7 @@ interface HeaderProps {
   addButton?: string;
   onClick?: () => void;
   disabled?: boolean;
+  children?: React.ReactNode;
 }
 
 const Header = ({
@@ -15,6 +16,7 @@ const Header = ({
   addButton,
   onClick,
   disabled = false,
+  children,
 }: HeaderProps) => {
   return (
     <>
@@ -36,6 +38,11 @@ const Header = ({
             <Plus className="w-3 h-3 lg:w-4 lg:h-4 mr-2 rounded-full" />
             <span className="items-center text-nowrap">{addButton}</span>
           </button>
+        )}
+        {children && (
+          <div className="flex items-center justify-end mt-2 sm:mt-0">
+            {children}
+          </div>
         )}
       </div>
     </>

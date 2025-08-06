@@ -113,3 +113,18 @@ export async function getActiveHosts() {
         }
     }
 }
+
+export async function verifyPassword(userId: number, password: string) {
+    try {
+        const response = await apibackend.post(`/users/verify/password`, { userId, password });
+        console.log("Password verification response:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error verifying password:", error);
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error verifying password", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during verifying password", 500);
+        }
+    }
+}
