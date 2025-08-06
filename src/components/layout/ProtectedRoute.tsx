@@ -18,6 +18,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
+      localStorage.removeItem("checkin_resort");
+      localStorage.removeItem("checkin_outlet");
     }
   }, [isAuthenticated, isLoading, router]);
 

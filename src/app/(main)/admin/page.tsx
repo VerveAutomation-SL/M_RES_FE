@@ -4,7 +4,6 @@ import { User } from "@/lib/types";
 import { UserIcon, View } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { getAllAdmins } from "@/lib/api/userApi";
-import Card from "@/components/ui/card";
 import Image from "next/image";
 import Button from "@/components/ui/button";
 import ViewUser from "@/components/forms/viewUser";
@@ -30,6 +29,7 @@ const Page = () => {
         const response = await getAllAdmins();
         setAdmins(response.data);
       } catch (error) {
+        console.error("Error fetching Admins:", error);
         setError("Failed to load Admins. Please refresh and try again.");
       } finally {
         setLoading(false);
@@ -83,7 +83,8 @@ const Page = () => {
             {admins.map((admin) => (
               <div
                 key={admin.UserId}
-                className="relative flex bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all border border-gray-100 overflow-hidden"
+                className="relative flex bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all border border-gray-100 overflow-hidden cursor-pointer"
+                onClick={() => handleEditAdmin(admin)}
               >
                 {/* Colored sidebar */}
                 <div
@@ -147,7 +148,6 @@ const Page = () => {
           onClose={() => setShowViewModal(false)}
           userId={selectedAdmin.UserId}
           onSuccess={handelRefresh}
-          loginUser={user ?? undefined}
           pageRole="Admin"
         />
       )}
