@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { League_Spartan } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import AuthGuard from "@/components/layout/AuthGuard";
 
 const leagueSpartan = League_Spartan({
   subsets: ["latin"],
@@ -37,7 +38,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${leagueSpartan.variable} antialiased`}
       >
         <Toaster position="bottom-right" />
-        {children}
+        <AuthGuard>{children}</AuthGuard>
       </body>
     </html>
   );
