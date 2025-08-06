@@ -6,6 +6,7 @@ import DailyCheckInsChart from "@/components/charts/CheckInsChart";
 import HourlyTrendsChart from "@/components/charts/HourlyTrendsChart";
 import MealDistributionChart from "@/components/charts/MealDistrubtionChart";
 import Header from "@/components/layout/header";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import {
   exportExcelReport,
   exportPdfReport,
@@ -17,7 +18,6 @@ import {
   ReportFilterData,
 } from "@/lib/types";
 import { useAuthStore } from "@/store/authStore";
-import { getDecodedUser } from "@/utils/decoedUser";
 import {
   ChevronDown,
   Download,
@@ -266,6 +266,7 @@ export default function AnalyticsPage() {
   const hourlyTrendsData = transformHourlyTrendsData();
 
   return (
+    <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
     <>
       <div className="block sm:flex justify-between items-center transition-all duration-200">
         <Header
@@ -589,5 +590,6 @@ export default function AnalyticsPage() {
         </div>
       )}
     </>
+    </ProtectedRoute>
   );
 }

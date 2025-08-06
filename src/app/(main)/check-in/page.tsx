@@ -14,6 +14,7 @@ import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
 import { useRouter } from "next/navigation";
 import { getUserDetails } from "@/lib/api/userApi";
 import toast from "react-hot-toast";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 
 export default function CheckInPage() {
   // Resort state management
@@ -99,7 +100,7 @@ export default function CheckInPage() {
 
       const savedResort = localStorage.getItem("checkin_resort");
       const savedOutlet = localStorage.getItem("checkin_outlet");
-      if(savedResort && savedOutlet){
+      if (savedResort && savedOutlet) {
         setUserResort(JSON.parse(savedResort));
         setUserOutlet(JSON.parse(savedOutlet));
         setShowSelector(false);
@@ -149,7 +150,7 @@ export default function CheckInPage() {
   }
 
   // When user selects resort/outlet
-  const handleSelector = (resort, outlet) => {
+  const handleSelector = (resort: Resort, outlet: Restaurant) => {
     setUserResort(resort);
     setUserOutlet(outlet);
     setActiveResort(resort.id);
@@ -159,7 +160,6 @@ export default function CheckInPage() {
 
     localStorage.setItem("checkin_resort", JSON.stringify(resort));
     localStorage.setItem("checkin_outlet", JSON.stringify(outlet));
-
   };
 
   // Handler to re-open selector
@@ -195,204 +195,209 @@ export default function CheckInPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <Header
-        title="Dining Check-ins"
-        subtitle="The Residence Maldives - Daily Dining Management"
-      />
+    <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
+      <div className="space-y-6">
+        <Header
+          title="Dining Check-ins"
+          subtitle="The Residence Maldives - Daily Dining Management"
+        />
 
-      <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-6 lg:justify-between">
-        {/* Resort Statistics Card */}
-        <Card classname="w-full lg:w-[48%] gap-4 bg-white">
-          <div className="grid grid-cols-1">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center">
-                <MapPin className="w-5 h-5 text-gray-950 mr-2 mb-1" />
-                <h1 className="font-semibold text-gray-900 text-xl sm:text-2xl">
-                  {userResort.name}
-                </h1>
-              </div>
-              <button
-                onClick={refetch}
-                disabled={loading}
-                className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                title="Refresh statistics"
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
-                />
-              </button>
-            </div>
-
-            <p className="text-sm text-gray-600 mb-3">{userResort.location}</p>
-
-            {error ? (
-              <div className="text-red-600 text-sm mb-4">{error}</div>
-            ) : loading ? (
-              <div className="text-gray-500 text-sm mb-4">
-                Loading statistics...
-              </div>
-            ) : (
-              <>
-                {/* Current Meal Period Info */}
-                <div className="mb-3 p-2 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Current Period: {stats.currentMealType.toUpperCase()}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {formatMealTime(stats.currentMealType)}
-                    </span>
-                  </div>
-                  <div className="mt-1">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        stats.isWithinMealPeriod
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {stats.isWithinMealPeriod ? "ACTIVE" : "INACTIVE"}
-                    </span>
-                  </div>
+        <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-6 lg:justify-between">
+          {/* Resort Statistics Card */}
+          <Card classname="w-full lg:w-[48%] gap-4 bg-white">
+            <div className="grid grid-cols-1">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center">
+                  <MapPin className="w-5 h-5 text-gray-950 mr-2 mb-1" />
+                  <h1 className="font-semibold text-gray-900 text-xl sm:text-2xl">
+                    {userResort.name}
+                  </h1>
                 </div>
-
-                {/* Statistics */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <span className="block text-lg sm:text-2xl font-bold text-green-700">
-                      {stats.availableForCheckIn}
-                    </span>
-                    <span className="text-xs text-green-600">
-                      Remainders for Check-in
-                    </span>
-                  </div>
-
-                  <div className="text-center p-2 bg-red-50 rounded-lg">
-                    <span className="block text-lg font-bold text-red-700">
-                      {stats.currentPeriodCheckIns}
-                    </span>
-                    <span className="text-xs text-red-600">
-                      Check-ins in Current Period
-                    </span>
-                  </div>
-
-                  <div className="text-center p-2 bg-blue-50 rounded-lg">
-                    <span className="block text-lg font-bold text-blue-700">
-                      {stats.totalTodayCheckIns}
-                    </span>
-                    <span className="text-xs text-blue-600">
-                      Total Check-ins for Today
-                    </span>
-                  </div>
-                </div>
-
-                {/* Additional Info */}
-                <div className="mt-3 pt-2 border-t border-gray-200">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Total Rooms: {stats.totalRooms}</span>
-                    <span>Last Updated: {lastUpdated}</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </Card>
-
-        {/* Restaurant Card - Dynamic restaurant name */}
-        <Card classname="w-full lg:w-[48%] gap-4 bg-white">
-          <div className="grid grid-cols-1">
-            <div className="flex items-center justify-between mb-4 gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <h3
-                  className="font-semibold text-gray-900 text-xl truncate max-w-[12rem] sm:max-w-[16rem]"
-                  title={userOutlet.restaurantName}
+                <button
+                  onClick={refetch}
+                  disabled={loading}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                  title="Refresh statistics"
                 >
-                  {userOutlet.restaurantName}
-                </h3>
-                <span
-                  className={`text-xs px-3 py-1 rounded-full ${
-                    userOutlet?.status === "Open"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {userOutlet?.status === "Open" ? "Open" : "Closed"}
-                </span>
+                  <RefreshCw
+                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                </button>
               </div>
 
-              <button
-                className="text-xs px-3 py-1 border border-amber-800 rounded-full text-amber-900 hover:bg-amber-100 transition flex-shrink-0"
-                onClick={handleChangeResortOutlet}
-              >
-                Change Resort/Outlet
-              </button>
+              <p className="text-sm text-gray-600 mb-3">
+                {userResort.location}
+              </p>
+
+              {error ? (
+                <div className="text-red-600 text-sm mb-4">{error}</div>
+              ) : loading ? (
+                <div className="text-gray-500 text-sm mb-4">
+                  Loading statistics...
+                </div>
+              ) : (
+                <>
+                  {/* Current Meal Period Info */}
+                  <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">
+                        Current Period: {stats.currentMealType.toUpperCase()}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatMealTime(stats.currentMealType)}
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          stats.isWithinMealPeriod
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {stats.isWithinMealPeriod ? "ACTIVE" : "INACTIVE"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Statistics */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="text-center p-2 bg-green-50 rounded-lg">
+                      <span className="block text-lg sm:text-2xl font-bold text-green-700">
+                        {stats.availableForCheckIn}
+                      </span>
+                      <span className="text-xs text-green-600">
+                        Remainders for Check-in
+                      </span>
+                    </div>
+
+                    <div className="text-center p-2 bg-red-50 rounded-lg">
+                      <span className="block text-lg font-bold text-red-700">
+                        {stats.currentPeriodCheckIns}
+                      </span>
+                      <span className="text-xs text-red-600">
+                        Check-ins in Current Period
+                      </span>
+                    </div>
+
+                    <div className="text-center p-2 bg-blue-50 rounded-lg">
+                      <span className="block text-lg font-bold text-blue-700">
+                        {stats.totalTodayCheckIns}
+                      </span>
+                      <span className="text-xs text-blue-600">
+                        Total Check-ins for Today
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="mt-3 pt-2 border-t border-gray-200">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Total Rooms: {stats.totalRooms}</span>
+                      <span>Last Updated: {lastUpdated}</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
+          </Card>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Current Meal:</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {stats.currentMealType.toUpperCase()}
-                </span>
+          {/* Restaurant Card - Dynamic restaurant name */}
+          <Card classname="w-full lg:w-[48%] gap-4 bg-white">
+            <div className="grid grid-cols-1">
+              <div className="flex items-center justify-between mb-4 gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3
+                    className="font-semibold text-gray-900 text-xl truncate max-w-[12rem] sm:max-w-[16rem]"
+                    title={userOutlet.restaurantName}
+                  >
+                    {userOutlet.restaurantName}
+                  </h3>
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full ${
+                      userOutlet?.status === "Open"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {userOutlet?.status === "Open" ? "Open" : "Closed"}
+                  </span>
+                </div>
+
+                <button
+                  className="text-xs px-3 py-1 border border-amber-800 rounded-full text-amber-900 hover:bg-amber-100 transition flex-shrink-0"
+                  onClick={handleChangeResortOutlet}
+                >
+                  Change Resort/Outlet
+                </button>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Service Hours:</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {formatMealTime(stats.currentMealType)}
-                </span>
-              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Current Meal:</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {stats.currentMealType.toUpperCase()}
+                  </span>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Active Diners:</span>
-                <span className="text-sm font-bold text-red-600">
-                  {stats.currentPeriodCheckIns}
-                </span>
-              </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Service Hours:</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {formatMealTime(stats.currentMealType)}
+                  </span>
+                </div>
 
-              <div className="mt-10 pt-3 border-t border-gray-100">
-                {userResort.restaurants && userResort.restaurants.length > 0 ? (
-                  <div className="flex gap-2 overflow-x-auto pb-2 mt-4">
-                    {userResort.restaurants.map((outlet, idx) => (
-                      <div
-                        key={outlet.id || idx}
-                        className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Active Diners:</span>
+                  <span className="text-sm font-bold text-red-600">
+                    {stats.currentPeriodCheckIns}
+                  </span>
+                </div>
+
+                <div className="mt-10 pt-3 border-t border-gray-100">
+                  {userResort.restaurants &&
+                  userResort.restaurants.length > 0 ? (
+                    <div className="flex gap-2 overflow-x-auto pb-2 mt-4">
+                      {userResort.restaurants.map((outlet, idx) => (
+                        <div
+                          key={outlet.id || idx}
+                          className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
                           ${
                             userOutlet?.id === outlet.id
                               ? "bg-amber-900 text-white border-amber-900"
                               : "bg-amber-50 text-gray-700 border-amber-900"
                           }
                         `}
-                      >
-                        <Store className="w-4 h-4" />
-                        <span className="text-xs">
-                          {outlet.restaurantName || `Outlet ${idx + 1}`}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-gray-400 text-sm">
-                    No outlets found for this resort.
-                  </div>
-                )}
+                        >
+                          <Store className="w-4 h-4" />
+                          <span className="text-xs">
+                            {outlet.restaurantName || `Outlet ${idx + 1}`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">
+                      No outlets found for this resort.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
+
+        <Modal />
+
+        <RoomGrid
+          mode="check-in"
+          externalResorts={resorts}
+          externalActiveResort={activeResort}
+          onExternalResortChange={handleResortChange}
+          outlets={outlets}
+          selectedOutlet={selectedOutlet}
+        />
       </div>
-
-      <Modal />
-
-      <RoomGrid
-        mode="check-in"
-        externalResorts={resorts}
-        externalActiveResort={activeResort}
-        onExternalResortChange={handleResortChange}
-        outlets={outlets}
-        selectedOutlet={selectedOutlet}
-      />
-    </div>
+    </ProtectedRoute>
   );
 }

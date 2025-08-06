@@ -1,6 +1,7 @@
 "use client";
 import ResortForm from "@/components/forms/resortForm";
 import Header from "@/components/layout/header";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import RoomGrid from "@/components/layout/roomGrid";
 import Button from "@/components/ui/button";
 import Card from "@/components/ui/card";
@@ -157,6 +158,7 @@ const Page = () => {
   };
 
   return (
+    <ProtectedRoute allowedRoles={["Admin"]}>
     <>
       <Header
         title="Resort Management"
@@ -259,6 +261,7 @@ const Page = () => {
         />
       )}
     </>
+    </ProtectedRoute>
   );
 };
 

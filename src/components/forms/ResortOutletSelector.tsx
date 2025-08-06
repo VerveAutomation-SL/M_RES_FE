@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 interface ResortOutletSelectorProps {
   AllData: Resort[];
-  onSelect: (resort: { id: number; name: string }, outlet: Restaurant) => void;
+  onSelect: (resort: Resort, outlet: Restaurant) => void;
   onClose: () => void;
   assignResort?: number | null;
   assignRestaurant?: number | null;
