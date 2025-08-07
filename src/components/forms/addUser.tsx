@@ -3,7 +3,7 @@ import { ChevronLeft, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createUser } from "@/lib/api/userApi";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurantsApi";
-import { Resort} from "@/lib/types";
+import { AppError, Resort } from "@/lib/types";
 import toast from "react-hot-toast";
 
 interface UserFormProps {
@@ -32,7 +32,7 @@ export default function UserForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // Add error state
   const [currentStep, setCurrentStep] = useState(1);
-  const [resorts, setResorts] = useState<Resort[]>([]); 
+  const [resorts, setResorts] = useState<Resort[]>([]);
 
   useEffect(() => {
     // fetch all restaurant and resort
@@ -255,18 +255,12 @@ export default function UserForm({
         onSuccess?.();
         onClose?.();
       }
-    } catch (error: any) {
-      if (error?.message?.message) {
-        // AppError with nested message structure
-        setError(error.message.message);
-      } else if (error?.message) {
-        // Standard Error or AppError with direct message
+    } catch (error: unknown) {
+      if (error instanceof AppError) {
+        console.error(error.message);
         setError(error.message);
-      } else if (typeof error === "string") {
-        // String error
-        setError(error);
       } else {
-        // Unknown error type
+        console.error(error);
         setError("An unexpected error occurred.");
       }
     } finally {
@@ -320,7 +314,7 @@ export default function UserForm({
   };
 
   const filteredRestaurants = formData.resortId
-    ? resorts.find(r => r.id === formData.resortId)?.restaurants || []
+    ? resorts.find((r) => r.id === formData.resortId)?.restaurants || []
     : [];
 
   if (!isOpen) return null;
@@ -489,7 +483,7 @@ export default function UserForm({
               </label>
               <select
                 value={formData.resortId || ""}
-                onChange={e => {
+                onChange={(e) => {
                   const resortId = Number(e.target.value);
                   setFormData({
                     ...formData,
@@ -505,7 +499,7 @@ export default function UserForm({
                 <option value="" disabled>
                   Please select a Resort
                 </option>
-                {resorts.map(resort => (
+                {resorts.map((resort) => (
                   <option key={resort.id} value={resort.id}>
                     {resort.name}
                   </option>
@@ -518,10 +512,12 @@ export default function UserForm({
               </label>
               <select
                 value={formData.restaurantId || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({
                     ...formData,
-                    restaurantId: e.target.value ? Number(e.target.value) : null,
+                    restaurantId: e.target.value
+                      ? Number(e.target.value)
+                      : null,
                   })
                 }
                 className="w-full min-w-0 appearance-none px-3 py-2 bg-white border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm sm:text-base text-gray-700"
@@ -531,7 +527,7 @@ export default function UserForm({
                 <option value="" disabled>
                   Please select a Restaurant
                 </option>
-                {filteredRestaurants.map(restaurant => (
+                {filteredRestaurants.map((restaurant) => (
                   <option key={restaurant.id} value={restaurant.id}>
                     {restaurant.restaurantName}
                   </option>

@@ -2,7 +2,7 @@
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createRestaurant, getAllResorts } from "@/lib/api/restaurantsApi";
-import { Resort } from "@/lib/types";
+import { AppError, Resort } from "@/lib/types";
 import toast from "react-hot-toast";
 
 interface ResturantFormProps {
@@ -83,21 +83,13 @@ export default function ResturantForm({
         setError(errorMessage);
         console.error("❌ Resort creation failed:", response);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("💥 Error submitting resort form:", error);
-
-      // Handle different types of errors
-      if (error.response) {
-        // API returned an error response
-        const apiError = error.response.data;
-        const errorMessage =
-          apiError?.message || "Failed to create resort. Please try again.";
-        setError(errorMessage);
-      } else if (error.message) {
-        // Network or other error
-        setError(`Network error: ${error.message}`);
+      if (error instanceof AppError) {
+        console.error(error.message);
+        setError(error.message);
       } else {
-        // Unknown error
+        console.error(error);
         setError("An unexpected error occurred. Please try again.");
       }
     } finally {

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { Edit3, Save, Trash2, X, XCircle } from "lucide-react";
-import { Resort, Room } from "@/lib/types";
+import { AppError, Resort, Room } from "@/lib/types";
 import { resortApi, roomApi } from "@/lib/api";
 
 interface ViewDetailsProps {
@@ -12,7 +12,13 @@ interface ViewDetailsProps {
   onDelete?: () => void;
 }
 
-const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: ViewDetailsProps) => {
+const RoomDetails = ({
+  isOpen = false,
+  onClose,
+  room,
+  onUpdate,
+  onDelete,
+}: ViewDetailsProps) => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editRoomNumber, setEditRoomNumber] = useState("");
@@ -22,48 +28,48 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
 
   useEffect(() => {
     const fetchResortDetails = async () => {
-      if(room?.resort_id && isOpen){
-        try{
+      if (room?.resort_id && isOpen) {
+        try {
           console.log("Fetching resort details for room:", room.room_number);
           const response = await resortApi.getResortById(room.resort_id);
 
-          if(response?.success && response.data){
+          if (response?.success && response.data) {
             setResort(response.data);
-          }else{
+          } else {
             console.warn("No resort found for this room");
             setResort(null);
           }
-        }catch(error){
+        } catch (error) {
           console.error("Error fetching resort details:", error);
           setResort(null);
         }
       }
     };
     fetchResortDetails();
-  }, [isOpen, room])
+  }, [isOpen, room]);
 
   useEffect(() => {
-    if(isEditing && room){
+    if (isEditing && room) {
       setEditRoomNumber(room.room_number);
       setError("");
     }
-  },[isEditing, room]);
+  }, [isEditing, room]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     setError("");
-    if(!isEditing && room){
+    if (!isEditing && room) {
       setEditRoomNumber(room.room_number);
     }
   };
 
   const handleSaveEdit = async () => {
-    if(!room || !editRoomNumber.trim()){
+    if (!room || !editRoomNumber.trim()) {
       setError("Room number cannot be empty");
       return;
     }
 
-    if(editRoomNumber.trim() === room.room_number){
+    if (editRoomNumber.trim() === room.room_number) {
       setIsEditing(false);
       setError("Duplicate room number, no changes made");
       return;
@@ -72,54 +78,63 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
     setLoading(true);
     setError("");
 
-    try{
+    try {
       console.log("Updating room:", room.room_number, "to", editRoomNumber);
-      const response = await roomApi.updateRoom(room.id, { room_number: editRoomNumber.trim(), resort_id: resort?.id });
-      
-      if(response?.success && response.data){
+      const response = await roomApi.updateRoom(room.id, {
+        room_number: editRoomNumber.trim(),
+        resort_id: resort?.id,
+      });
+
+      if (response?.success && response.data) {
         console.log("Room updated successfully:", response.data);
-        Object.assign(room,{room_number : editRoomNumber.trim()});
+        Object.assign(room, { room_number: editRoomNumber.trim() });
         setIsEditing(false);
         setError("");
-        alert(`Room updated successfully, ${room.room_number} to ${editRoomNumber.trim()}`);
+        alert(
+          `Room updated successfully, ${
+            room.room_number
+          } to ${editRoomNumber.trim()}`
+        );
         onUpdate?.();
-      }else{
+      } else {
         console.error("Failed to update room:", response);
         setError("Failed to update room");
       }
-    } catch (error: any) {
-    console.error("💥 Error updating room:", error);
-    
-    if (error.response?.data?.message) {
-      setError(error.response.data.message);
-    } else {
-      setError("Error updating room. Please try again.");
+    } catch (error: unknown) {
+      console.error("💥 Error updating room:", error);
+
+      if (error instanceof AppError) {
+        console.error(error.message);
+        setError(error.message);
+      } else {
+        console.error(error);
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleDeleteClick = async () => {
     setDeleteConfirm(true);
     setError("");
-  }
+  };
 
   const handleDeleteConfirm = async () => {
-    if(!room) return;
+    if (!room) return;
 
     setLoading(true);
     setError("");
 
-    try{
+    try {
       console.log("Deleting room:", room.room_number);
       const response = await roomApi.deleteRoom(room.id);
 
-      if(response?.success){
+      if (response?.success) {
         console.log("Room deleted successfully");
         onDelete?.();
         onClose();
-      }else{
+      } else {
         console.error("Failed to delete room:", response);
         setError("Failed to delete room");
       }
@@ -141,7 +156,7 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
     setError("");
     setEditRoomNumber("");
     onClose();
-  }
+  };
 
   if (!isOpen || !room) return null;
   return (
@@ -158,19 +173,21 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
             <X className="w-6 h-6" />
           </button>
         </div>
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
-          {/* Room Information */}
-          <div className="space-y-6">
-            {/* Room Number section */}
-            <div className="bg-gray-50 p-4 rounded-lg">
+        {/* Room Information */}
+        <div className="space-y-6">
+          {/* Room Number section */}
+          <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-medium text-gray-900">Room Information</h4>
+              <h4 className="text-lg font-medium text-gray-900">
+                Room Information
+              </h4>
               <div className="flex space-x-2">
                 {!deleteConfirm && (
                   <>
@@ -249,19 +266,24 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
             <label className="block text-sm font-medium text-gray-600 mb-2">
               Resort Name
             </label>
-            <p className="text-gray-900 font-semibold text-lg">{resort?.name || "Unknown Resort"}</p>
+            <p className="text-gray-900 font-semibold text-lg">
+              {resort?.name || "Unknown Resort"}
+            </p>
           </div>
 
           {/* Timestamps */}
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-lg font-medium text-gray-900 mb-3">System Information</h4>
+            <h4 className="text-lg font-medium text-gray-900 mb-3">
+              System Information
+            </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">
                   Created At
                 </label>
                 <p className="text-sm text-gray-900">
-                  {new Date(room.createdAt).toLocaleDateString()} {new Date(room.createdAt).toLocaleTimeString()}
+                  {new Date(room.createdAt).toLocaleDateString()}{" "}
+                  {new Date(room.createdAt).toLocaleTimeString()}
                 </p>
               </div>
               <div>
@@ -269,7 +291,8 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
                   Last Updated
                 </label>
                 <p className="text-sm text-gray-900">
-                  {new Date(room.updatedAt).toLocaleDateString()} {new Date(room.updatedAt).toLocaleTimeString()}
+                  {new Date(room.updatedAt).toLocaleDateString()}{" "}
+                  {new Date(room.updatedAt).toLocaleTimeString()}
                 </p>
               </div>
             </div>
@@ -278,10 +301,13 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
           {/* Delete Confirmation */}
           {deleteConfirm && (
             <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <h4 className="text-lg font-medium text-red-900 mb-2">Confirm Deletion</h4>
+              <h4 className="text-lg font-medium text-red-900 mb-2">
+                Confirm Deletion
+              </h4>
               <p className="text-red-700 mb-4">
-                Are you sure you want to delete room <strong>{room.room_number}</strong>? 
-                This action cannot be undone.
+                Are you sure you want to delete room{" "}
+                <strong>{room.room_number}</strong>? This action cannot be
+                undone.
               </p>
               <div className="flex space-x-3">
                 <button
@@ -314,7 +340,6 @@ const RoomDetails = ({ isOpen = false, onClose, room, onUpdate, onDelete }: View
               </button>
             </div>
           )}
-
         </div>
       </div>
     </div>
