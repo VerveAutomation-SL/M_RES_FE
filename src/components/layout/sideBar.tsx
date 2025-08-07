@@ -65,18 +65,46 @@ const SideBar = () => {
         <div className="bg-[var(--primary)] text-white flex flex-col h-screen">
           {/* Logo Section */}
           <div className="flex items-center justify-center my-6 lg:my-10">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-24 lg:h-24 bg-white rounded-full flex items-center justify-center">
-              {/* Mobile/Tablet - Show only icon */}
-              <div className="lg:hidden text-[var(--primary)] font-bold text-xs sm:text-sm">
-                RM
+            {/* Mobile/Tablet Logo */}
+            <div className="lg:hidden w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-100 to-white rounded-lg shadow-lg border border-white/30 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent"></div>
+              <div className="relative z-10">
+                <div className="text-[var(--primary)] font-bold text-lg leading-none">
+                  T
+                </div>
+                <div className="text-[var(--primary)] font-light text-xs leading-none -mt-1">
+                  R
+                </div>
               </div>
-              {/* Desktop - Show full logo */}
-              <div className="hidden lg:flex flex-col items-center justify-center text-[var(--heading-text)] font-extrabold text-[1rem] text-center leading-tight">
-                <span>THE RESIDENCE</span>
-                <span>MALDIVES</span>
-                <span className="text-[0.6rem] italic font-normal">
+            </div>
+
+            {/* Desktop Logo */}
+            <div className="hidden lg:flex flex-col items-center justify-center">
+              {/* Main Logo Container */}
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-50 to-white rounded-2xl shadow-xl border-2 border-white/40 flex items-center justify-center mb-3 relative overflow-hidden">
+                {/* Subtle pattern overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/30 to-transparent"></div>
+                <div className="absolute top-1 right-1 w-3 h-3 bg-gradient-to-br from-white/60 to-transparent rounded-full"></div>
+
+                {/* Logo Icon */}
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="text-[var(--primary)] font-bold text-2xl leading-none">
+                    RM
+                  </div>
+                </div>
+              </div>
+
+              {/* Text Logo */}
+              <div className="text-center">
+                <div className="text-white font-bold text-sm tracking-[0.15em] leading-tight mb-0.5">
+                  THE RESIDENCE
+                </div>
+                <div className="text-white font-semibold text-sm tracking-[0.1em] leading-tight mb-2">
+                  MALDIVES
+                </div>
+                <div className="text-white/80 text-[0.8rem] font-light italic tracking-wider">
                   by Cenizaro
-                </span>
+                </div>
               </div>
             </div>
           </div>
