@@ -19,6 +19,7 @@ import { useAuthStore } from "@/store/authStore";
 
 const SideBar = () => {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
+  const { user } = useAuthStore();
   const pathname = usePathname();
 
   const navigationItems = [
