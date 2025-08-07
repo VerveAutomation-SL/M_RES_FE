@@ -1,5 +1,5 @@
 import { api } from './config';
-import { ApiResponse, CheckIn, CheckInDetails, CheckInFormData, checkInRecord } from '../types';
+import { ApiResponse, CheckIn, CheckInDetails, CheckInFormData, checkInRecord, RoomStatus } from '../types';
 
 // Create a new check-in
 export const processCheckIn = async (checkInData: CheckInFormData ) => {
@@ -15,7 +15,7 @@ export const processCheckIn = async (checkInData: CheckInFormData ) => {
 // Get check-in status for rooms by resort and meal type
 export const getCheckInStatus = async (resortId: number, mealType: string) => {
     try {
-        const response = await api.get<ApiResponse<CheckIn[]>>(
+        const response = await api.get<ApiResponse<RoomStatus[]>>(
             `/checkins/room-status?resortId=${resortId}&mealType=${mealType}`
         );
         return response.data;

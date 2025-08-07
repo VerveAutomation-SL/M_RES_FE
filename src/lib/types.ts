@@ -202,6 +202,18 @@ export interface CheckInDetailsModalProps {
   onCheckoutSuccess?: (roomNumber: string) => void;
 }
 
+export interface ResortStats {
+  activeCheckIns: number;
+  todayCheckIns: number;
+}
+
+export interface RoomStatus {
+  room_id: number;
+  room_number: string;
+  checked_in: boolean;
+  resort_id: number;
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);

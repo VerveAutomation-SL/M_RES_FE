@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { checkInApi, resortApi, userApi } from "@/lib/api";
 import { getCurrentMealType } from "@/lib/data";
-import { CheckIn } from "@/lib/types";
+import { checkInRecord } from "@/lib/types";
 
 export const useMealPeriodCheckIns = () => {
   const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ export const useMealPeriodCheckIns = () => {
     activehosts: number;
     checkedIn: number;
     available: number;
-    checkIns: CheckIn[];
+    checkIns: checkInRecord[];
     mealType: string;
   }>({
     totalRooms: 0,
@@ -51,7 +51,6 @@ export const useMealPeriodCheckIns = () => {
             item.meal_type?.toLowerCase() === mealType.toLowerCase() &&
             item.status === "checked-in"
         );
-
 
 
         setStats({
