@@ -1,0 +1,234 @@
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+export interface LoginFormData {
+    userName: string;
+    password: string;
+}
+
+export interface Resort {
+  id: number;
+  name: string;
+  location: string;
+  restaurants?: Restaurant[];
+  rooms?: Room[];
+  createdAt?: string;
+  updatedAt?: string;
+  Rooms: Room[];
+}
+
+export interface Room {
+  id: number;
+  room_number: string;
+  resort_id: number;
+  status?: "available" | "occupied" ;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Restaurant {
+  id: number;
+  restaurantName: string;
+  resort_id: number;
+  diningTables: DiningTable[]; 
+  status: 'Open' | 'Closed';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DiningTable {
+  id: number;
+  tableNumber: string;
+  restaurant_id: number;
+  status: 'available' | 'occupied';
+  Restaurant?: Restaurant;
+}
+
+export interface CheckIn {
+  id: number;
+  guest_name?: string;
+  room_id: number;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  resort_id: number;
+  check_in_time: string;
+  check_out_time?: string;
+  checkout_remarks?: string;
+  status: "checked_in" | "checked_out";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CheckInFormData {
+  resort_name: string;
+  room_id: number;
+  room_number?: string;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  resort_id: number;
+  check_in_time: string,
+}
+
+export interface CheckInDetails {
+  id: number;
+  name: string;
+  room_number: string;
+  outlet_name: string;
+  meal_type: string;
+  meal_plan: string;
+  table_number: string;
+  check_in_time: string;
+  createdAt: string;
+  status: string;
+}
+
+export type CheckInRequest = Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>;
+
+export interface ResortFormData {
+  name: string;
+  location: string;       
+}
+
+export interface RoomFormData {
+  room_number: string;
+  resortId: number;
+  name?: string; 
+}
+
+export interface CheckInAnalyticsData{
+  resort_id: number;
+  total_checkins: number;
+  checkin_date: string;
+}
+
+export interface MealDistributionData {
+  meal_type: string;
+  meals_count: string;
+  meals_percentage: string;
+}
+
+export interface HourlyTrendsData{
+  hour:number;
+  time:string;
+  checkIns:number;  
+}
+
+export interface AnalyticsResponse {
+  checkInsLastWeek: CheckInAnalyticsData[];
+  mealDistribution: MealDistributionData[];
+  hourlyTrends: HourlyTrendsData[];
+}
+
+export interface ReportFilterData{
+  checkinStartDate?: string;
+  checkinEndDate?: string;
+  checkoutStartDate?: string;
+  checkoutEndDate?: string;
+  resort_id?:  | null;
+  outlet_name?: string | null;
+  room_id?: number | null;
+  table_number?: string | null;
+  meal_type?: string | null;
+  meal_plan?: string | null;
+  status?: string | null;
+};
+
+export interface checkInRecord{
+  id: number;
+  room_number: string;
+  resort_name: string;
+  outlet_name: string;
+  table_number: string;
+  meal_type: string;
+  meal_plan: string;
+  check_in_date: string;
+  check_in_time: string;
+  check_out_date?: string;
+  check_out_time?: string;
+  status: string;
+  checkout_remarks?: string;
+  Room?: Room;
+  createdAt: string;
+}
+
+export interface User{
+  exp?: number;
+  UserId: number;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: 'Admin' | 'Manager' | 'Host';
+  status: 'Active' | 'Inactive';
+  restaurantId?: number;
+  restaurant?: Restaurant;
+  resortId?: number;
+  resorts?: Resort;
+  meal_type?: 'Breakfast' | 'Lunch' | 'Dinner' | 'All';
+  createdBy?: User;
+  updatedBy?: User;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LoginFormData {
+    userName: string;
+    password: string;
+}
+
+export interface CheckInFormProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  selectedRoom?: string;
+  mealType?: string;
+  resortId?: number;
+  roomId?: number;
+  defaultOutlet?: Restaurant | null;
+  onCheckInSuccess?: (roomNumber: string) => void;
+}
+
+export interface CheckInDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  roomId: number;
+  resortId: number;
+  mealType: string;
+  onCheckoutSuccess?: (roomNumber: string) => void;
+}
+
+export interface ResortStats {
+  activeCheckIns: number;
+  todayCheckIns: number;
+}
+
+export interface RoomStatus {
+  room_id: number;
+  room_number: string;
+  checked_in: boolean;
+  resort_id: number;
+}
+
+export interface RoomStatusApiResponse {
+  room_id?: number;
+  id?: number;
+  room_number?: string | number;
+  roomNumber?: string | number;
+  meal_type?: string;
+  resort_id?: number;
+  checked_in?: boolean;
+}
+
+export class AppError extends Error {
+  constructor(public message: string, public statusCode: number) {
+  super(message);
+    this.name = 'AppError';
+  }
+}
+
+
