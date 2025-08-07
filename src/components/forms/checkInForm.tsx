@@ -91,7 +91,7 @@ export default function CheckInForm({
     if (defaultOutlet) {
       setFormData((prev) => ({
         ...prev,
-        outlet_name: defaultOutlet.restaurantName ||  "",
+        outlet_name: defaultOutlet.restaurantName || "",
       }));
     }
   }, [defaultOutlet]);

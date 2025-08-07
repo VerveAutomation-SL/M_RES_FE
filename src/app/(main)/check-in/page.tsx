@@ -125,12 +125,12 @@ export default function CheckInPage() {
   };
 
   const formatMealTime = (mealType: string) => {
-    const mealTimes = {
-      breakfast: "06:00 - 10:30",
+    const MEAL_TIMES = {
+      breakfast: "06:00 - 11:00",
       lunch: "12:00 - 16:00",
       dinner: "19:00 - 22:30",
     };
-    return mealTimes[mealType as keyof typeof mealTimes] || "";
+    return MEAL_TIMES[mealType as keyof typeof MEAL_TIMES] || "";
   };
 
   // Show loading while resorts are being fetched
@@ -395,7 +395,7 @@ export default function CheckInPage() {
           externalActiveResort={activeResort}
           onExternalResortChange={handleResortChange}
           outlets={outlets}
-          selectedOutlet={selectedOutlet}
+          selectedOutlet={userOutlet}
         />
       </div>
     </ProtectedRoute>
