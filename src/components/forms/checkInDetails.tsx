@@ -1,20 +1,11 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { checkInApi, resortApi, roomApi } from "@/lib/api";
-import { CheckInDetails } from "@/lib/types";
+import { CheckInDetails, CheckInDetailsModalProps } from "@/lib/types";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
-
-interface CheckInDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  roomId: number;
-  resortId: number;
-  mealType: string;
-  onCheckoutSuccess?: (roomNumber: string) => void;
-}
 
 export default function CheckInDetailsModal({
   isOpen,
@@ -37,13 +28,7 @@ export default function CheckInDetailsModal({
 
   const { user } = useAuthStore();
 
-  useEffect(() => {
-    if (isOpen && roomId && resortId && mealType) {
-      fetchCheckInDetails();
-    }
-  }, [isOpen, roomId, resortId, mealType]);
-
-  const fetchCheckInDetails = async () => {
+  const fetchCheckInDetails = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -79,7 +64,13 @@ export default function CheckInDetailsModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [mealType, resortId, roomId]);
+
+  useEffect(() => {
+    if (isOpen && roomId && resortId && mealType) {
+      fetchCheckInDetails();
+    }
+  }, [isOpen, roomId, resortId, mealType, fetchCheckInDetails]);
 
   const formatTime = (timeString: string) => {
     try {
@@ -302,6 +293,7 @@ export default function CheckInDetailsModal({
             <div className="p-6 ">
               <textarea
                 value={remarks}
+                required
                 onChange={(e) => setRemarks(e.target.value)}
                 placeholder="Enter your reason to checkout..."
                 className="w-full h-32 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -319,7 +311,7 @@ export default function CheckInDetailsModal({
               </button>
               <button
                 onClick={handleConfirmCheckout}
-                disabled={checkOutLoading}
+                disabled={checkOutLoading || remarks.length < 10}
                 className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {checkOutLoading ? (

@@ -1,4 +1,4 @@
-import { ApiResponse, Resort } from "../types";
+import { ApiResponse, Resort, ResortFormData } from "../types";
 import { api } from "./config";
 
 // Get all resorts
@@ -24,7 +24,7 @@ export const getResortById = async (resortId: number) => {
 };
 
 // Create a new resort
-export const createResort = async (resortData: Omit<Resort, 'id'>) => {
+export const createResort = async (resortData: ResortFormData) => {
     try {
         const response = await api.post<ApiResponse<Resort>>('/resorts', resortData);
         return response.data;

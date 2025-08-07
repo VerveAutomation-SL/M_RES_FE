@@ -182,6 +182,26 @@ export interface LoginFormData {
     password: string;
 }
 
+export interface CheckInFormProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  selectedRoom?: string;
+  mealType?: string;
+  resortId?: number;
+  roomId?: number;
+  defaultOutlet?: Restaurant | null;
+  onCheckInSuccess?: (roomNumber: string) => void;
+}
+
+export interface CheckInDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  roomId: number;
+  resortId: number;
+  mealType: string;
+  onCheckoutSuccess?: (roomNumber: string) => void;
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);

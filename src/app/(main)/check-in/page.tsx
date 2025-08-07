@@ -24,13 +24,12 @@ export default function CheckInPage() {
 
   // Outlet state management
   const [outlets, setOutlets] = useState<Restaurant[]>([]);
-  const [selectedOutlet, setSelectedOutlet] = useState<Restaurant>();
 
   // Selector state management
   const [showSelector, setShowSelector] = useState(true);
   const [selectorForced, setSelectorForced] = useState(true);
   const [userResort, setUserResort] = useState<Resort | null>(null);
-  const [userOutlet, setUserOutlet] = useState<Restaurant | null>(null);
+  const [userOutlet, setUserOutlet] = useState<Restaurant>();
   const [selectedResort, setSelectedResort] = useState<number | null>(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(
     null
@@ -155,7 +154,6 @@ export default function CheckInPage() {
     setUserOutlet(outlet);
     setActiveResort(resort.id);
     setOutlets(resort.restaurants || []);
-    setSelectedOutlet(outlet);
     setShowSelector(false);
 
     localStorage.setItem("checkin_resort", JSON.stringify(resort));
