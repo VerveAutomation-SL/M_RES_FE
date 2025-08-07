@@ -1,0 +1,401 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Header from "@/components/layout/header";
+import RoomGrid from "@/components/layout/roomGrid";
+import Card from "@/components/ui/card";
+import Modal from "@/components/ui/legend";
+import { MapPin, RefreshCw, Store } from "lucide-react";
+import { useCheckInStats } from "@/hooks/useCheckInStats";
+import { restaurantApi } from "@/lib/api";
+import { Resort, Restaurant } from "@/lib/types";
+import { useAuthStore } from "@/store/authStore";
+import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
+import { useRouter } from "next/navigation";
+import { getUserDetails } from "@/lib/api/userApi";
+import toast from "react-hot-toast";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
+
+export default function CheckInPage() {
+  // Resort state management
+  const [resorts, setResorts] = useState<Resort[]>([]);
+  const [activeResort, setActiveResort] = useState<number | null>(null);
+  const [resortsLoading, setResortsLoading] = useState(true);
+
+  // Outlet state management
+  const [outlets, setOutlets] = useState<Restaurant[]>([]);
+
+  // Selector state management
+  const [showSelector, setShowSelector] = useState(true);
+  const [selectorForced, setSelectorForced] = useState(true);
+  const [userResort, setUserResort] = useState<Resort | null>(null);
+  const [userOutlet, setUserOutlet] = useState<Restaurant>();
+  const [selectedResort, setSelectedResort] = useState<number | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(
+    null
+  );
+
+  const router = useRouter();
+  const [lastUpdated, setLastUpdated] = useState<string>(
+    new Date().toLocaleTimeString()
+  );
+
+  // Stats hook using the shared activeResort
+  const { stats, loading, error, refetch } = useCheckInStats(
+    userResort?.id || 0
+  );
+
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  console.log(user, "user in checkin page");
+
+  const fetchResorts = async () => {
+    try {
+      const response = await restaurantApi.getAllResortsWithRestaurants();
+      console.log("Fetched resorts:", response);
+      if (
+        response &&
+        response.success &&
+        Array.isArray(response.data) &&
+        response.data.length > 0
+      ) {
+        // Ensure every resort has a restaurants array
+        const resortsWithRestaurants = response.data.map((resort: Resort) => ({
+          ...resort,
+          restaurants: Array.isArray(resort.restaurants)
+            ? resort.restaurants
+            : [],
+        }));
+        setResorts(resortsWithRestaurants);
+      } else {
+        setResorts([]);
+      }
+    } catch (error) {
+      setResorts([]);
+      console.log(error, "Error fetching resorts");
+    } finally {
+      setResortsLoading(false);
+    }
+  };
+
+  const fetchUser = async (UserId: number) => {
+    try {
+      const response = await getUserDetails(UserId);
+      console.log("Fetched user:", response.data);
+      if (response?.success) {
+        console.log("User data fetched successfully:", response.data);
+        setSelectedResort(response.data.resortId || null);
+        setSelectedRestaurant(response.data.restaurantId || null);
+      }
+    } catch (err) {
+      console.error("Error fetching user:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      fetchResorts();
+      fetchUser(user.UserId);
+
+      const savedResort = localStorage.getItem("checkin_resort");
+      const savedOutlet = localStorage.getItem("checkin_outlet");
+      if (savedResort && savedOutlet) {
+        setUserResort(JSON.parse(savedResort));
+        setUserOutlet(JSON.parse(savedOutlet));
+        setShowSelector(false);
+      }
+    }
+  }, [isAuthenticated, isLoading, user, user?.UserId, user?.role]);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      setLastUpdated(new Date().toLocaleTimeString());
+    }
+  }, [loading, error, stats]);
+
+  // Handle resort change from RoomGrid navigation
+  const handleResortChange = (resortId: number) => {
+    if (resortId === activeResort) return;
+
+    console.log(
+      `🔄 CheckInPage: Resort changed from ${activeResort} to ${resortId}`
+    );
+    setActiveResort(resortId);
+  };
+
+  const formatMealTime = (mealType: string) => {
+    const MEAL_TIMES = {
+      breakfast: "06:00 - 11:00",
+      lunch: "12:00 - 16:00",
+      dinner: "19:00 - 22:30",
+    };
+    return MEAL_TIMES[mealType as keyof typeof MEAL_TIMES] || "";
+  };
+
+  // Show loading while resorts are being fetched
+  if (resortsLoading) {
+    return (
+      <div className="space-y-6">
+        <Header
+          title="Dining Check-ins"
+          subtitle="The Residence Maldives - Daily Dining Management"
+        />
+        <div className="text-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading resorts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // When user selects resort/outlet
+  const handleSelector = (resort: Resort, outlet: Restaurant) => {
+    setUserResort(resort);
+    setUserOutlet(outlet);
+    setActiveResort(resort.id);
+    setOutlets(resort.restaurants || []);
+    setShowSelector(false);
+
+    localStorage.setItem("checkin_resort", JSON.stringify(resort));
+    localStorage.setItem("checkin_outlet", JSON.stringify(outlet));
+  };
+
+  // Handler to re-open selector
+  const handleChangeResortOutlet = () => {
+    if (user?.role === "Admin") {
+      setShowSelector(true);
+      setSelectorForced(false);
+    } else {
+      toast.error("You do not have permission to change the resort or outlet.");
+    }
+  };
+
+  const handleSelectorClose = () => {
+    if (selectorForced) {
+      router.back();
+    } else {
+      setShowSelector(false);
+      setSelectorForced(false);
+    }
+  };
+
+  // Only render selector modal if needed
+  if (showSelector || !userResort || !userOutlet) {
+    return (
+      <ResortOutletSelector
+        AllData={resorts}
+        onSelect={handleSelector}
+        onClose={handleSelectorClose}
+        assignResort={selectedResort}
+        assignRestaurant={selectedRestaurant}
+      />
+    );
+  }
+
+  return (
+    <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
+      <div className="space-y-6">
+        <Header
+          title="Dining Check-ins"
+          subtitle="The Residence Maldives - Daily Dining Management"
+        />
+
+        <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:gap-6 lg:justify-between">
+          {/* Resort Statistics Card */}
+          <Card classname="w-full lg:w-[48%] gap-4 bg-white">
+            <div className="grid grid-cols-1">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center">
+                  <MapPin className="w-5 h-5 text-gray-950 mr-2 mb-1" />
+                  <h1 className="font-semibold text-gray-900 text-xl sm:text-2xl">
+                    {userResort.name}
+                  </h1>
+                </div>
+                <button
+                  onClick={refetch}
+                  disabled={loading}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                  title="Refresh statistics"
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-3">
+                {userResort.location}
+              </p>
+
+              {error ? (
+                <div className="text-red-600 text-sm mb-4">{error}</div>
+              ) : loading ? (
+                <div className="text-gray-500 text-sm mb-4">
+                  Loading statistics...
+                </div>
+              ) : (
+                <>
+                  {/* Current Meal Period Info */}
+                  <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">
+                        Current Period: {stats.currentMealType.toUpperCase()}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatMealTime(stats.currentMealType)}
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          stats.isWithinMealPeriod
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {stats.isWithinMealPeriod ? "ACTIVE" : "INACTIVE"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Statistics */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="text-center p-2 bg-green-50 rounded-lg">
+                      <span className="block text-lg sm:text-2xl font-bold text-green-700">
+                        {stats.availableForCheckIn}
+                      </span>
+                      <span className="text-xs text-green-600">
+                        Remainders for Check-in
+                      </span>
+                    </div>
+
+                    <div className="text-center p-2 bg-red-50 rounded-lg">
+                      <span className="block text-lg font-bold text-red-700">
+                        {stats.currentPeriodCheckIns}
+                      </span>
+                      <span className="text-xs text-red-600">
+                        Check-ins in Current Period
+                      </span>
+                    </div>
+
+                    <div className="text-center p-2 bg-blue-50 rounded-lg">
+                      <span className="block text-lg font-bold text-blue-700">
+                        {stats.totalTodayCheckIns}
+                      </span>
+                      <span className="text-xs text-blue-600">
+                        Total Check-ins for Today
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="mt-3 pt-2 border-t border-gray-200">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Total Rooms: {stats.totalRooms}</span>
+                      <span>Last Updated: {lastUpdated}</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </Card>
+
+          {/* Restaurant Card - Dynamic restaurant name */}
+          <Card classname="w-full lg:w-[48%] gap-4 bg-white">
+            <div className="grid grid-cols-1">
+              <div className="flex items-center justify-between mb-4 gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3
+                    className="font-semibold text-gray-900 text-xl truncate max-w-[12rem] sm:max-w-[16rem]"
+                    title={userOutlet.restaurantName}
+                  >
+                    {userOutlet.restaurantName}
+                  </h3>
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full ${
+                      userOutlet?.status === "Open"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {userOutlet?.status === "Open" ? "Open" : "Closed"}
+                  </span>
+                </div>
+
+                <button
+                  className="text-xs px-3 py-1 border border-amber-800 rounded-full text-amber-900 hover:bg-amber-100 transition flex-shrink-0"
+                  onClick={handleChangeResortOutlet}
+                >
+                  Change Resort/Outlet
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Current Meal:</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {stats.currentMealType.toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Service Hours:</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {formatMealTime(stats.currentMealType)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Active Diners:</span>
+                  <span className="text-sm font-bold text-red-600">
+                    {stats.currentPeriodCheckIns}
+                  </span>
+                </div>
+
+                <div className="mt-10 pt-3 border-t border-gray-100">
+                  {userResort.restaurants &&
+                  userResort.restaurants.length > 0 ? (
+                    <div className="flex gap-2 overflow-x-auto pb-2 mt-4">
+                      {userResort.restaurants.map((outlet, idx) => (
+                        <div
+                          key={outlet.id || idx}
+                          className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors whitespace-nowrap
+                          ${
+                            userOutlet?.id === outlet.id
+                              ? "bg-amber-900 text-white border-amber-900"
+                              : "bg-amber-50 text-gray-700 border-amber-900"
+                          }
+                        `}
+                        >
+                          <Store className="w-4 h-4" />
+                          <span className="text-xs">
+                            {outlet.restaurantName || `Outlet ${idx + 1}`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">
+                      No outlets found for this resort.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <Modal />
+
+        <RoomGrid
+          mode="check-in"
+          externalResorts={resorts}
+          externalActiveResort={activeResort}
+          onExternalResortChange={handleResortChange}
+          outlets={outlets}
+          selectedOutlet={userOutlet}
+        />
+      </div>
+    </ProtectedRoute>
+  );
+}
