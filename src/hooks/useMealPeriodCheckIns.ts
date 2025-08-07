@@ -47,7 +47,7 @@ export const useMealPeriodCheckIns = () => {
 
         // Filter check-ins by meal period and checked-in status
         const mealPeriodCheckIns = allCheckIns.filter(
-          (item: any) =>
+          (item: checkInRecord) =>
             item.meal_type?.toLowerCase() === mealType.toLowerCase() &&
             item.status === "checked-in"
         );
@@ -62,6 +62,7 @@ export const useMealPeriodCheckIns = () => {
           mealType,
         });
       } catch (error) {
+        console.error("Error fetching meal period check-ins:", error);
         setStats({
           totalRooms: 0,
           activehosts: 0,

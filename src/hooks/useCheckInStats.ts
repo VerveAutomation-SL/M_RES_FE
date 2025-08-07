@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { checkInApi, roomApi } from '@/lib/api';
 import { getCurrentMealType, MEAL_TIMES } from '@/lib/data';
+import { RoomStatus } from '@/lib/types';
 
 interface CheckInStats {
   availableForCheckIn: number;
@@ -33,7 +34,7 @@ export const useCheckInStats = (resortId: number) => {
     return currentTime >= mealPeriod.start && currentTime <= mealPeriod.end;
   };
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -55,7 +56,7 @@ export const useCheckInStats = (resortId: number) => {
       ]);
 
       const totalRooms = roomsResponse?.data?.length || 0;
-      const currentPeriodCheckIns = currentPeriodResponse?.data?.filter((item: any) => item.checked_in)?.length || 0;
+      const currentPeriodCheckIns = currentPeriodResponse?.data?.filter((item: RoomStatus) => item.checked_in)?.length || 0;
       const totalTodayCheckIns = todayResponse?.data?.length || 0;
       
       // Available = Total rooms - Current period check-ins (only during meal periods)
@@ -76,7 +77,7 @@ export const useCheckInStats = (resortId: number) => {
     } finally {
       setLoading(false);
     }
-  };
+  },[resortId]);
 
   useEffect(() => {
     if (resortId) {
@@ -86,7 +87,7 @@ export const useCheckInStats = (resortId: number) => {
       const interval = setInterval(fetchStats, 30000);
       return () => clearInterval(interval);
     }
-  }, [resortId]);
+  }, [resortId, fetchStats]);
 
   return { stats, loading, error, refetch: fetchStats };
 };
