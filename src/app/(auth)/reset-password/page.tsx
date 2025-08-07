@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import { resetPassword } from "@/lib/api/auth";
+import { resetPassword } from "@/lib/api/authApi";
 import { AppError } from "@/lib/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
