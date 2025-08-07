@@ -36,11 +36,7 @@ const SideBar = () => {
       label: "Analytics",
       section: "Overview",
     },
-    { href: "/resorts", 
-      icon: MapPin,
-      label: "Resorts",
-      section: "Management"
-    },
+    { href: "/resorts", icon: MapPin, label: "Resorts", section: "Management" },
     {
       href: "/restaurants",
       icon: Store,
@@ -195,7 +191,7 @@ const SideBar = () => {
               </div>
               <div className="hidden lg:block flex-1 min-w-0">
                 <div className="text-sm font-medium text-white">
-                  {user?.role}
+                  {user?.username}
                 </div>
                 <div className="text-xs text-white opacity-80 truncate">
                   {user?.email}
