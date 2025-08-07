@@ -214,6 +214,16 @@ export interface RoomStatus {
   resort_id: number;
 }
 
+export interface RoomStatusApiResponse {
+  room_id?: number;
+  id?: number;
+  room_number?: string | number;
+  roomNumber?: string | number;
+  meal_type?: string;
+  resort_id?: number;
+  checked_in?: boolean;
+}
+
 export class AppError extends Error {
   constructor(public message: string, public statusCode: number) {
   super(message);

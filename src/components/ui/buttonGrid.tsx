@@ -5,7 +5,7 @@ import CheckInForm from "../forms/checkInForm";
 import { checkInApi, roomApi } from "@/lib/api";
 import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
-import { Restaurant, Room } from "@/lib/types";
+import { Restaurant, Room, RoomStatusApiResponse } from "@/lib/types";
 import RoomDetails from "../layout/roomDetails";
 import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 import { CheckInDetails } from "@/lib/types";
@@ -197,7 +197,7 @@ const ButtonGrid = ({
 
         if (response && response.success && response.data) {
           // Map response.data to RoomStatus type
-          const mappedRoomStatus = response.data.map((item: any) => ({
+          const mappedRoomStatus = response.data.map((item: RoomStatusApiResponse) => ({
             room_id: item.room_id ?? item.id ?? 0,
             room_number:
               item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
@@ -450,7 +450,7 @@ const ButtonGrid = ({
         const response = await checkInApi.getCheckInStatus(resortId, mealType);
 
         if (response && response.success && response.data) {
-          const mappedRoomStatus = response.data.map((item: any) => ({
+          const mappedRoomStatus = response.data.map((item: RoomStatusApiResponse) => ({
             room_id: item.room_id ?? item.id ?? 0,
             room_number:
               item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
