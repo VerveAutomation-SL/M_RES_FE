@@ -17,13 +17,23 @@ const MealDistributionChart = ({ data }: MealDistributionProps) => {
     Dinner: "#F59E0B",
   };
 
-  const renderCustomLabel = ({ name, percentage }: any) => {
-    return `${name} ${percentage}%`;
+  const renderCustomLabel = ({
+    name,
+    percent,
+  }: {
+    name: string;
+    percent?: number;
+  }): React.ReactNode => {
+    return `${name} ${percent}%`;
   };
 
   // Mobile custom label (shorter)
-  const renderMobileLabel = ({ percentage }: any) => {
-    return `${percentage}%`;
+  const renderMobileLabel = ({
+    percent,
+  }: {
+    percent?: number;
+  }): React.ReactNode => {
+    return `${percent}%`;
   };
 
   if (!data || data.length === 0 || !data.some((item) => item.value > 0)) {
