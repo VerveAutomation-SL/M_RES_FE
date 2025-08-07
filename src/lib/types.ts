@@ -73,6 +73,7 @@ export interface CheckInFormData {
   meal_plan: string;
   table_number: string;
   resort_id: number;
+  check_in_time: string,
 }
 
 export interface CheckInDetails {
@@ -154,7 +155,7 @@ export interface checkInRecord{
   status: string;
   checkout_remarks?: string;
   Room?: Room;
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface User{

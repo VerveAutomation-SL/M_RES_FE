@@ -759,9 +759,9 @@ export default function ProfilePage() {
                   <p className="text-gray-900 font-medium">
                     {selectedUser?.resortId || "Not assigned"}
                   </p>
-                  {selectedUser?.resort?.name && (
+                  {selectedUser?.resorts?.name && (
                     <p className="text-sm text-gray-500">
-                      {selectedUser.resort.name}
+                      {selectedUser.resorts.name}
                     </p>
                   )}
                 </div>

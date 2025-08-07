@@ -15,7 +15,6 @@ interface CheckInFormProps {
   mealType?: string;
   resortId?: number;
   roomId?: number;
-  outlets?: Restaurant[];
   defaultOutlet?: Restaurant | null;
   onCheckInSuccess?: (roomNumber: string) => void;
 }
@@ -27,7 +26,6 @@ export default function CheckInForm({
   mealType,
   resortId,
   roomId,
-  outlets = [],
   defaultOutlet = null,
   onCheckInSuccess,
 }: CheckInFormProps) {
@@ -41,6 +39,7 @@ export default function CheckInForm({
     meal_plan: "",
     table_number: "",
     resort_id: 0,
+    check_in_time: "",
   });
 
   // Update time every second

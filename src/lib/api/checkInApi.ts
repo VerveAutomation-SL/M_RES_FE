@@ -1,8 +1,8 @@
 import { api } from './config';
-import { ApiResponse, CheckIn, CheckInDetails } from '../types';
+import { ApiResponse, CheckIn, CheckInDetails, CheckInFormData, checkInRecord } from '../types';
 
 // Create a new check-in
-export const processCheckIn = async (checkInData: Omit<CheckIn, 'id' | 'createdAt' | 'updatedAt'>) => {
+export const processCheckIn = async (checkInData: CheckInFormData ) => {
     try {
         const response = await api.post<ApiResponse<CheckIn>>('/checkins/check-in', checkInData);
         return response.data;
@@ -84,7 +84,7 @@ export const processCheckOut = async (checkOutData:{
 export const getAllCheckInsToday = async (date?: string) => {
     try {
         const params = date? {params: { date }} : {};
-        const response = await api.get<ApiResponse<CheckIn[]>>('/checkins/today/all', params);
+        const response = await api.get<ApiResponse<checkInRecord[]>>('/checkins/today/all', params);
         return response.data;
     } catch (error) {
         console.error('Error fetching all check-ins:', error);
