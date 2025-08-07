@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Button from "../ui/button";
 import { Clock, RefreshCw } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
 
 interface HeaderProps {
   title?: string;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 const TopBar = ({ breadcrumbs }: HeaderProps) => {
   const pathname = usePathname();
+  const {user} = useAuthStore();
 
   // Dynamic breadcrumbs based on current route
   const getBreadcrumbs = () => {
@@ -41,20 +43,27 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
         { label: "Management"},
         { label: "Restaurants" },
       ],
-      "/users": [
-        { label: "Home", href: "/" },
-        { label: "Management" },
-        { label: "Users" },
-      ],
       "/admin": [
         { label: "Home", href: "/" },
         { label: "Management" },
         { label: "Admin Manager" },
       ],
+      "/managers": [
+        { label: "Home", href: "/" },
+        { label: "Management" },
+        { label: "User Management" },
+        { label: "Managers" },
+      ],
+      "/hosts": [
+        { label: "Home", href: "/" },
+        { label: "Management" },
+        { label: "User Management" },
+        { label: "Hosts" },
+      ],
     };
 
     const routeCrumbs = routeBreadcrumbs[pathname] || [
-    { label: "Hi Admin!" }
+    { label: `Hi ${user?.username || "User"}!`},
   ];
   
     return routeCrumbs.filter(crumb => crumb.label !== "Home");

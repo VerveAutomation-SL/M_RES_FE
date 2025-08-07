@@ -19,7 +19,7 @@ import { useAuthStore } from "@/store/authStore";
 
 const SideBar = () => {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
-  const { user } = useAuthStore();
+  const pathname = usePathname();
 
   const navigationItems = [
     { href: "/dashboard", icon: Home, label: "Dashboard", section: "Overview" },
@@ -35,7 +35,11 @@ const SideBar = () => {
       label: "Analytics",
       section: "Overview",
     },
-    { href: "/resorts", icon: MapPin, label: "Resorts", section: "Management" },
+    { href: "/resorts", 
+      icon: MapPin,
+      label: "Resorts",
+      section: "Management"
+    },
     {
       href: "/restaurants",
       icon: Store,
@@ -134,7 +138,11 @@ const SideBar = () => {
                     <div className="lg:border-l-4 border-white/30">
                       <Link
                         href="/managers"
-                        className="flex items-center gap-2 px-2 py-2 lg:ml-4 rounded hover:bg-[#8B6F47] transition-colors text-sm"
+                        className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
+                          pathname.startsWith("/managers")
+                            ? "bg-[#8B6F47] text-white"
+                            : "hover:bg-[#8B6F47]"
+                        }`}
                       >
                         <User className="h-4 w-4" />
                         <span className="lg:hidden font-medium text-lg">M</span>
@@ -142,7 +150,11 @@ const SideBar = () => {
                       </Link>
                       <Link
                         href="/hosts"
-                        className="flex items-center gap-2 px-2 py-2 lg:ml-4 rounded hover:bg-[#8B6F47] transition-colors text-sm"
+                        className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
+                          pathname.startsWith("/hosts")
+                            ? "bg-[#8B6F47] text-white"
+                            : "hover:bg-[#8B6F47]"
+                        }`}
                       >
                         <User className="h-4 w-4 " />
                         <span className="lg:hidden font-medium text-lg">H</span>
@@ -208,7 +220,7 @@ type NavItemProps = {
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label }) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname.startsWith(href);
 
   return (
     <Link

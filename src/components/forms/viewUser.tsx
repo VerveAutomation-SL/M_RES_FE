@@ -4,7 +4,6 @@ import {
   Save,
   Trash2,
   X,
-  XCircle,
   Eye,
   EyeOff,
   Mail,
@@ -12,7 +11,6 @@ import {
   Calendar,
   UserIcon,
   UtensilsCrossed,
-  Shield,
 } from "lucide-react";
 import { Resort, Restaurant, User } from "@/lib/types";
 import {
@@ -21,7 +19,7 @@ import {
   updateUserDetails,
 } from "@/lib/api/userApi";
 import { restaurantApi } from "@/lib/api";
-import toast, { ToastBar } from "react-hot-toast";
+import toast from "react-hot-toast";
 import Image from "next/image";
 
 interface EditUserModalProps {
