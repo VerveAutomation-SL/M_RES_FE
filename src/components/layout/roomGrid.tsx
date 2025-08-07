@@ -55,8 +55,8 @@ const RoomGrid = ({
   externalResorts,
   externalActiveResort,
   onExternalResortChange,
-  outlets, 
-  selectedOutlet, 
+  outlets,
+  selectedOutlet,
 }: RoomGridProps) => {
   // Internal state (fallback when no external state provided)
   const [internalResorts, setInternalResorts] = useState<Resort[]>([]);
@@ -222,7 +222,8 @@ const RoomGrid = ({
             {/* Section Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                {resorts.find((r) => r.id === activeResort)?.name || "Resort"} Rooms
+                {resorts.find((r) => r.id === activeResort)?.name || "Resort"}{" "}
+                Rooms
               </h2>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-5">
                 <SearchBar onSearch={handleSearch} />

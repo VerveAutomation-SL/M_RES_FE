@@ -24,13 +24,12 @@ export default function CheckInPage() {
 
   // Outlet state management
   const [outlets, setOutlets] = useState<Restaurant[]>([]);
-  const [selectedOutlet, setSelectedOutlet] = useState<Restaurant>();
 
   // Selector state management
   const [showSelector, setShowSelector] = useState(true);
   const [selectorForced, setSelectorForced] = useState(true);
   const [userResort, setUserResort] = useState<Resort | null>(null);
-  const [userOutlet, setUserOutlet] = useState<Restaurant | null>(null);
+  const [userOutlet, setUserOutlet] = useState<Restaurant>();
   const [selectedResort, setSelectedResort] = useState<number | null>(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(
     null
@@ -125,12 +124,12 @@ export default function CheckInPage() {
   };
 
   const formatMealTime = (mealType: string) => {
-    const mealTimes = {
-      breakfast: "06:00 - 10:30",
+    const MEAL_TIMES = {
+      breakfast: "06:00 - 11:00",
       lunch: "12:00 - 16:00",
       dinner: "19:00 - 22:30",
     };
-    return mealTimes[mealType as keyof typeof mealTimes] || "";
+    return MEAL_TIMES[mealType as keyof typeof MEAL_TIMES] || "";
   };
 
   // Show loading while resorts are being fetched
@@ -155,7 +154,6 @@ export default function CheckInPage() {
     setUserOutlet(outlet);
     setActiveResort(resort.id);
     setOutlets(resort.restaurants || []);
-    setSelectedOutlet(outlet);
     setShowSelector(false);
 
     localStorage.setItem("checkin_resort", JSON.stringify(resort));
@@ -395,7 +393,7 @@ export default function CheckInPage() {
           externalActiveResort={activeResort}
           onExternalResortChange={handleResortChange}
           outlets={outlets}
-          selectedOutlet={selectedOutlet}
+          selectedOutlet={userOutlet}
         />
       </div>
     </ProtectedRoute>

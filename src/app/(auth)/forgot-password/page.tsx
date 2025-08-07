@@ -1,7 +1,8 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import { forgotPassword } from "@/lib/api/auth";
+import { forgotPassword } from "@/lib/api/authApi";
+import { AppError } from "@/lib/types";
 import { useState } from "react";
 
 export default function ForgotPasswordPage() {
@@ -10,7 +11,7 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Email validation function 
+  // Email validation function
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -37,13 +38,18 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(email.trim().toLowerCase());
       setSubmitted(true);
-    } catch (err: any) {
-      if (err.status === 404) {
-        setSubmitted(true);
-      } else if (err.status === 429) {
-        setError("Too many requests. Please try again later.");
+    } catch (err: unknown) {
+      if (err instanceof AppError) {
+        console.error(err.message);
+        if (err.statusCode === 404) {
+          setSubmitted(true);
+        } else if (err.statusCode === 429) {
+          setError("Too many requests. Please try again later.");
+        } else {
+          setError(err.message || "An error occurred. Please try again.");
+        }
       } else {
-        setError(err.message || "An error occurred. Please try again.");
+        console.error(err);
       }
     } finally {
       setLoading(false);
@@ -62,7 +68,7 @@ export default function ForgotPasswordPage() {
         <p className="text-center text-gray-600 mb-4">
           Enter your email and we&apos;ll send you a reset link.
         </p>
-        
+
         {!submitted ? (
           <>
             <input
@@ -93,8 +99,8 @@ export default function ForgotPasswordPage() {
               Check your email!
             </div>
             <p className="text-gray-600 text-sm">
-              If an account with that email exists, we&apos;ve sent you a password reset link.
-              It may take a few minutes to arrive.
+              If an account with that email exists, we&apos;ve sent you a
+              password reset link. It may take a few minutes to arrive.
             </p>
             <p className="text-gray-500 text-xs">
               Didn&apos;t receive it? Check your spam folder or{" "}
@@ -111,12 +117,9 @@ export default function ForgotPasswordPage() {
             </p>
           </div>
         )}
-        
+
         <div className="text-center">
-          <a 
-            href="/login" 
-            className="text-amber-800 hover:underline text-sm"
-          >
+          <a href="/login" className="text-amber-800 hover:underline text-sm">
             Back to Login
           </a>
         </div>

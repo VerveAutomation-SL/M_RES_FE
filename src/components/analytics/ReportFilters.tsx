@@ -9,7 +9,12 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ReportFilterData, Resort, checkInRecord } from "@/lib/types";
+import {
+  ReportFilterData,
+  Resort,
+  Restaurant,
+  checkInRecord,
+} from "@/lib/types";
 import { getPreviewData } from "@/lib/api/analyticsApi";
 import { resortApi, restaurantApi } from "@/lib/api";
 import { mealPlans, mealTypes, statuses } from "@/lib/data";
@@ -87,7 +92,7 @@ export default function ReportFilters({
         const response = await restaurantApi.getAllRestaurants();
         const outletsData = response.data ?? [];
 
-        setOutlets(outletsData.map((o: any) => o.restaurantName || o.name));
+        setOutlets(outletsData.map((o: Restaurant) => o.restaurantName));
         console.log("Outlets fetched:", outletsData);
       } catch (error) {
         console.error("Error fetching outlets:", error);

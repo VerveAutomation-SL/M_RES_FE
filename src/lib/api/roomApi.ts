@@ -1,4 +1,5 @@
-import { ApiResponse, Room } from "../types";
+import axios from "axios";
+import { ApiResponse, AppError, Room } from "../types";
 import { api } from "./config";
 
 // Get all room for a specific resort
@@ -8,7 +9,11 @@ export const getRoomsByResort = async (resortId: number) => {
         return response.data;
     } catch (error) {
         console.error('Error fetching rooms by resort:', error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error fetching rooms by resort", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching rooms by resort", 500);
+        }
     }
 };
 
@@ -19,7 +24,11 @@ export const getAllRooms = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching all rooms:', error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error fetching all rooms", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching all rooms", 500);
+        }
     }
 };
 
@@ -30,7 +39,11 @@ export const createRoom = async(roomData: Omit<Room, 'id' | 'createdAt' | 'updat
         return response.data;
     } catch (error) {
         console.error('Error creating room:', error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error creating room", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during creating room", 500);
+        }
     }
 };
 
@@ -41,7 +54,11 @@ export const getRoomById = async (roomId: number) => {
         return response.data;
     } catch (error) {
         console.error('Error fetching room by ID:', error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error fetching room by ID", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching room by ID", 500);
+        }
     }
 };
 
@@ -53,7 +70,11 @@ export const updateRoom = async (roomId: number, roomData: Partial<Room>) => {
         return response.data;
     } catch (error) {
         console.error('Error updating room:', error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error updating room", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during updating room", 500);
+        }
     }
 }
 
@@ -64,6 +85,10 @@ export const deleteRoom = async (roomId: number) => {
         return response.data;
     } catch (error) {
         console.error('Error deleting room:', error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data || "Error deleting room", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during deleting room", 500);
+        }
     }
 }

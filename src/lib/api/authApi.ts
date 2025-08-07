@@ -1,10 +1,10 @@
-import apibackend from "../backendAPI";
 import axios from "axios";
 import { AppError } from "../types";
+import { api } from "./config";
 
 export async function tokenRefresh() {
     try {
-        const response = await apibackend.post("/token/refresh");
+        const response = await api.post("/token/refresh");
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -20,7 +20,7 @@ export async function login(
   formData: { userName: string; password: string },
 ) {
   try {
-    const response = await apibackend.post("/auth/login", {
+    const response = await api.post("/auth/login", {
       userName: formData.userName,
       password: formData.password,
     }); 
@@ -36,11 +36,11 @@ export async function login(
 
 export async function logout() {
   try {
-    const response = await apibackend.post("/auth/logout");
-    
+    const response = await api.post("/auth/logout");
+
     // Clear the token from the headers
-    delete apibackend.defaults.headers.common["Authorization"];
-    
+    delete api.defaults.headers.common["Authorization"];
+
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -53,7 +53,7 @@ export async function logout() {
 
 export async function forgotPassword(email: string) {
   try{
-    const response = await apibackend.post("/auth/forgot-password", {email});
+    const response = await api.post("/auth/forgot-password", {email});
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -66,7 +66,7 @@ export async function forgotPassword(email: string) {
 
 export async function resetPassword(token: string, password: string) {
     try {
-        const response = await apibackend.post("/auth/reset-password", { token, password });
+        const response = await api.post("/auth/reset-password", { token, password });
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {

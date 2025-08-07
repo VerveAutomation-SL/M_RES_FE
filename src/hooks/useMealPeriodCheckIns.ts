@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { checkInApi, resortApi, userApi } from "@/lib/api";
 import { getCurrentMealType } from "@/lib/data";
-import { CheckIn } from "@/lib/types";
+import { checkInRecord } from "@/lib/types";
 
 export const useMealPeriodCheckIns = () => {
   const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ export const useMealPeriodCheckIns = () => {
     activehosts: number;
     checkedIn: number;
     available: number;
-    checkIns: CheckIn[];
+    checkIns: checkInRecord[];
     mealType: string;
   }>({
     totalRooms: 0,
@@ -47,11 +47,10 @@ export const useMealPeriodCheckIns = () => {
 
         // Filter check-ins by meal period and checked-in status
         const mealPeriodCheckIns = allCheckIns.filter(
-          (item: any) =>
+          (item: checkInRecord) =>
             item.meal_type?.toLowerCase() === mealType.toLowerCase() &&
             item.status === "checked-in"
         );
-
 
 
         setStats({
@@ -63,6 +62,7 @@ export const useMealPeriodCheckIns = () => {
           mealType,
         });
       } catch (error) {
+        console.error("Error fetching meal period check-ins:", error);
         setStats({
           totalRooms: 0,
           activehosts: 0,

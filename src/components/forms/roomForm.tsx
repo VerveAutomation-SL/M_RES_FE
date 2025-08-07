@@ -1,7 +1,7 @@
 "use client";
 
 import { roomApi, resortApi } from "@/lib/api";
-import { Resort, RoomFormData } from "@/lib/types";
+import { AppError, Resort, RoomFormData } from "@/lib/types";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -126,38 +126,14 @@ export default function RoomForm({
         setError(errorMessage);
         console.error("❌ Room creation failed:", response);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("💥 Error creating room:", error);
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const { status, data } = (error as any).response;
-        if (status === 409) {
-          const errorMessage =
-            data?.message ||
-            `Room number ${formData.room_number} already exists. Please choose a different room number.`;
-          setError(errorMessage);
-        } else if (status === 400) {
-          const errorMessage =
-            data?.message || "Invalid room data. Please check your input.";
-          setError(errorMessage);
-        } else {
-          // Other server errors
-          const errorMessage =
-            data?.message || "Server error occurred. Please try again.";
-          setError(errorMessage);
-        }
-      } else if (
-        typeof error === "object" &&
-        error !== null &&
-        "request" in error
-      ) {
-        // Network error
-        setError("Network error. Please check your connection and try again.");
+      if (error instanceof AppError) {
+        console.error(error.message);
+        setError(error.message);
       } else {
-        // Other errors
-        const errorMessage =
-          (error as any).message ||
-          "An unexpected error occurred while creating the room.";
-        setError(errorMessage);
+        console.error(error);
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

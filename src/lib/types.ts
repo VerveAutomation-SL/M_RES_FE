@@ -73,6 +73,7 @@ export interface CheckInFormData {
   meal_plan: string;
   table_number: string;
   resort_id: number;
+  check_in_time: string,
 }
 
 export interface CheckInDetails {
@@ -154,7 +155,7 @@ export interface checkInRecord{
   status: string;
   checkout_remarks?: string;
   Room?: Room;
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface User{
@@ -179,6 +180,48 @@ export interface User{
 export interface LoginFormData {
     userName: string;
     password: string;
+}
+
+export interface CheckInFormProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  selectedRoom?: string;
+  mealType?: string;
+  resortId?: number;
+  roomId?: number;
+  defaultOutlet?: Restaurant | null;
+  onCheckInSuccess?: (roomNumber: string) => void;
+}
+
+export interface CheckInDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  roomId: number;
+  resortId: number;
+  mealType: string;
+  onCheckoutSuccess?: (roomNumber: string) => void;
+}
+
+export interface ResortStats {
+  activeCheckIns: number;
+  todayCheckIns: number;
+}
+
+export interface RoomStatus {
+  room_id: number;
+  room_number: string;
+  checked_in: boolean;
+  resort_id: number;
+}
+
+export interface RoomStatusApiResponse {
+  room_id?: number;
+  id?: number;
+  room_number?: string | number;
+  roomNumber?: string | number;
+  meal_type?: string;
+  resort_id?: number;
+  checked_in?: boolean;
 }
 
 export class AppError extends Error {

@@ -12,7 +12,8 @@ const ProtectedRoute = ({
   children: React.ReactNode;
   allowedRoles: string[];
 }) => {
-  const { isAuthenticated, isLoading, user, setUserFromCookie } = useAuthStore();
+  const { isAuthenticated, isLoading, user, setUserFromCookie } =
+    useAuthStore();
   const router = useRouter();
   const hasRedirected = useRef(false);
   const [authCheckComplete, setAuthCheckComplete] = useState(false);
@@ -20,7 +21,7 @@ const ProtectedRoute = ({
   // Load user from cookie
   useEffect(() => {
     const checkAuth = async () => {
-      await setUserFromCookie();
+      setUserFromCookie();
       setAuthCheckComplete(true);
     };
     checkAuth();
@@ -42,7 +43,14 @@ const ProtectedRoute = ({
       localStorage.removeItem("checkin_resort");
       localStorage.removeItem("checkin_outlet");
     }
-  }, [isAuthenticated, isLoading, user, allowedRoles, router, authCheckComplete]);
+  }, [
+    isAuthenticated,
+    isLoading,
+    user,
+    allowedRoles,
+    router,
+    authCheckComplete,
+  ]);
 
   if (isLoading || !authCheckComplete) {
     return (

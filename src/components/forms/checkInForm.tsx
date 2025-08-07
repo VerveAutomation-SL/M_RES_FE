@@ -1,24 +1,12 @@
 "use client";
 
 import { mealPlans, mealTypes } from "@/lib/data";
-import { CheckInFormData, Restaurant } from "@/lib/types";
+import { CheckInFormData, CheckInFormProps } from "@/lib/types";
 import { Clock, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { checkInApi } from "@/lib/api";
 import { resortApi } from "@/lib/api"; // Import the resortApi
 import toast from "react-hot-toast";
-
-interface CheckInFormProps {
-  isOpen?: boolean;
-  onClose?: () => void;
-  selectedRoom?: string;
-  mealType?: string;
-  resortId?: number;
-  roomId?: number;
-  outlets?: Restaurant[];
-  defaultOutlet?: Restaurant | null;
-  onCheckInSuccess?: (roomNumber: string) => void;
-}
 
 export default function CheckInForm({
   isOpen = false,
@@ -27,7 +15,6 @@ export default function CheckInForm({
   mealType,
   resortId,
   roomId,
-  outlets = [],
   defaultOutlet = null,
   onCheckInSuccess,
 }: CheckInFormProps) {
@@ -41,6 +28,7 @@ export default function CheckInForm({
     meal_plan: "",
     table_number: "",
     resort_id: 0,
+    check_in_time: "",
   });
 
   // Update time every second
@@ -91,7 +79,7 @@ export default function CheckInForm({
     if (defaultOutlet) {
       setFormData((prev) => ({
         ...prev,
-        outlet_name: defaultOutlet.restaurantName ||  "",
+        outlet_name: defaultOutlet.restaurantName || "",
       }));
     }
   }, [defaultOutlet]);
