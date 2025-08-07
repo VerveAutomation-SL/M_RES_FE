@@ -51,6 +51,35 @@ const SideBar = () => {
     },
   ];
 
+  // Define role-based access control
+  const hasAccessToRoute = (route: string, userRole: string | undefined) => {
+    if (!userRole) return false;
+    
+    // Convert user role to lowercase for comparison
+    const normalizedUserRole = userRole.toLowerCase();
+    
+    const routePermissions: { [key: string]: string[] } = {
+      "/dashboard": ["admin", "manager", "host"],
+      "/check-in": ["admin", "manager", "host"],
+      "/analytics": ["admin", "manager", "host"],
+      "/resorts": ["admin"],
+      "/restaurants": ["admin"],
+      "/admin": ["admin"],
+      "/managers": ["admin"],
+      "/hosts": ["admin", "manager"],
+      "/profile": ["admin", "manager", "host"], // Always accessible
+    };
+
+    // Check if route starts with any defined path
+    for (const [routePath, allowedRoles] of Object.entries(routePermissions)) {
+      if (route.startsWith(routePath)) {
+        return allowedRoles.includes(normalizedUserRole);
+      }
+    }
+    
+    return false;
+  };
+
   const overviewItems = navigationItems.filter(
     (item) => item.section === "Overview"
   );
@@ -95,6 +124,9 @@ const SideBar = () => {
                   href={item.href}
                   icon={item.icon}
                   label={item.label}
+                  pathname={pathname}
+                  userRole={user?.role}
+                  hasAccess={hasAccessToRoute(item.href, user?.role)}
                 />
               ))}
 
@@ -111,6 +143,9 @@ const SideBar = () => {
                     href={item.href}
                     icon={item.icon}
                     label={item.label}
+                    pathname={pathname}
+                    userRole={user?.role}
+                    hasAccess={hasAccessToRoute(item.href, user?.role)}
                   />
                 ))}
 
@@ -136,7 +171,7 @@ const SideBar = () => {
                       <Link
                         href="/managers"
                         className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
-                          pathname.startsWith("/managers")
+                          pathname.startsWith("/managers") && hasAccessToRoute("/managers", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
@@ -148,7 +183,7 @@ const SideBar = () => {
                       <Link
                         href="/hosts"
                         className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
-                          pathname.startsWith("/hosts")
+                          pathname.startsWith("/hosts") && hasAccessToRoute("/hosts", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
@@ -171,6 +206,9 @@ const SideBar = () => {
                     href={item.href}
                     icon={item.icon}
                     label={item.label}
+                    pathname={pathname}
+                    userRole={user?.role}
+                    hasAccess={hasAccessToRoute(item.href, user?.role)}
                   />
                 ))}
             </nav>
@@ -213,11 +251,14 @@ type NavItemProps = {
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
+  pathname: string;
+  userRole?: string;
+  hasAccess: boolean;
 };
 
-const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label }) => {
-  const pathname = usePathname();
-  const isActive = pathname.startsWith(href);
+const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, pathname, hasAccess }) => {
+  // Only show as active if the pathname matches AND user has access
+  const isActive = pathname.startsWith(href) && hasAccess;
 
   return (
     <Link
