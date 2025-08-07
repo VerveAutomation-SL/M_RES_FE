@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import { forgotPassword } from "@/lib/api/auth";
+import { forgotPassword } from "@/lib/api/authApi";
 import { AppError } from "@/lib/types";
 import { useState } from "react";
 

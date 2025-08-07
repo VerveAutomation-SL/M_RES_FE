@@ -1,10 +1,10 @@
 import axios from "axios";
-import apibackend from "../backendAPI";
 import { AppError, User } from "../types";
+import { api } from "./config";
 
 export async function getAllAdmins() {
     try {
-        const response = await apibackend.get('/users/admins');
+        const response = await api.get('/users/admins');
         return response.data;
     } catch (error) {
         console.error("Error fetching admins:", error);
@@ -19,7 +19,7 @@ export async function getAllAdmins() {
 
 export async function getAllManagers() {
     try {
-        const response = await apibackend.get('/users/managers');
+        const response = await api.get('/users/managers');
         return response.data;
     } catch (error) {
         console.error("Error fetching managers:", error);
@@ -32,7 +32,7 @@ export async function getAllManagers() {
 }
 export async function getAllHosts() {
     try {
-        const response = await apibackend.get('/users/hosts');
+        const response = await api.get('/users/hosts');
         return response.data;
     } catch (error) {
         console.error("Error fetching hosts:", error);
@@ -46,7 +46,7 @@ export async function getAllHosts() {
 
 export async function createUser(adminData: Omit<User, "UserId" | "createdAt" | "updatedAt">) {
     try {
-        const response = await apibackend.post('/users', adminData);
+        const response = await api.post('/users', adminData);
         return response.data;
     } catch (error) {
         console.error("Error creating admin:", error);
@@ -60,7 +60,7 @@ export async function createUser(adminData: Omit<User, "UserId" | "createdAt" | 
 
 export async function getUserDetails(userId: number) {
     try {
-        const response = await apibackend.get(`users/${userId}`);
+        const response = await api.get(`users/${userId}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching user details:", error);
@@ -74,7 +74,7 @@ export async function getUserDetails(userId: number) {
 
 export async function updateUserDetails(userId: number, userData: Partial<User>) {
     try {
-        const response = await apibackend.put(`users/${userId}`, userData);
+        const response = await api.put(`users/${userId}`, userData);
         return response.data;
     } catch (error) {
         console.error("Error updating user details:", error);
@@ -88,7 +88,7 @@ export async function updateUserDetails(userId: number, userData: Partial<User>)
 
 export async function deleteUser(userId: number) {
     try {
-        const response = await apibackend.delete(`users/${userId}`);
+        const response = await api.delete(`users/${userId}`);
         return response.data;
     } catch (error) {
         console.error("Error deleting user:", error);
@@ -102,7 +102,7 @@ export async function deleteUser(userId: number) {
 
 export async function getActiveHosts() {
     try {
-        const response = await apibackend.get('/users/active/hosts');
+        const response = await api.get('/users/active/hosts');
         return response.data;
     } catch (error) {
         console.error("Error fetching active hosts:", error);
@@ -116,7 +116,7 @@ export async function getActiveHosts() {
 
 export async function verifyPassword(userId: number, password: string) {
     try {
-        const response = await apibackend.post(`/users/verify/password`, { userId, password });
+        const response = await api.post(`/users/verify/password`, { userId, password });
         console.log("Password verification response:", response.data);
         return response.data;
     } catch (error) {

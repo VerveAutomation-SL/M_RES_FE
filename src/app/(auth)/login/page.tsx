@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { LoginFormData } from "@/lib/types";
 import AuthInput from "@/components/ui/input";
-import { login, tokenRefresh } from "@/lib/api/auth";
+import { login, tokenRefresh } from "@/lib/api/authApi";
 import { AppError } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";

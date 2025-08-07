@@ -1,10 +1,10 @@
-import apibackend from "../backendAPI";
 import axios from "axios";
 import { AppError } from "../types";
+import { api } from "./config";
 
 export async function getAllResorts() {
   try {
-    const response = await apibackend.get("/resorts");
+    const response = await api.get("/resorts");
     return response.data;
   } catch (error) {
     console.error("Error fetching Resorts:", error);
@@ -19,7 +19,7 @@ export async function getAllResorts() {
 
 export async function getAllRestaurants() {
   try {
-    const response = await apibackend.get("/restaurants");
+    const response = await api.get("/restaurants");
     return response.data;
   } catch (error) {
     console.error("Error fetching restaurants:", error);
@@ -34,7 +34,7 @@ export async function getAllRestaurants() {
 
 export async function getAllResortsWithRestaurants() {
   try {
-    const response = await apibackend.get("/resorts/with-restaurants");
+    const response = await api.get("/resorts/with-restaurants");
     return response.data;
   } catch (error) {
     console.error("Error fetching restaurants:", error);
@@ -49,7 +49,7 @@ export async function getAllResortsWithRestaurants() {
 
 export async function getRestaurantById(id: number) {
   try {
-    const response = await apibackend.get(`/restaurants/${id}`);
+    const response = await api.get(`/restaurants/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching restaurant by ID:", error);
@@ -68,7 +68,7 @@ export async function createRestaurant(restaurantData: {
   status: 'Open' | 'Close';
 }) {
   try {
-    const response = await apibackend.post("/restaurants", restaurantData);
+    const response = await api.post("/restaurants", restaurantData);
     return response.data;
   } catch (error) {
     console.error("Error creating restaurant:", error);
@@ -88,7 +88,7 @@ export async function updateRestaurant(id: number, restaurantData: {
 }) {
   try {
     console.log("Updating restaurant with ID:", id, "Data:", restaurantData);
-    const response = await apibackend.put(`/restaurants/${id}`, restaurantData);
+    const response = await api.put(`/restaurants/${id}`, restaurantData);
     return response.data;
   } catch (error) {
     console.error("Error updating restaurant:", error);
@@ -103,7 +103,7 @@ export async function updateRestaurant(id: number, restaurantData: {
 
 export async function deleteRestaurant(id: number) {
   try {
-    const response = await apibackend.delete(`/restaurants/${id}`);
+    const response = await api.delete(`/restaurants/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting restaurant:", error);
