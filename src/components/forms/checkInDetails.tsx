@@ -295,7 +295,7 @@ export default function CheckInDetailsModal({
                 value={remarks}
                 required
                 onChange={(e) => setRemarks(e.target.value)}
-                placeholder="Enter your reason to checkout..."
+                placeholder="Enter your reason to checkout... (minimum 10 characters)"
                 className="w-full h-32 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>

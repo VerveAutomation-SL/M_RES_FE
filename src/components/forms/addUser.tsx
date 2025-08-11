@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, X, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createUser } from "@/lib/api/userApi";
 import { getAllResortsWithRestaurants } from "@/lib/api/restaurantsApi";
@@ -34,6 +34,14 @@ export default function UserForm({
   const [currentStep, setCurrentStep] = useState(1);
   const [resorts, setResorts] = useState<Resort[]>([]);
 
+  // Password validation states
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailSuggestion, setEmailSuggestion] = useState("");
+
   useEffect(() => {
     // fetch all restaurant and resort
     const fetchResorts = async () => {
@@ -53,12 +61,30 @@ export default function UserForm({
     }
   }, [currentStep]);
 
+  // Password validation function
+  const validatePassword = (pwd: string) => {
+    const errors = [];
+    if (pwd.length < 8) {
+      errors.push("Password must be at least 8 characters long");
+    }
+    if (!/(?=.*[a-z])/.test(pwd)) {
+      errors.push("Password must contain at least one lowercase letter");
+    }
+    if (!/(?=.*[A-Z])/.test(pwd)) {
+      errors.push("Password must contain at least one uppercase letter");
+    }
+    if (!/(?=.*\d)/.test(pwd)) {
+      errors.push("Password must contain at least one number");
+    }
+    return errors;
+  };
+
   // Enhanced email validation function with strict checking for all major providers
   const validateEmail = (email: string) => {
     // Basic email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return false;
+      return { isValid: false, message: "Please enter a valid email format" };
     }
 
     // Extract domain from email
@@ -94,6 +120,7 @@ export default function UserForm({
             suggestion: correctDomain,
             isStrictProvider: true,
             providerName: provider.charAt(0).toUpperCase() + provider.slice(1),
+            message: `Did you mean ${email.split("@")[0]}@${correctDomain}?`,
           };
         }
       }
@@ -110,17 +137,82 @@ export default function UserForm({
 
     // Check if domain is a typo for other providers
     if (otherTypos[domain]) {
-      return { isValid: false, suggestion: otherTypos[domain] };
+      return {
+        isValid: false,
+        suggestion: otherTypos[domain],
+        message: `Did you mean ${email.split("@")[0]}@${otherTypos[domain]}?`,
+      };
     }
 
     return { isValid: true };
   };
 
-  const validatePassword = (password: string) => {
-    // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
+  // Handle email change with validation
+  const handleEmailChange = (email: string) => {
+    setFormData({ ...formData, email });
+
+    if (emailError) {
+      setEmailError("");
+    }
+    if (emailSuggestion) {
+      setEmailSuggestion("");
+    }
+
+    if (email.trim()) {
+      const validation = validateEmail(email);
+      if (!validation.isValid) {
+        setEmailError(
+          validation.message || "Please enter a valid email address"
+        );
+        if (validation.suggestion) {
+          setEmailSuggestion(validation.suggestion);
+        }
+      }
+    }
+  };
+
+  // Handle password change with validation
+  const handlePasswordChange = (pwd: string) => {
+    setFormData({ ...formData, password: pwd });
+
+    if (pwd.trim()) {
+      const errors = validatePassword(pwd);
+      if (errors.length > 0) {
+        setPasswordError(errors[0]);
+      } else {
+        setPasswordError("");
+      }
+    } else {
+      setPasswordError("");
+    }
+
+    if (formData.confirmPassword && pwd !== formData.confirmPassword) {
+      setConfirmPasswordError("Passwords do not match");
+    } else {
+      setConfirmPasswordError("");
+    }
+  };
+
+  // Handle confirm password change
+  const handleConfirmPasswordChange = (confirmPwd: string) => {
+    setFormData({ ...formData, confirmPassword: confirmPwd });
+
+    if (confirmPwd && formData.password !== confirmPwd) {
+      setConfirmPasswordError("Passwords do not match");
+    } else {
+      setConfirmPasswordError("");
+    }
+  };
+
+  // Handle accepting email suggestion
+  const handleAcceptSuggestion = () => {
+    if (emailSuggestion) {
+      const username = formData.email.split("@")[0];
+      const suggestedEmail = `${username}@${emailSuggestion}`;
+      setFormData({ ...formData, email: suggestedEmail });
+      setEmailError("");
+      setEmailSuggestion("");
+    }
   };
 
   const validateStep1 = () => {
@@ -135,33 +227,19 @@ export default function UserForm({
     }
 
     const emailValidation = validateEmail(formData.email);
-    if (
-      emailValidation === false ||
-      (typeof emailValidation === "object" && !emailValidation.isValid)
-    ) {
-      if (typeof emailValidation === "object" && emailValidation.suggestion) {
-        if (emailValidation.isStrictProvider) {
-          return `Invalid ${
-            emailValidation.providerName
-          } domain. Use exactly "@${
-            emailValidation.suggestion
-          }" - did you mean "${formData.email.split("@")[0]}@${
-            emailValidation.suggestion
-          }"?`;
-        }
-        return `Invalid email domain. Did you mean "${
-          formData.email.split("@")[0]
-        }@${emailValidation.suggestion}"?`;
-      }
-      return "Please provide a valid email address.";
+    if (!emailValidation.isValid) {
+      return emailValidation.message || "Please enter a valid email address";
     }
 
     if (!formData.password) {
       return "Password is required.";
     }
-    if (!validatePassword(formData.password)) {
-      return "Password must be at least 8 characters with uppercase, lowercase, and number.";
+
+    const passwordErrors = validatePassword(formData.password);
+    if (passwordErrors.length > 0) {
+      return passwordErrors[0];
     }
+
     if (formData.password !== formData.confirmPassword) {
       return "Passwords do not match.";
     }
@@ -281,6 +359,10 @@ export default function UserForm({
       meal_type: "",
     });
     setError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
+    setEmailError("");
+    setEmailSuggestion("");
     setCurrentStep(1);
     onClose?.();
   };
@@ -288,23 +370,6 @@ export default function UserForm({
   // Clear error when user starts typing
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, username: e.target.value });
-    if (error) setError(""); // Clear error when user types
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, email: e.target.value });
-    if (error) setError(""); // Clear error when user types
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, password: e.target.value });
-    if (error) setError(""); // Clear error when user types
-  };
-
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData({ ...formData, confirmPassword: e.target.value });
     if (error) setError(""); // Clear error when user types
   };
 
@@ -318,6 +383,14 @@ export default function UserForm({
     : [];
 
   if (!isOpen) return null;
+
+  const hasValidationErrors =
+    !!emailError ||
+    !formData.email.trim() ||
+    !!passwordError ||
+    !!confirmPasswordError ||
+    !formData.password.trim() ||
+    !formData.confirmPassword.trim();
 
   return (
     <div className="fixed inset-0 bg-gray-800/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 sm:p-6">
@@ -397,6 +470,7 @@ export default function UserForm({
                   placeholder="e.g., john_doe"
                   disabled={loading}
                   minLength={3}
+                  autoComplete="username"
                 />
               </div>
 
@@ -409,15 +483,30 @@ export default function UserForm({
                   type="email"
                   required
                   value={formData.email}
-                  onChange={handleEmailChange}
-                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                    error && error.toString().toLowerCase().includes("email")
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 transition-colors text-base sm:text-sm ${
+                    emailError
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-amber-500 focus:border-transparent"
                   }`}
                   placeholder="e.g., john@example.com"
                   disabled={loading}
                 />
+                {emailError && (
+                  <div className="mt-1">
+                    <p className="text-sm text-red-600">{emailError}</p>
+                    {emailSuggestion && (
+                      <button
+                        type="button"
+                        onClick={handleAcceptSuggestion}
+                        className="mt-1 text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none"
+                      >
+                        Use suggested email: {formData.email.split("@")[0]}@
+                        {emailSuggestion}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Password Field */}
@@ -425,20 +514,37 @@ export default function UserForm({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password*
                 </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handlePasswordChange}
-                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                    error && error.toString().toLowerCase().includes("password")
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Min 8 chars, 1 upper, 1 lower, 1 number"
-                  disabled={loading}
-                  minLength={8}
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.password}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 transition-colors text-base sm:text-sm pr-10 ${
+                      passwordError
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-amber-500 focus:border-transparent"
+                    }`}
+                    placeholder="Enter password"
+                    disabled={loading}
+                    minLength={8}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {passwordError && (
+                  <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+                )}
               </div>
 
               {/* Confirm Password Field */}
@@ -446,20 +552,86 @@ export default function UserForm({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password*
                 </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base sm:text-sm ${
-                    error && error.toString().toLowerCase().includes("password")
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Re-enter your password"
-                  disabled={loading}
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      handleConfirmPasswordChange(e.target.value)
+                    }
+                    className={`w-full px-3 py-3 sm:py-2 border rounded-md focus:ring-2 transition-colors text-base sm:text-sm pr-10 ${
+                      confirmPasswordError
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-amber-500 focus:border-transparent"
+                    }`}
+                    placeholder="Re-enter your password"
+                    disabled={loading}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {confirmPasswordError && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {confirmPasswordError}
+                  </p>
+                )}
               </div>
+
+              {/* Password Requirements */}
+              {formData.password && (
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Password Requirements:
+                  </p>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    <li
+                      className={
+                        formData.password.length >= 8 ? "text-green-600" : ""
+                      }
+                    >
+                      • At least 8 characters long
+                    </li>
+                    <li
+                      className={
+                        /(?=.*[a-z])/.test(formData.password)
+                          ? "text-green-600"
+                          : ""
+                      }
+                    >
+                      • Contains lowercase letter
+                    </li>
+                    <li
+                      className={
+                        /(?=.*[A-Z])/.test(formData.password)
+                          ? "text-green-600"
+                          : ""
+                      }
+                    >
+                      • Contains uppercase letter
+                    </li>
+                    <li
+                      className={
+                        /(?=.*\d)/.test(formData.password)
+                          ? "text-green-600"
+                          : ""
+                      }
+                    >
+                      • Contains number
+                    </li>
+                  </ul>
+                </div>
+              )}
 
               {/* Role Field */}
               <div>
@@ -579,7 +751,8 @@ export default function UserForm({
                   !formData.email ||
                   !formData.password ||
                   !formData.confirmPassword ||
-                  !formData.role
+                  !formData.role ||
+                  hasValidationErrors
                 }
                 className="w-full sm:flex-1 px-4 py-3 sm:py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 disabled:opacity-50 cursor-pointer transition-colors text-base sm:text-sm font-medium"
               >

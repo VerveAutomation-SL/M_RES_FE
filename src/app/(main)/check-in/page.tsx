@@ -47,8 +47,6 @@ export default function CheckInPage() {
 
   const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  console.log(user, "user in checkin page");
-
   const fetchResorts = async () => {
     try {
       const response = await restaurantApi.getAllResortsWithRestaurants();

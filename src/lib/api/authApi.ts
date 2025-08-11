@@ -27,7 +27,7 @@ export async function login(
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-        throw new AppError(error.response?.data || "Request failed" ,error.status || 500 );
+        throw new AppError(error.response?.data?.message || "Request failed" ,error.status || 500 );
     } else {
         throw new AppError("An unexpected error occurred",500);
     }

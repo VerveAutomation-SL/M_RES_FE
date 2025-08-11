@@ -13,9 +13,7 @@ import { useAuthStore } from "@/store/authStore";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 export default function DashboardPage() {
-  const { isAuthenticated, isLoading, user } = useAuthStore();
-
-  console.log(user, "user in dashboard page");
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   const { totalRooms, activehosts, checkedIn, available, mealType, loading } =
     useMealPeriodCheckIns();
@@ -54,56 +52,56 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-5 mb-5">
-        <StatsCard
-          title="Total Rooms"
-          value={totalRooms.toString()}
-          subtitle="Across both resorts"
-          bgColor="bg-white"
-          textColor="text-gray-800"
-          icon={<Hotel />}
-        />
-        <StatsCard
-          title={`Checked In (${
-            mealType[0].toUpperCase() + mealType.slice(1)
-          })`}
-          value={checkedIn.toString()}
-          subtitle={`Total check-ins for ${
-            mealType[0].toUpperCase() + mealType.slice(1)
-          }`}
-          bgColor="bg-white"
-          textColor="text-red-600"
-          icon={<UserRoundCheck />}
-        />
-        <StatsCard
-          title="Available"
-          value={available.toString()}
-          subtitle={`Available for ${
-            mealType[0].toUpperCase() + mealType.slice(1)
-          }`}
-          bgColor="bg-white"
-          textColor="text-green-600"
-          icon={<SquareCheck />}
-        />
-        <StatsCard
-          title="Active Hosts"
-          value={activehosts.toString()}
-          subtitle="Across both resorts"
-          bgColor="bg-white"
-          textColor="text-purple-600"
-          icon={<Users />}
-        />
-      </div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-5 mb-5">
+          <StatsCard
+            title="Total Rooms"
+            value={totalRooms.toString()}
+            subtitle="Across both resorts"
+            bgColor="bg-white"
+            textColor="text-gray-800"
+            icon={<Hotel />}
+          />
+          <StatsCard
+            title={`Checked In (${
+              mealType[0].toUpperCase() + mealType.slice(1)
+            })`}
+            value={checkedIn.toString()}
+            subtitle={`Total check-ins for ${
+              mealType[0].toUpperCase() + mealType.slice(1)
+            }`}
+            bgColor="bg-white"
+            textColor="text-red-600"
+            icon={<UserRoundCheck />}
+          />
+          <StatsCard
+            title="Available"
+            value={available.toString()}
+            subtitle={`Available for ${
+              mealType[0].toUpperCase() + mealType.slice(1)
+            }`}
+            bgColor="bg-white"
+            textColor="text-green-600"
+            icon={<SquareCheck />}
+          />
+          <StatsCard
+            title="Active Hosts"
+            value={activehosts.toString()}
+            subtitle="Across both resorts"
+            bgColor="bg-white"
+            textColor="text-purple-600"
+            icon={<Users />}
+          />
+        </div>
 
-      {/* Resort Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
-        {resorts.map((resort) => (
-          <ResortOverview key={resort.id} resort={resort} />
-        ))}
+        {/* Resort Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
+          {resorts.map((resort) => (
+            <ResortOverview key={resort.id} resort={resort} />
+          ))}
+        </div>
+        <RecentCheckIns />
       </div>
-      <RecentCheckIns />
-    </div>
     </ProtectedRoute>
   );
 }

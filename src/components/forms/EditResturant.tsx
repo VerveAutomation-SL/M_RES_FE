@@ -7,6 +7,7 @@ import {
   getRestaurantById,
   updateRestaurant,
 } from "@/lib/api/restaurantsApi";
+import toast from "react-hot-toast";
 
 interface EditRestaurantModalProps {
   isOpen: boolean;
@@ -102,6 +103,7 @@ const EditRestaurantModal = ({
     try {
       const response = await deleteRestaurant(restaurant.id);
       if (response?.success) {
+        toast.success("Restaurant deleted successfully!");
         onDelete?.();
         onClose();
       } else {

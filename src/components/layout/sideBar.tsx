@@ -54,10 +54,10 @@ const SideBar = () => {
   // Define role-based access control
   const hasAccessToRoute = (route: string, userRole: string | undefined) => {
     if (!userRole) return false;
-    
+
     // Convert user role to lowercase for comparison
     const normalizedUserRole = userRole.toLowerCase();
-    
+
     const routePermissions: { [key: string]: string[] } = {
       "/dashboard": ["admin", "manager", "host"],
       "/check-in": ["admin", "manager", "host"],
@@ -76,7 +76,7 @@ const SideBar = () => {
         return allowedRoles.includes(normalizedUserRole);
       }
     }
-    
+
     return false;
   };
 
@@ -95,44 +95,38 @@ const SideBar = () => {
           {/* Logo Section */}
           <div className="flex items-center justify-center my-6 lg:my-10">
             {/* Mobile/Tablet Logo */}
-            <div className="lg:hidden w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-100 to-white rounded-lg shadow-lg border border-white/30 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent"></div>
-              <div className="relative z-10">
-                <div className="text-[var(--primary)] font-bold text-lg leading-none">
-                  T
-                </div>
-                <div className="text-[var(--primary)] font-light text-xs leading-none -mt-1">
-                  R
+            <div className="lg:hidden w-11 h-11 sm:w-13 sm:h-13">
+              <div className="w-full h-full bg-[var(--primary)] rounded-lg shadow-xl flex items-center justify-center relative overflow-hidden transform ">
+                <div className="absolute inset-0 via-transparent to-transparent"></div>
+                <div className="transform text-white font-black text-sm tracking-wider">
+                  RM
                 </div>
               </div>
             </div>
 
             {/* Desktop Logo */}
             <div className="hidden lg:flex flex-col items-center justify-center">
-              {/* Main Logo Container */}
-              <div className="w-20 h-20 bg-gradient-to-br from-amber-50 to-white rounded-2xl shadow-xl border-2 border-white/40 flex items-center justify-center mb-3 relative overflow-hidden">
-                {/* Subtle pattern overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/30 to-transparent"></div>
-                <div className="absolute top-1 right-1 w-3 h-3 bg-gradient-to-br from-white/60 to-transparent rounded-full"></div>
-
-                {/* Logo Icon */}
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="text-[var(--primary)] font-bold text-2xl leading-none">
-                    RM
-                  </div>
+              {/* Brand Text */}
+              <div className="text-center space-y-1">
+                <div className="text-white font-light text-sm tracking-[0.3em] leading-tight">
+                  THE
                 </div>
-              </div>
-
-              {/* Text Logo */}
-              <div className="text-center">
-                <div className="text-white font-bold text-sm tracking-[0.15em] leading-tight mb-0.5">
-                  THE RESIDENCE
+                <div className="text-white font-bold text-lg tracking-[0.25em] leading-none">
+                  RESIDENCE
                 </div>
-                <div className="text-white font-semibold text-sm tracking-[0.1em] leading-tight mb-2">
+                <div className="text-white font-light text-sm tracking-[0.3em] leading-tight mb-2">
                   MALDIVES
                 </div>
-                <div className="text-white/80 text-[0.8rem] font-light italic tracking-wider">
-                  by Cenizaro
+
+                {/* Elegant divider line */}
+                <div className="flex items-center justify-center mb-2">
+                  <div className="w-8 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                  <div className="w-1 h-1 bg-white/60 rounded-full mx-2"></div>
+                  <div className="w-8 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                </div>
+
+                <div className="text-white/80 text-[0.65rem] font-light italic tracking-widest">
+                  BY CENIZARO
                 </div>
               </div>
             </div>
@@ -199,7 +193,8 @@ const SideBar = () => {
                       <Link
                         href="/managers"
                         className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
-                          pathname.startsWith("/managers") && hasAccessToRoute("/managers", user?.role)
+                          pathname.startsWith("/managers") &&
+                          hasAccessToRoute("/managers", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
@@ -211,7 +206,8 @@ const SideBar = () => {
                       <Link
                         href="/hosts"
                         className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
-                          pathname.startsWith("/hosts") && hasAccessToRoute("/hosts", user?.role)
+                          pathname.startsWith("/hosts") &&
+                          hasAccessToRoute("/hosts", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
@@ -284,7 +280,13 @@ type NavItemProps = {
   hasAccess: boolean;
 };
 
-const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, pathname, hasAccess }) => {
+const NavItem: React.FC<NavItemProps> = ({
+  href,
+  icon: Icon,
+  label,
+  pathname,
+  hasAccess,
+}) => {
   // Only show as active if the pathname matches AND user has access
   const isActive = pathname.startsWith(href) && hasAccess;
 
