@@ -153,7 +153,7 @@ const Page = () => {
 
             {/* Error Message */}
             {loginError && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 text-center rounded-md text-sm sm:text-base gap-2 flex items-center justify-center">
+              <div className="mb-4 p-3 bg-red-100 text-red-700 text-center rounded-md text-sm sm:text-base gap-2 flex items-center">
                 <X
                   className="inline-block h-5 w-5 mr-2 cursor-pointer"
                   onClick={() => {
