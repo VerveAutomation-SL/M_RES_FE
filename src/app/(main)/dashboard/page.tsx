@@ -10,7 +10,7 @@ import { Hotel, SquareCheck, UserRoundCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { useAuthStore } from "@/store/authStore";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading, user } = useAuthStore();

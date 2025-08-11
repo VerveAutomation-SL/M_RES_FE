@@ -2,7 +2,7 @@
 import UserForm from "@/components/forms/addUser";
 import ViewUser from "@/components/forms/viewUser";
 import Header from "@/components/layout/header";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import Button from "@/components/ui/button";
 import { getAllManagers } from "@/lib/api/userApi";
 import Image from "next/image";

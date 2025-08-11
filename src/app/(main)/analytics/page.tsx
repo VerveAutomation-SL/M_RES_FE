@@ -6,7 +6,7 @@ import DailyCheckInsChart from "@/components/charts/CheckInsChart";
 import HourlyTrendsChart from "@/components/charts/HourlyTrendsChart";
 import MealDistributionChart from "@/components/charts/MealDistrubtionChart";
 import Header from "@/components/layout/header";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import {
   exportExcelReport,
   exportPdfReport,

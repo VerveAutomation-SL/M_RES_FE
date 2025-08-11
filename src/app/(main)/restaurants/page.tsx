@@ -8,9 +8,9 @@ import { getAllResortsWithRestaurants } from "@/lib/api/restaurantsApi";
 import { Resort } from "@/lib/types";
 import { ChevronRight, Clock, Filter, MapPin, Search } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import EditRestaurantModal from "@/components/layout/EditResturant";
+import EditRestaurantModal from "@/components/forms/EditResturant";
 import { useAuthStore } from "@/store/authStore";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);

@@ -19,6 +19,7 @@ export async function setDecodedUser(accessToken: string) {
       Cookies.set("accessToken", accessToken, {
         sameSite: "strict",
         secure: true,
+        // httpOnly: true,
         expires: 1,
       });
     }
