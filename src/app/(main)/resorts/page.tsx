@@ -200,7 +200,7 @@ const Page = () => {
                 onClick={handleAddResort}
                 className="px-6 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-amber-900 transition-colors"
               >
-                Add Your First Resort
+                Add Your Resort
               </button>
             </div>
           ) : (

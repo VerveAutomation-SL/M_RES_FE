@@ -229,11 +229,14 @@ const RoomGrid = ({
                 <SearchBar onSearch={handleSearch} />
                 {addButton && (
                   <button
-                    className="flex w-full justify-center sm:w-fit items-center p-1 sm:p-2 text-xs text-[var(--primary)] border-2 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all duration-200"
+                    className="flex w-full p-2 justify-center items-center
+                                sm:w-fit lg:px-3 lg:py-2 text-xs md:text-base border-2 rounded-full bg-white hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white transition-all duration-200 cursor-pointer"
                     onClick={handleAddRoom}
                   >
-                    <Plus className="w-3 h-3 sm:w-5 sm:h-5 mr-2" />
-                    <span className="items-center">{addButton}</span>
+                    <Plus className="w-3 h-3 lg:w-4 lg:h-4 mr-2 rounded-full" />
+                    <span className="items-center text-nowrap">
+                      {addButton}
+                    </span>
                   </button>
                 )}
               </div>

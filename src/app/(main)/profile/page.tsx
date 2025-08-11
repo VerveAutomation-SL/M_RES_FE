@@ -82,10 +82,10 @@ export default function ProfilePage() {
 
   const tabs = [
     { id: "profile", label: "Profile Information", icon: UserIcon },
-    { id: "activity", label: "Activity Log", icon: Activity },
-    { id: "performance", label: "Performance", icon: BarChart3 },
-    { id: "permissions", label: "Permissions", icon: Shield },
-    { id: "settings", label: "Settings", icon: Settings },
+    // { id: "activity", label: "Activity Log", icon: Activity },
+    // { id: "performance", label: "Performance", icon: BarChart3 },
+    // { id: "permissions", label: "Permissions", icon: Shield },
+    // { id: "settings", label: "Settings", icon: Settings },
   ];
 
   const handelRefresh = () => {

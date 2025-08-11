@@ -197,14 +197,18 @@ const ButtonGrid = ({
 
         if (response && response.success && response.data) {
           // Map response.data to RoomStatus type
-          const mappedRoomStatus = response.data.map((item: RoomStatusApiResponse) => ({
-            room_id: item.room_id ?? item.id ?? 0,
-            room_number:
-              item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
-            meal_type: item.meal_type ?? mealType,
-            resort_id: item.resort_id ?? resortId,
-            checked_in: item.checked_in ?? false,
-          }));
+          const mappedRoomStatus = response.data.map(
+            (item: RoomStatusApiResponse) => ({
+              room_id: item.room_id ?? item.id ?? 0,
+              room_number:
+                item.room_number?.toString() ??
+                item.roomNumber?.toString() ??
+                "",
+              meal_type: item.meal_type ?? mealType,
+              resort_id: item.resort_id ?? resortId,
+              checked_in: item.checked_in ?? false,
+            })
+          );
           setRoomStatusData(mappedRoomStatus);
           console.log("Room status data set:", mappedRoomStatus);
         } else {
@@ -326,7 +330,6 @@ const ButtonGrid = ({
     const roomId = getRoomIdByNumber(roomNumber.toString());
 
     // If room is checked in, show details modal
-    
 
     if (mode === "check-in") {
       if (isCheckedIn) {
@@ -452,14 +455,18 @@ const ButtonGrid = ({
         const response = await checkInApi.getCheckInStatus(resortId, mealType);
 
         if (response && response.success && response.data) {
-          const mappedRoomStatus = response.data.map((item: RoomStatusApiResponse) => ({
-            room_id: item.room_id ?? item.id ?? 0,
-            room_number:
-              item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
-            meal_type: item.meal_type ?? mealType,
-            resort_id: item.resort_id ?? resortId,
-            checked_in: item.checked_in ?? false,
-          }));
+          const mappedRoomStatus = response.data.map(
+            (item: RoomStatusApiResponse) => ({
+              room_id: item.room_id ?? item.id ?? 0,
+              room_number:
+                item.room_number?.toString() ??
+                item.roomNumber?.toString() ??
+                "",
+              meal_type: item.meal_type ?? mealType,
+              resort_id: item.resort_id ?? resortId,
+              checked_in: item.checked_in ?? false,
+            })
+          );
           setRoomStatusData(mappedRoomStatus);
         } else {
           setRoomStatusData([]);
