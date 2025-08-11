@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import { Eye, EyeOff, Key, User } from "lucide-react";
+import { Eye, EyeOff, Key, User, X } from "lucide-react";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { LoginFormData } from "@/lib/types";
@@ -10,6 +10,7 @@ import { login, tokenRefresh } from "@/lib/api/authApi";
 import { AppError } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -18,6 +19,7 @@ const Page = () => {
   });
   const [isLoading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const { autoLogin, login_user } = useAuthStore.getState();
@@ -33,14 +35,34 @@ const Page = () => {
           console.log(
             "User is already authenticated, redirecting to dashboard."
           );
+          toast.custom(
+            (t) => (
+              <div
+                className={`${
+                  t.visible ? "animate-enter" : "animate-leave"
+                } max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+              >
+                <div className="flex-1 w-0 p-4">
+                  <p className="text-sm text-center font-medium text-gray-900 dark:text-white">
+                    Already logged in, redirecting to dashboard as{" "}
+                    {response.user.username}.
+                  </p>
+                </div>
+              </div>
+            ),
+            {
+              position: "top-center",
+              duration: 5000,
+            }
+          );
           autoLogin();
           router.push("/dashboard");
         }
       } catch (err: unknown) {
         if (err instanceof AppError) {
-          console.error(err.message);
+          console.log(err.message);
         } else {
-          console.error(err);
+          console.log(err);
         }
       }
     };
@@ -80,6 +102,7 @@ const Page = () => {
     } catch (err: unknown) {
       if (err instanceof AppError) {
         console.error(err.message);
+        setLoginError(err.message);
       } else {
         console.error(err);
       }
@@ -128,8 +151,27 @@ const Page = () => {
               </p>
             </div>
 
+            {/* Error Message */}
+            {loginError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 text-center rounded-md text-sm sm:text-base gap-2 flex items-center">
+                <X
+                  className="inline-block h-5 w-5 mr-2 cursor-pointer"
+                  onClick={() => {
+                    setLoginError(null);
+                    formData.userName = "";
+                    formData.password = "";
+                  }}
+                />
+                {loginError}
+              </div>
+            )}
+
             {/* Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form
+              autoComplete="off"
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
               {/* Username */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -145,6 +187,7 @@ const Page = () => {
                   required
                   disabled={isLoading}
                   className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
+                  autoComplete="loginUser"
                 />
               </div>
 
@@ -163,6 +206,7 @@ const Page = () => {
                   required
                   disabled={isLoading}
                   className="w-full pl-12 pr-12 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

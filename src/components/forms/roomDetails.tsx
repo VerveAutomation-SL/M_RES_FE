@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Edit3, Save, Trash2, X, XCircle } from "lucide-react";
 import { AppError, Resort, Room } from "@/lib/types";
 import { resortApi, roomApi } from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface ViewDetailsProps {
   isOpen?: boolean;
@@ -90,11 +91,11 @@ const RoomDetails = ({
         Object.assign(room, { room_number: editRoomNumber.trim() });
         setIsEditing(false);
         setError("");
-        alert(
-          `Room updated successfully, ${
-            room.room_number
-          } to ${editRoomNumber.trim()}`
-        );
+        // alert(
+        //   `Room updated successfully, ${
+        //     room.room_number
+        //   } to ${editRoomNumber.trim()}`
+        // );
         onUpdate?.();
       } else {
         console.error("Failed to update room:", response);
@@ -132,6 +133,7 @@ const RoomDetails = ({
 
       if (response?.success) {
         console.log("Room deleted successfully");
+        toast.success(`Room ${room.room_number} deleted successfully`);
         onDelete?.();
         onClose();
       } else {

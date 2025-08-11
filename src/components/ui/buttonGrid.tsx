@@ -6,7 +6,7 @@ import { checkInApi, roomApi } from "@/lib/api";
 import Tabs from "../layout/tabs";
 import CheckInDetailsModal from "../forms/checkInDetails";
 import { Restaurant, Room, RoomStatusApiResponse } from "@/lib/types";
-import RoomDetails from "../layout/roomDetails";
+import RoomDetails from "../forms/roomDetails";
 import { getCurrentMealType, MEAL_TIMES, ROOM_SERIES } from "@/lib/data";
 import { CheckInDetails } from "@/lib/types";
 import TooltipWithAsyncContent from "./tooltipWithAsyncContent";
@@ -197,14 +197,18 @@ const ButtonGrid = ({
 
         if (response && response.success && response.data) {
           // Map response.data to RoomStatus type
-          const mappedRoomStatus = response.data.map((item: RoomStatusApiResponse) => ({
-            room_id: item.room_id ?? item.id ?? 0,
-            room_number:
-              item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
-            meal_type: item.meal_type ?? mealType,
-            resort_id: item.resort_id ?? resortId,
-            checked_in: item.checked_in ?? false,
-          }));
+          const mappedRoomStatus = response.data.map(
+            (item: RoomStatusApiResponse) => ({
+              room_id: item.room_id ?? item.id ?? 0,
+              room_number:
+                item.room_number?.toString() ??
+                item.roomNumber?.toString() ??
+                "",
+              meal_type: item.meal_type ?? mealType,
+              resort_id: item.resort_id ?? resortId,
+              checked_in: item.checked_in ?? false,
+            })
+          );
           setRoomStatusData(mappedRoomStatus);
           console.log("Room status data set:", mappedRoomStatus);
         } else {
@@ -326,13 +330,14 @@ const ButtonGrid = ({
     const roomId = getRoomIdByNumber(roomNumber.toString());
 
     // If room is checked in, show details modal
-    if (isCheckedIn) {
-      setDetailsRoomId(roomId ?? 0);
-      setShowDetailsModal(true);
-      return;
-    }
 
     if (mode === "check-in") {
+      if (isCheckedIn) {
+        setDetailsRoomId(roomId ?? 0);
+        setShowDetailsModal(true);
+        return;
+      }
+
       const withinPeriod = isWithinMealPeriod(mealType);
 
       if (!withinPeriod) {
@@ -450,14 +455,18 @@ const ButtonGrid = ({
         const response = await checkInApi.getCheckInStatus(resortId, mealType);
 
         if (response && response.success && response.data) {
-          const mappedRoomStatus = response.data.map((item: RoomStatusApiResponse) => ({
-            room_id: item.room_id ?? item.id ?? 0,
-            room_number:
-              item.room_number?.toString() ?? item.roomNumber?.toString() ?? "",
-            meal_type: item.meal_type ?? mealType,
-            resort_id: item.resort_id ?? resortId,
-            checked_in: item.checked_in ?? false,
-          }));
+          const mappedRoomStatus = response.data.map(
+            (item: RoomStatusApiResponse) => ({
+              room_id: item.room_id ?? item.id ?? 0,
+              room_number:
+                item.room_number?.toString() ??
+                item.roomNumber?.toString() ??
+                "",
+              meal_type: item.meal_type ?? mealType,
+              resort_id: item.resort_id ?? resortId,
+              checked_in: item.checked_in ?? false,
+            })
+          );
           setRoomStatusData(mappedRoomStatus);
         } else {
           setRoomStatusData([]);
@@ -609,7 +618,7 @@ const ButtonGrid = ({
       )}
 
       {/* Check-in Details Modal - Add onCheckoutSuccess prop */}
-      {showDetailsModal && (
+      {mode === "check-in" && showDetailsModal && (
         <CheckInDetailsModal
           isOpen={showDetailsModal}
           onClose={() => setShowDetailsModal(false)}
@@ -620,7 +629,7 @@ const ButtonGrid = ({
         />
       )}
 
-      {mode === "view-details" && (
+      {mode === "view-details" && showModal && (
         <RoomDetails
           isOpen={showModal}
           onClose={() => {

@@ -9,7 +9,7 @@ import { User } from "@/lib/types";
 import { UserIcon, View } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 const Page = () => {
   const [hostLoading, setHostLoading] = useState(false);

@@ -14,7 +14,7 @@ import ResortOutletSelector from "@/components/forms/ResortOutletSelector";
 import { useRouter } from "next/navigation";
 import { getUserDetails } from "@/lib/api/userApi";
 import toast from "react-hot-toast";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 export default function CheckInPage() {
   // Resort state management
@@ -46,8 +46,6 @@ export default function CheckInPage() {
   );
 
   const { isAuthenticated, isLoading, user } = useAuthStore();
-
-  console.log(user, "user in checkin page");
 
   const fetchResorts = async () => {
     try {

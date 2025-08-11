@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { League_Spartan } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import AuthGuard from "@/components/layout/AuthGuard";
+import AuthGuard from "@/components/routes/AuthGuard";
 
 const leagueSpartan = League_Spartan({
   subsets: ["latin"],

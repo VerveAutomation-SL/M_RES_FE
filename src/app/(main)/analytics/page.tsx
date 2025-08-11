@@ -6,7 +6,7 @@ import DailyCheckInsChart from "@/components/charts/CheckInsChart";
 import HourlyTrendsChart from "@/components/charts/HourlyTrendsChart";
 import MealDistributionChart from "@/components/charts/MealDistrubtionChart";
 import Header from "@/components/layout/header";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import {
   exportExcelReport,
   exportPdfReport,
@@ -57,9 +57,7 @@ export default function AnalyticsPage() {
     null
   );
 
-  const { isAuthenticated, isLoading, user } = useAuthStore();
-
-  console.log(user, "user in analytics page");
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   // Resort mapping
   const resortNames: { [key: number]: string } = {
@@ -267,329 +265,333 @@ export default function AnalyticsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
-    <>
-      <div className="block sm:flex justify-between items-center transition-all duration-200">
-        <Header
-          title="Reports & Analytics"
-          subtitle="Comprehensive insights and data analysis of all resorts"
-        />
+      <>
+        <div className="block sm:flex justify-between items-center transition-all duration-200">
+          <Header
+            title="Reports & Analytics"
+            subtitle="Comprehensive insights and data analysis of all resorts"
+          />
 
-        <div className="flex h-15 gap-4 mt-4 sm:mt-0 relative">
-          <div className="relative w-full sm:w-auto">
-            <button
-              onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-white border-2 border-[var(--primary)] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-all duration-200 w-full sm:w-auto cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export Data</span>
-              <span className="sm:hidden">Export</span>
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${
-                  exportDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+          <div className="flex h-15 gap-4 mt-4 sm:mt-0 relative">
+            <div className="relative w-full sm:w-auto">
+              <button
+                onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
+                className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-white border-2 border-[var(--primary)] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-all duration-200 w-full sm:w-auto cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Export Data</span>
+                <span className="sm:hidden">Export</span>
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    exportDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-            {exportDropdownOpen && (
-              <div className="absolute right-0 sm:right-0 mt-2 w-64 sm:w-72 bg-white rounded-lg shadow-xl border border-gray-200 z-50 min-w-max">
-                <div className="py-2">
-                  <button
-                    onClick={() => {
-                      handleExportPDF();
-                    }}
-                    disabled={exportLoading !== null}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {exportLoading === "pdf" ? (
-                      <div className="w-5 h-5 flex-shrink-0">
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-red-500 border-t-transparent"></div>
+              {exportDropdownOpen && (
+                <div className="absolute right-0 sm:right-0 mt-2 w-64 sm:w-72 bg-white rounded-lg shadow-xl border border-gray-200 z-50 min-w-max">
+                  <div className="py-2">
+                    <button
+                      onClick={() => {
+                        handleExportPDF();
+                      }}
+                      disabled={exportLoading !== null}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {exportLoading === "pdf" ? (
+                        <div className="w-5 h-5 flex-shrink-0">
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-red-500 border-t-transparent"></div>
+                        </div>
+                      ) : (
+                        <FileText className="w-5 h-5 text-red-500 flex-shrink-0" />
+                      )}
+                      <div className="text-left flex-1">
+                        <div className="font-medium">
+                          {exportLoading === "pdf"
+                            ? "Generating PDF..."
+                            : "Export as PDF"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Formatted report document
+                        </div>
                       </div>
-                    ) : (
-                      <FileText className="w-5 h-5 text-red-500 flex-shrink-0" />
-                    )}
-                    <div className="text-left flex-1">
-                      <div className="font-medium">
-                        {exportLoading === "pdf"
-                          ? "Generating PDF..."
-                          : "Export as PDF"}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Formatted report document
-                      </div>
-                    </div>
-                  </button>
+                    </button>
 
-                  <div className="h-px bg-gray-100 mx-2"></div>
+                    <div className="h-px bg-gray-100 mx-2"></div>
 
-                  <button
-                    onClick={() => {
-                      handleExportExcel();
-                    }}
-                    disabled={exportLoading !== null}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {exportLoading === "excel" ? (
-                      <div className="w-5 h-5 flex-shrink-0">
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-green-500 border-t-transparent"></div>
+                    <button
+                      onClick={() => {
+                        handleExportExcel();
+                      }}
+                      disabled={exportLoading !== null}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {exportLoading === "excel" ? (
+                        <div className="w-5 h-5 flex-shrink-0">
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-green-500 border-t-transparent"></div>
+                        </div>
+                      ) : (
+                        <Sheet className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      )}
+                      <div className="text-left flex-1">
+                        <div className="font-medium">
+                          {exportLoading === "excel"
+                            ? "Generating Excel..."
+                            : "Export as Excel"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Spreadsheet with raw data
+                        </div>
                       </div>
-                    ) : (
-                      <Sheet className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    )}
-                    <div className="text-left flex-1">
-                      <div className="font-medium">
-                        {exportLoading === "excel"
-                          ? "Generating Excel..."
-                          : "Export as Excel"}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Spreadsheet with raw data
-                      </div>
-                    </div>
-                  </button>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
+
+            {/* Backdrop for mobile with better z-index */}
+            {exportDropdownOpen && (
+              <div
+                className="fixed inset-0 z-40 bg-black bg-opacity-10 sm:bg-transparent"
+                onClick={() => setExportDropdownOpen(false)}
+              />
             )}
           </div>
-
-          {/* Backdrop for mobile with better z-index */}
-          {exportDropdownOpen && (
-            <div
-              className="fixed inset-0 z-40 bg-black bg-opacity-10 sm:bg-transparent"
-              onClick={() => setExportDropdownOpen(false)}
-            />
-          )}
         </div>
-      </div>
 
-      {/* Report Filters Component - now contains all filter logic */}
-      <ReportFilters
-        onFiltersChange={handleFiltersChange}
-        onPreviewData={handlePreviewData}
-        loading={filterLoading}
-      />
+        {/* Report Filters Component - now contains all filter logic */}
+        <ReportFilters
+          onFiltersChange={handleFiltersChange}
+          onPreviewData={handlePreviewData}
+          loading={filterLoading}
+        />
 
-      {/* Preview Section */}
-      {showPreview && (
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                Data Preview
-              </h2>
+        {/* Preview Section */}
+        {showPreview && (
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  Data Preview
+                </h2>
+              </div>
+              <span className="text-sm text-gray-500">
+                ({previewData.length} records found)
+              </span>
             </div>
-            <span className="text-sm text-gray-500">
-              ({previewData.length} records found)
-            </span>
-          </div>
 
-          {previewData.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No records found matching your filters.</p>
-            </div>
-          ) : (
-            <>
-              {/* Mobile: Card Layout */}
-              <div className="block sm:hidden space-y-4">
-                {previewData.slice(0, 5).map(
-                  (
-                    record // Show only first 5 on mobile
-                  ) => (
-                    <div
-                      key={record.id}
-                      className="border border-gray-200 rounded-lg p-4 space-y-3"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">
-                            #{record.id}
-                          </span>
-                          <span className={getStatusBadge(record.status)}>
-                            {record.status?.replace("-", " ")}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-gray-900">
-                            {record.room_number}
-                          </div>
-                          <div className="text-xs text-gray-500">Room</div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <div className="text-xs text-gray-500 uppercase tracking-wider">
-                            Resort
-                          </div>
-                          <div className="font-medium text-gray-900 truncate">
-                            {record.resort_name}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500 uppercase tracking-wider">
-                            Outlet
-                          </div>
-                          <div className="font-medium text-gray-900 truncate">
-                            {record.outlet_name}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500 uppercase tracking-wider">
-                            Table
-                          </div>
-                          <div className="font-medium text-gray-900">
-                            {record.table_number}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500 uppercase tracking-wider">
-                            Meal
-                          </div>
-                          <div className="font-medium text-gray-900 capitalize">
-                            {record.meal_type}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                        <div>
-                          <div className="text-xs text-gray-500">Check-in</div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {record.check_in_date}{" "}
-                            {formatTime(record.check_in_time)}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs text-gray-500">Check-out</div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {record.check_out_date}{" "}
-                            {formatTime(record.check_out_time)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                )}
-
-                {previewData.length > 5 && (
-                  <div className="text-center py-4 border-t border-gray-200">
-                    <p className="text-sm text-gray-500">
-                      Showing 5 of {previewData.length} records.
-                      <button
-                        onClick={handleExportExcel}
-                        className="text-blue-600 hover:text-blue-700 ml-1 font-medium"
+            {previewData.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No records found matching your filters.</p>
+              </div>
+            ) : (
+              <>
+                {/* Mobile: Card Layout */}
+                <div className="block sm:hidden space-y-4">
+                  {previewData.slice(0, 5).map(
+                    (
+                      record // Show only first 5 on mobile
+                    ) => (
+                      <div
+                        key={record.id}
+                        className="border border-gray-200 rounded-lg p-4 space-y-3"
                       >
-                        Export all data
-                      </button>
-                    </p>
-                  </div>
-                )}
-              </div>
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              #{record.id}
+                            </span>
+                            <span className={getStatusBadge(record.status)}>
+                              {record.status?.replace("-", " ")}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-medium text-gray-900">
+                              {record.room_number}
+                            </div>
+                            <div className="text-xs text-gray-500">Room</div>
+                          </div>
+                        </div>
 
-              {/* Desktop: Table Layout */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Room
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Resort
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Outlet
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Table
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Meal
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Plan
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Check-in
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Check-out
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {previewData.map((record) => (
-                      <tr key={record.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {record.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {record.room_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {record.resort_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {record.outlet_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {record.table_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                          {record.meal_type}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                          {record.meal_plan?.replace("-", " ")}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <div>{record.check_in_date}</div>
-                          <div className="text-xs text-gray-500">
-                            {formatTime(record.check_in_time)}
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <div className="text-xs text-gray-500 uppercase tracking-wider">
+                              Resort
+                            </div>
+                            <div className="font-medium text-gray-900 truncate">
+                              {record.resort_name}
+                            </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <div>{record.check_out_date}</div>
-                          <div className="text-xs text-gray-500">
-                            {formatTime(record.check_out_time)}
+                          <div>
+                            <div className="text-xs text-gray-500 uppercase tracking-wider">
+                              Outlet
+                            </div>
+                            <div className="font-medium text-gray-900 truncate">
+                              {record.outlet_name}
+                            </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={getStatusBadge(record.status)}>
-                            {record.status?.replace("-", " ")}
-                          </span>
-                        </td>
+                          <div>
+                            <div className="text-xs text-gray-500 uppercase tracking-wider">
+                              Table
+                            </div>
+                            <div className="font-medium text-gray-900">
+                              {record.table_number}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-gray-500 uppercase tracking-wider">
+                              Meal
+                            </div>
+                            <div className="font-medium text-gray-900 capitalize">
+                              {record.meal_type}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                          <div>
+                            <div className="text-xs text-gray-500">
+                              Check-in
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {record.check_in_date}{" "}
+                              {formatTime(record.check_in_time)}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs text-gray-500">
+                              Check-out
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {record.check_out_date}{" "}
+                              {formatTime(record.check_out_time)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  )}
+
+                  {previewData.length > 5 && (
+                    <div className="text-center py-4 border-t border-gray-200">
+                      <p className="text-sm text-gray-500">
+                        Showing 5 of {previewData.length} records.
+                        <button
+                          onClick={handleExportExcel}
+                          className="text-blue-600 hover:text-blue-700 ml-1 font-medium"
+                        >
+                          Export all data
+                        </button>
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Desktop: Table Layout */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Room
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Resort
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Outlet
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Table
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Meal
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Plan
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Check-in
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Check-out
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {activeTab === "overview" ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
-            <DailyCheckInsChart data={dailyCheckInsData} />
-            <MealDistributionChart data={mealDistributionData} />
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {previewData.map((record) => (
+                        <tr key={record.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {record.id}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.room_number}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.resort_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.outlet_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.table_number}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                            {record.meal_type}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                            {record.meal_plan?.replace("-", " ")}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>{record.check_in_date}</div>
+                            <div className="text-xs text-gray-500">
+                              {formatTime(record.check_in_time)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>{record.check_out_date}</div>
+                            <div className="text-xs text-gray-500">
+                              {formatTime(record.check_out_time)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={getStatusBadge(record.status)}>
+                              {record.status?.replace("-", " ")}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </div>
-        </div>
-      ) : (
-        <div className="space-y-6 mb-5">
-          <HourlyTrendsChart data={hourlyTrendsData} />
-        </div>
-      )}
-    </>
+        )}
+
+        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {activeTab === "overview" ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
+              <DailyCheckInsChart data={dailyCheckInsData} />
+              <MealDistributionChart data={mealDistributionData} />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6 mb-5">
+            <HourlyTrendsChart data={hourlyTrendsData} />
+          </div>
+        )}
+      </>
     </ProtectedRoute>
   );
 }

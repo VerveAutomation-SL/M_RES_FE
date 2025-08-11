@@ -9,7 +9,7 @@ import Button from "@/components/ui/button";
 import ViewUser from "@/components/forms/viewUser";
 import UserForm from "@/components/forms/addUser";
 import { useAuthStore } from "@/store/authStore";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 const Page = () => {
   const [admins, setAdmins] = useState<User[]>([]);

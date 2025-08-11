@@ -1,4 +1,4 @@
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import SideBar from "@/components/layout/sideBar";
 import TopBar from "@/components/layout/topBar";
 import React from "react";

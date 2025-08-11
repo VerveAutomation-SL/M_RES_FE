@@ -16,10 +16,12 @@ export default function TooltipWithAsyncContent({
   children,
   roomNumber,
   fetchDetails,
-  cachedDetails
+  cachedDetails,
 }: TooltipWithAsyncContentProps) {
   const [isHovering, setIsHovering] = useState(false);
-  const [details, setDetails] = useState<CheckInDetails | null>(cachedDetails || null);
+  const [details, setDetails] = useState<CheckInDetails | null>(
+    cachedDetails || null
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -38,14 +40,9 @@ export default function TooltipWithAsyncContent({
       <span>Loading details...</span>
     </div>
   ) : details ? (
-    <CheckInTooltipContent 
-      checkInDetails={details} 
-      roomNumber={roomNumber} 
-    />
+    <CheckInTooltipContent checkInDetails={details} roomNumber={roomNumber} />
   ) : (
-    <div className="text-gray-300">
-      No check-in details available
-    </div>
+    <div className="text-gray-300">No check-in details available</div>
   );
 
   return (

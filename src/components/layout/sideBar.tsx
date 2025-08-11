@@ -54,10 +54,10 @@ const SideBar = () => {
   // Define role-based access control
   const hasAccessToRoute = (route: string, userRole: string | undefined) => {
     if (!userRole) return false;
-    
+
     // Convert user role to lowercase for comparison
     const normalizedUserRole = userRole.toLowerCase();
-    
+
     const routePermissions: { [key: string]: string[] } = {
       "/dashboard": ["admin", "manager", "host"],
       "/check-in": ["admin", "manager", "host"],
@@ -76,7 +76,7 @@ const SideBar = () => {
         return allowedRoles.includes(normalizedUserRole);
       }
     }
-    
+
     return false;
   };
 
@@ -94,18 +94,40 @@ const SideBar = () => {
         <div className="bg-[var(--primary)] text-white flex flex-col h-screen">
           {/* Logo Section */}
           <div className="flex items-center justify-center my-6 lg:my-10">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-24 lg:h-24 bg-white rounded-full flex items-center justify-center">
-              {/* Mobile/Tablet - Show only icon */}
-              <div className="lg:hidden text-[var(--primary)] font-bold text-xs sm:text-sm">
-                RM
+            {/* Mobile/Tablet Logo */}
+            <div className="lg:hidden w-11 h-11 sm:w-13 sm:h-13">
+              <div className="w-full h-full bg-[var(--primary)] rounded-lg shadow-xl flex items-center justify-center relative overflow-hidden transform ">
+                <div className="absolute inset-0 via-transparent to-transparent"></div>
+                <div className="transform text-white font-black text-sm tracking-wider">
+                  RM
+                </div>
               </div>
-              {/* Desktop - Show full logo */}
-              <div className="hidden lg:flex flex-col items-center justify-center text-[var(--heading-text)] font-extrabold text-[1rem] text-center leading-tight">
-                <span>THE RESIDENCE</span>
-                <span>MALDIVES</span>
-                <span className="text-[0.6rem] italic font-normal">
-                  by Cenizaro
-                </span>
+            </div>
+
+            {/* Desktop Logo */}
+            <div className="hidden lg:flex flex-col items-center justify-center">
+              {/* Brand Text */}
+              <div className="text-center space-y-1">
+                <div className="text-white font-light text-sm tracking-[0.3em] leading-tight">
+                  THE
+                </div>
+                <div className="text-white font-bold text-lg tracking-[0.25em] leading-none">
+                  RESIDENCE
+                </div>
+                <div className="text-white font-light text-sm tracking-[0.3em] leading-tight mb-2">
+                  MALDIVES
+                </div>
+
+                {/* Elegant divider line */}
+                <div className="flex items-center justify-center mb-2">
+                  <div className="w-8 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                  <div className="w-1 h-1 bg-white/60 rounded-full mx-2"></div>
+                  <div className="w-8 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                </div>
+
+                <div className="text-white/80 text-[0.65rem] font-light italic tracking-widest">
+                  BY CENIZARO
+                </div>
               </div>
             </div>
           </div>
@@ -171,7 +193,8 @@ const SideBar = () => {
                       <Link
                         href="/managers"
                         className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
-                          pathname.startsWith("/managers") && hasAccessToRoute("/managers", user?.role)
+                          pathname.startsWith("/managers") &&
+                          hasAccessToRoute("/managers", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
@@ -183,7 +206,8 @@ const SideBar = () => {
                       <Link
                         href="/hosts"
                         className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
-                          pathname.startsWith("/hosts") && hasAccessToRoute("/hosts", user?.role)
+                          pathname.startsWith("/hosts") &&
+                          hasAccessToRoute("/hosts", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
@@ -256,7 +280,13 @@ type NavItemProps = {
   hasAccess: boolean;
 };
 
-const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, pathname, hasAccess }) => {
+const NavItem: React.FC<NavItemProps> = ({
+  href,
+  icon: Icon,
+  label,
+  pathname,
+  hasAccess,
+}) => {
   // Only show as active if the pathname matches AND user has access
   const isActive = pathname.startsWith(href) && hasAccess;
 
