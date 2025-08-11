@@ -38,9 +38,9 @@ const Page = () => {
         }
       } catch (err: unknown) {
         if (err instanceof AppError) {
-          console.error(err.message);
+          console.log(err.message);
         } else {
-          console.error(err);
+          console.log(err);
         }
       }
     };
