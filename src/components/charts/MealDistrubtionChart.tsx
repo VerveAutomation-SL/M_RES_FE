@@ -24,7 +24,7 @@ const MealDistributionChart = ({ data }: MealDistributionProps) => {
     name: string;
     percent?: number;
   }): React.ReactNode => {
-    return `${name} ${percent}%`;
+    return `${name} ${((percent || 0) * 100).toFixed(1)}%`;
   };
 
   // Mobile custom label (shorter)
@@ -33,7 +33,7 @@ const MealDistributionChart = ({ data }: MealDistributionProps) => {
   }: {
     percent?: number;
   }): React.ReactNode => {
-    return `${percent}%`;
+    return `${((percent || 0) * 100).toFixed(1)}%`;
   };
 
   if (!data || data.length === 0 || !data.some((item) => item.value > 0)) {
