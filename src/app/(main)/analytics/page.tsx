@@ -235,6 +235,100 @@ export default function AnalyticsPage() {
     }));
   };
 
+  // Transform functions for new charts
+  // const transformResortOccupancyData = () => {
+  //   if (!analyticsData?.resortOccupancy) {
+  //     // Mock data for demonstration
+  //     return [
+  //       { name: "Dhigurah", value: 75, percentage: 68.2, color: "#8B5CF6" },
+  //       {
+  //         name: "Falhumaafushi",
+  //         value: 85,
+  //         percentage: 77.3,
+  //         color: "#10B981",
+  //       },
+  //       { name: "Available", value: 40, percentage: 25.5, color: "#6B7280" },
+  //     ];
+  //   }
+
+  //   return analyticsData.resortOccupancy.map((item) => ({
+  //     name: item.resort_name,
+  //     value: item.occupied_rooms,
+  //     percentage: item.occupancy_percentage,
+  //     color: item.resort_name === "dhigurah" ? "#8B5CF6" : "#10B981",
+  //   }));
+  // };
+
+  // const transformWeeklyPerformanceData = () => {
+  //   if (!analyticsData?.weeklyPerformance) {
+  //     // Mock data for demonstration
+  //     return [
+  //       { week: "Week 1", checkIns: 156, checkOuts: 142 },
+  //       { week: "Week 2", checkIns: 189, checkOuts: 176 },
+  //       { week: "Week 3", checkIns: 234, checkOuts: 198 },
+  //       { week: "Week 4", checkIns: 201, checkOuts: 215 },
+  //     ];
+  //   }
+
+  //   return analyticsData.weeklyPerformance.map((item) => ({
+  //     week: `${item.week_start} - ${item.week_end}`,
+  //     checkIns: item.total_checkins,
+  //     checkOuts: item.total_checkouts,
+  //     revenue: item.revenue,
+  //   }));
+  // };
+
+  // const transformMealPlanDistributionData = () => {
+  //   if (!analyticsData?.mealPlanDistribution) {
+  //     // Mock data for demonstration
+  //     return [
+  //       { name: "All Inclusive", value: 120, percentage: 60, color: "#8B5CF6" },
+  //       { name: "Half Board", value: 50, percentage: 25, color: "#10B981" },
+  //       { name: "Breakfast Only", value: 20, percentage: 10, color: "#F59E0B" },
+  //       { name: "Full Board", value: 10, percentage: 5, color: "#EF4444" },
+  //     ];
+  //   }
+
+  //   return analyticsData.mealPlanDistribution.map((item, index) => {
+  //     const colors = ["#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#6366F1"];
+  //     return {
+  //       name: item.meal_plan,
+  //       value: item.guest_count,
+  //       percentage: item.percentage,
+  //       color: colors[index % colors.length],
+  //     };
+  //   });
+  // };
+
+  // const transformPeakHoursData = () => {
+  //   if (!analyticsData?.peakHours) {
+  //     // Mock data for demonstration
+  //     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  //     const mockData = [];
+
+  //     for (const day of days) {
+  //       for (let hour = 0; hour < 24; hour++) {
+  //         const value =
+  //           Math.floor(Math.random() * 20) + (hour >= 7 && hour <= 22 ? 5 : 0);
+  //         mockData.push({
+  //           day,
+  //           hour,
+  //           value,
+  //           color: "#3B82F6",
+  //         });
+  //       }
+  //     }
+  //     return mockData;
+  //   }
+
+  //   return analyticsData.peakHours.map((item) => ({
+  //     day: item.day_of_week,
+  //     hour: item.hour,
+  //     value: item.checkin_count,
+  //     color: "#3B82F6",
+  //   }));
+  // };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -262,6 +356,10 @@ export default function AnalyticsPage() {
   const dailyCheckInsData = transformDailyCheckInsData();
   const mealDistributionData = transformMealDistributionData();
   const hourlyTrendsData = transformHourlyTrendsData();
+  // const resortOccupancyData = transformResortOccupancyData();
+  // const weeklyPerformanceData = transformWeeklyPerformanceData();
+  // const mealPlanDistributionData = transformMealPlanDistributionData();
+  // const peakHoursData = transformPeakHoursData();
 
   return (
     <ProtectedRoute allowedRoles={["Admin", "Manager", "Host"]}>
@@ -584,6 +682,12 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
               <DailyCheckInsChart data={dailyCheckInsData} />
               <MealDistributionChart data={mealDistributionData} />
+              {/* <ResortOccupancyChart data={resortOccupancyData} />
+              <MealPlanDistributionChart data={mealPlanDistributionData} />
+              <WeeklyPerformanceChart data={weeklyPerformanceData} />
+              <div className="lg:col-span-1">
+                <PeakHoursHeatmapChart data={peakHoursData} />
+              </div> */}
             </div>
           </div>
         ) : (

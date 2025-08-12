@@ -124,6 +124,37 @@ export interface AnalyticsResponse {
   checkInsLastWeek: CheckInAnalyticsData[];
   mealDistribution: MealDistributionData[];
   hourlyTrends: HourlyTrendsData[];
+  resortOccupancy?: ResortOccupancyData[];
+  weeklyPerformance?: WeeklyPerformanceData[];
+  mealPlanDistribution?: MealPlanDistributionData[];
+  peakHours?: PeakHoursData[];
+}
+
+export interface ResortOccupancyData {
+  resort_name: string;
+  occupied_rooms: number;
+  total_rooms: number;
+  occupancy_percentage: number;
+}
+
+export interface WeeklyPerformanceData {
+  week_start: string;
+  week_end: string;
+  total_checkins: number;
+  total_checkouts: number;
+  revenue?: number;
+}
+
+export interface MealPlanDistributionData {
+  meal_plan: string;
+  guest_count: number;
+  percentage: number;
+}
+
+export interface PeakHoursData {
+  day_of_week: string;
+  hour: number;
+  checkin_count: number;
 }
 
 export interface ReportFilterData{
