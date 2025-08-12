@@ -4,6 +4,8 @@ import Button from "@/components/ui/button";
 import { Eye, EyeOff, Key, User, X } from "lucide-react";
 import React, { useEffect } from "react";
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { LoginFormData } from "@/lib/types";
 import AuthInput from "@/components/ui/input";
 import { login, tokenRefresh } from "@/lib/api/authApi";
@@ -126,6 +128,17 @@ const Page = () => {
       <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left Side - Brand Section */}
         <div className="flex flex-1 md:flex-3 bg-[var(--primary)] text-white items-center justify-center">
+          {/* Moved logo to top left of brand section */}
+          <div className="absolute top-2 left-2">
+            <Image
+              src="/Guestiefy logo trans.png"
+              alt="Gusteify Brand Logo"
+              width={128}
+              height={128}
+              className="w-auto"
+              priority
+            />
+          </div>
           <div>
             <h1 className="text-2xl md:text-4xl lg:text-5xl tracking-wider my-2 text-center transition-all duration-300">
               The Residence
@@ -140,6 +153,19 @@ const Page = () => {
         </div>
         {/* Right Side - Login Form */}
         <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-center px-4 py-12 md:py-0">
+          <div className="absolute bottom-6 right-6">
+            <p className="text-gray-600 text-sm md:text-base font-light">
+              Powered by{" "}
+              <Link
+                href="https://verveautomation.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[var(--primary)] transition-colors duration-200 underline"
+              >
+                Verve Automation
+              </Link>
+            </p>
+          </div>
           <div className="w-full max-w-md">
             {/* Heading */}
             <div className="text-center mb-8">
