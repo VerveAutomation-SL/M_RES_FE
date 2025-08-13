@@ -8,7 +8,7 @@ export async function tokenRefresh() {
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Authentication check failed" ,error.status || 500 
+            throw new AppError(error.response?.data.message || "Authentication check failed" ,error.status || 500 
             );
         } else {
             throw new AppError("An unexpected error occurred during authentication check",500);
@@ -44,7 +44,7 @@ export async function logout() {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data || "Logout request failed");
+      throw new Error(error.response?.data.message || "Logout request failed");
     } else {
       throw new Error("An unexpected error occurred during logout");
     }
@@ -57,7 +57,7 @@ export async function forgotPassword(email: string) {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new AppError(error.response?.data || "Request failed", error.status || 500);
+      throw new AppError(error.response?.data.message || "Request failed", error.status || 500);
     } else {
       throw new AppError("An unexpected error occurred", 500);
     }
@@ -70,7 +70,7 @@ export async function resetPassword(token: string, password: string) {
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Request failed", error.status || 500);
+            throw new AppError(error.response?.data.message || "Request failed", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred", 500);
         }
