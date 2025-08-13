@@ -190,7 +190,7 @@ const Page = () => {
         {/* Right Side */}
         <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-start px-4 py-6 md:pt-24 md:pb-0 h-[60vh] md:h-auto">
           {/* Centered container */}
-          <div className="w-full max-w-md flex flex-col items-center mt-6 md:mt-16">
+          <div className="w-full max-w-md flex flex-col items-center my-auto">
             {/* Heading */}
             <div className="text-center mb-4 md:mb-8">
               <h3 className="text-xl sm:text-3xl font-bold tracking-wide text-[var(--highlight-text)] mb-1 md:mb-2">
