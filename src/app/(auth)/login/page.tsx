@@ -187,11 +187,12 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Right Side - Login Form - Optimized for mobile */}
-        <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-between px-4 py-6 md:py-0 h-[60vh] md:h-auto">
-          <div className="w-full max-w-md justify-center md:mt-12 lg:py-24">
-            {/* Heading - reduced spacing for mobile */}
-            <div className="text-center mb-4 md:mb-10">
+        {/* Right Side */}
+        <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-start px-4 py-6 md:pt-24 md:pb-0 h-[60vh] md:h-auto">
+          {/* Centered container */}
+          <div className="w-full max-w-md flex flex-col items-center mt-6 md:mt-16">
+            {/* Heading */}
+            <div className="text-center mb-4 md:mb-8">
               <h3 className="text-xl sm:text-3xl font-bold tracking-wide text-[var(--highlight-text)] mb-1 md:mb-2">
                 WELCOME
               </h3>
@@ -200,9 +201,9 @@ const Page = () => {
               </p>
             </div>
 
-            {/* Error Message - unchanged */}
+            {/* Error Message */}
             {loginError && (
-              <div className="mb-3 p-2 md:p-3 bg-red-100 text-red-700 text-center rounded-md text-xs sm:text-base gap-1 md:gap-2 flex items-center">
+              <div className="mb-3 p-2 md:p-3 bg-red-100 text-red-700 text-center rounded-md text-xs sm:text-base gap-1 md:gap-2 flex items-center w-full">
                 <X
                   className="inline-block h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2 cursor-pointer"
                   onClick={() => {
@@ -215,11 +216,11 @@ const Page = () => {
               </div>
             )}
 
-            {/* Login Form - reduced spacing */}
+            {/* Login Form */}
             <form
               autoComplete="off"
               onSubmit={handleSubmit}
-              className="space-y-3 md:space-y-5"
+              className="space-y-3 md:space-y-5 w-full"
             >
               {/* Username - smaller on mobile */}
               <div className="relative">
@@ -293,7 +294,7 @@ const Page = () => {
           </div>
 
           {/* Footer */}
-          <div className="w-full mt-auto pb-2 md:pb-4">
+          <div className="w-full mt-auto pb-4">
             <div className="flex flex-row items-center justify-center gap-2">
               <div className="relative overflow-hidden">
                 <Image
@@ -301,7 +302,7 @@ const Page = () => {
                   alt="Verve Automation Logo"
                   width={36}
                   height={36}
-                  className="rounded-full object-cover "
+                  className="rounded-full object-cover w-6 h-6 md:w-8 md:h-8"
                   priority
                 />
               </div>
