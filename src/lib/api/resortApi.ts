@@ -10,7 +10,7 @@ export const getAllResortsWithRooms = async () => {
     } catch (error) {
         console.error("Error fetching resorts", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error fetching resorts", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error fetching resorts", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during fetching resorts", 500);
         }
@@ -25,7 +25,7 @@ export const getResortById = async (resortId: number) => {
     } catch (error) {
         console.error("Error fetching resort by ID:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error fetching resort by ID", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error fetching resort by ID", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during fetching resort by ID", 500);
         }
@@ -40,7 +40,7 @@ export const createResort = async (resortData: ResortFormData) => {
     } catch (error) {
         console.error("Error creating Resort:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error creating Resort", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error creating Resort", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during creating Resort", 500);
         }

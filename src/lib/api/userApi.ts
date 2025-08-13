@@ -9,7 +9,7 @@ export async function getAllAdmins() {
     } catch (error) {
         console.error("Error fetching admins:", error);
         if (axios.isAxiosError(error)) {
-        throw new AppError(error.response?.data || "Error fetching admins", error.status || 500);
+        throw new AppError(error.response?.data.message || "Error fetching admins", error.status || 500);
         } else {
         throw new AppError("An unexpected error occurred during fetching admins", 500);
         }
@@ -24,7 +24,7 @@ export async function getAllManagers() {
     } catch (error) {
         console.error("Error fetching managers:", error);
         if (axios.isAxiosError(error)) {
-        throw new AppError(error.response?.data || "Error fetching managers", error.status || 500);
+        throw new AppError(error.response?.data.message || "Error fetching managers", error.status || 500);
         } else {
         throw new AppError("An unexpected error occurred during fetching managers", 500);
         }
@@ -37,7 +37,7 @@ export async function getAllHosts() {
     } catch (error) {
         console.error("Error fetching hosts:", error);
         if (axios.isAxiosError(error)) {
-        throw new AppError(error.response?.data || "Error fetching hosts", error.status || 500);
+        throw new AppError(error.response?.data.message || "Error fetching hosts", error.status || 500);
         } else {
         throw new AppError("An unexpected error occurred during fetching hosts", 500);
         }
@@ -65,7 +65,7 @@ export async function getUserDetails(userId: number) {
     } catch (error) {
         console.error("Error fetching user details:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error fetching user details", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error fetching user details", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during fetching user details", 500);
         }
@@ -79,7 +79,7 @@ export async function updateUserDetails(userId: number, userData: Partial<User>)
     } catch (error) {
         console.error("Error updating user details:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error updating user details", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error updating user details", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during updating user details", 500);
         }
@@ -93,7 +93,7 @@ export async function deleteUser(userId: number) {
     } catch (error) {
         console.error("Error deleting user:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error deleting user", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error deleting user", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during deleting user", 500);
         }
@@ -107,7 +107,7 @@ export async function getActiveHosts() {
     } catch (error) {
         console.error("Error fetching active hosts:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error fetching active hosts", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error fetching active hosts", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during fetching active hosts", 500);
         }
@@ -122,7 +122,7 @@ export async function verifyPassword(userId: number, password: string) {
     } catch (error) {
         console.error("Error verifying password:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error verifying password", error.status || 500);
+            throw new AppError(error.response?.data.message || "Error verifying password", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during verifying password", 500);
         }
