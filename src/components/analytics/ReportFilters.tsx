@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
+  PreviewPagination,
   ReportFilterData,
   Resort,
   Restaurant,
@@ -23,7 +24,7 @@ import { mealPlans, mealTypes, statuses } from "@/lib/data";
 
 interface ReportFiltersProps {
   onFiltersChange: (filters: ReportFilterData) => void;
-  onPreviewData: (data: checkInRecord[]) => void;
+  onPreviewData: (data: checkInRecord[], pagination: PreviewPagination) => void;
   loading?: boolean;
 }
 
@@ -127,12 +128,32 @@ export default function ReportFilters({
       setError(null);
 
       // Filter the data and send to parent
-      const filteredData = await getPreviewData(filters);
-      onPreviewData(filteredData);
+      const response = await getPreviewData(filters);
+      if (response.success && response.data && response.pagination){
+        onPreviewData(response.data, response.pagination);
+      }else{
+        setError("Invalid response from server");
+        onPreviewData([],{
+          currentPage: 1,
+          pageSize: 20,
+          totalPages: 0,
+          totalCount: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        });
+      }
+
     } catch (error) {
       console.error("Error filtering data:", error);
       setError("Failed to fetch preview data. Please try again.");
-      onPreviewData([]);
+      onPreviewData([],{
+        currentPage: 1,
+        pageSize: 20,
+        totalPages: 0,
+        totalCount: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
     } finally {
       setPreviewLoading(false);
     }
@@ -155,7 +176,14 @@ export default function ReportFilters({
 
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
-    onPreviewData([]);
+    onPreviewData([],{
+      currentPage: 1,
+      pageSize: 20,
+      totalPages: 0,
+      totalCount: 0,
+      hasNextPage: false,
+      hasPrevPage: false,
+    });
     setError(null);
   };
 

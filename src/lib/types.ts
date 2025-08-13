@@ -187,6 +187,9 @@ export interface checkInRecord{
   checkout_remarks?: string;
   Room?: Room;
   createdAt: string;
+  success?: boolean;
+  pagination?: PreviewPagination;
+  data?: checkInRecord[];
 }
 
 export interface User{
@@ -253,6 +256,21 @@ export interface RoomStatusApiResponse {
   meal_type?: string;
   resort_id?: number;
   checked_in?: boolean;
+}
+
+export interface PreviewPagination {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface PreviewApiResponse {
+  success: boolean;
+  data: checkInRecord[];
+  pagination: PreviewPagination;
 }
 
 export class AppError extends Error {
