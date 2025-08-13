@@ -1,4 +1,4 @@
-import { AnalyticsResponse, ApiResponse, checkInRecord, ReportFilterData } from "../types"
+import { AnalyticsResponse, ApiResponse, PreviewApiResponse, ReportFilterData } from "../types"
 import { api } from "./config"
 
 export const getAnalyticsData = async () => {
@@ -12,10 +12,10 @@ export const getAnalyticsData = async () => {
 }
 
 // Get preview data with filters
-export const getPreviewData = async (filters: ReportFilterData): Promise<checkInRecord[]> => {
+export const getPreviewData = async (filters: ReportFilterData & {page?: number, pageSize?: number}): Promise<PreviewApiResponse> => {
   try {
-    const response = await api.post<{ success: boolean; data: checkInRecord[] }>('/reports/preview', filters);
-    return response.data.data;
+    const response = await api.post<PreviewApiResponse>('/reports/preview', filters);
+    return response.data;
   } catch (error) {
     console.error("Error fetching preview data:", error);
     throw error;
