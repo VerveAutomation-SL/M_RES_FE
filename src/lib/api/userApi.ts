@@ -51,7 +51,7 @@ export async function createUser(adminData: Omit<User, "UserId" | "createdAt" | 
     } catch (error) {
         console.error("Error creating admin:", error);
         if (axios.isAxiosError(error)) {
-            throw new AppError(error.response?.data || "Error creating admin", error.status || 500);
+            throw new AppError(error.response?.data?.message || "Error creating admin", error.status || 500);
         } else {
             throw new AppError("An unexpected error occurred during creating admin", 500);
         }
