@@ -101,7 +101,6 @@ export default function AnalyticsPage() {
     setPagination(paginationData);
     setShowPreview(true);
     setFilterLoading(false);
-    //setCurrentPage(paginationData.currentPage);
   };
 
   // Handle page changes
@@ -109,7 +108,6 @@ export default function AnalyticsPage() {
     if (newPage < 1 || newPage > pagination.totalPages) return;
 
     setFilterLoading(true);
-    //setCurrentPage(newPage);
 
     try {
       const response = await getPreviewData({
@@ -121,6 +119,14 @@ export default function AnalyticsPage() {
       if (response.success) {
         setPreviewData(response.data);
         setPagination(response.pagination);
+
+        const previewElement = document.getElementById('preview-section');
+        if(previewElement){
+          previewElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
       }
     } catch (error) {
       console.log("Error fetching analytics:", error);
@@ -280,11 +286,6 @@ export default function AnalyticsPage() {
     }));
   };
 
-  // Pagination logic
-  //const paginatedData = previewData.slice(
-  //  (currentPage - 1) * pageSize,
-  //  currentPage * pageSize
-  //);
 
   // Transform functions for new charts
   // const transformResortOccupancyData = () => {
@@ -513,7 +514,7 @@ export default function AnalyticsPage() {
 
         {/* Preview Section */}
         {showPreview && (
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+          <div id="preview-section" className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <Eye className="w-5 h-5 text-blue-600" />

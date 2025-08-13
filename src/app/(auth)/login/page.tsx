@@ -127,48 +127,70 @@ const Page = () => {
     <>
       <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left Side - Brand Section */}
-        <div className="flex flex-1 md:flex-3 bg-[var(--primary)] text-white items-center justify-center">
-          {/* Moved logo to top left of brand section */}
-          <div className="absolute top-2 left-2">
-            <Image
-              src="/Guestiefy logo trans.png"
-              alt="Gusteify Brand Logo"
-              width={128}
-              height={128}
-              className="w-auto"
-              priority
+        <div className="flex flex-1 md:flex-3 bg-[var(--primary)] text-white items-center justify-center py-10 relative overflow-hidden">
+          {/* Background pattern - subtle texture */}
+          <div className="absolute inset-0 opacity-10">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              }}
             />
           </div>
-          <div>
-            <h1 className="text-2xl md:text-4xl lg:text-5xl tracking-wider my-2 text-center transition-all duration-300">
-              The Residence
-            </h1>
-            <h3 className="text-2xl md:text-3xl lg:text-4xl tracking-wider mb-8 text-center">
-              Maldives
-            </h3>
-            <p className="text-center text-sm md:text-base lg:text-lg">
-              by Cenizaro
-            </p>
+
+          {/* Logo with glow effect */}
+          <div className="absolute top-6 left-6">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-full blur-md"></div>
+              <Image
+                src="/Guestiefy logo trans.png"
+                alt="Gusteify Brand Logo"
+                width={128}
+                height={128}
+                className="w-24 md:w-28 lg:w-32 h-auto relative"
+                priority
+              />
+            </div>
+          </div>
+
+          {/* Content with enhanced styling */}
+          <div className="z-10 mt-16 sm:mt-20 md:mt-0 transition-all duration-500 hover:scale-105">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="relative">
+                <h2 className="text-2xl font-medium text-center tracking-wider text-white/90">
+                  Guestify
+                </h2>
+                <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-200 to-transparent mx-auto mt-2"></div>
+              </div>
+
+              <h5 className="text-base md:text-lg lg:text-xl tracking-wider text-center text-white/80 font-light mt-4 mb-2">
+                FOR
+              </h5>
+
+              <div className="relative">
+                <div className="absolute -inset-1 bg-white/10 rounded-xl blur-sm"></div>
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wider my-2 text-center transition-all duration-300 relative">
+                  The Residence
+                </h1>
+              </div>
+
+              <h3 className="text-2xl md:text-3xl lg:text-4xl tracking-wider mb-2 text-center font-light">
+                Maldives
+              </h3>
+
+              <div className="h-px w-20 bg-gradient-to-r from-transparent via-amber-100/30 to-transparent mx-auto"></div>
+
+              <p className="text-center text-sm md:text-base lg:text-lg mt-3 italic text-white/70">
+                by Cenizaro
+              </p>
+            </div>
           </div>
         </div>
         {/* Right Side - Login Form */}
         <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-center px-4 py-12 md:py-0">
-          <div className="absolute bottom-6 right-6">
-            <p className="text-gray-600 text-sm md:text-base font-light">
-              Powered by{" "}
-              <Link
-                href="https://verveautomation.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--primary)] transition-colors duration-200 underline"
-              >
-                Verve Automation
-              </Link>
-            </p>
-          </div>
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md justify-center mt:6 md:mt-12">
             {/* Heading */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-10">
               <h3 className="text-2xl sm:text-3xl font-bold tracking-wide text-[var(--highlight-text)] mb-2">
                 WELCOME
               </h3>
@@ -267,6 +289,35 @@ const Page = () => {
                 </Button>
               </div>
             </form>
+          </div>
+
+          <div className="w-full mt-12 md:mt-16">
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="relative overflow-hidden">
+                <Image
+                  src="/verveLogo.png"
+                  alt="Verve Automation Logo"
+                  width={50}
+                  height={50}
+                  className="rounded-full object-cover"
+                  priority
+                />
+              </div>
+              <Link
+                href="https://verveautomation.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 transition-all duration-300 "
+              >
+                <p className="text-gray-500 text-xs uppercase tracking-wide font-light">
+                  Powered by
+                </p>
+
+                <span className="font-medium text-sm text-gray-700 group-hover:text-[var(--primary)] hover:underline">
+                  Verve Automation
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
