@@ -261,7 +261,7 @@ const SideBar = () => {
               </div>
             </div>
             <div className="hidden lg:block text-xs text-white opacity-60 mt-2 text-center lg:text-left">
-              Powered by verveautomation.com
+              Powered by VerveAutomation.com
             </div>
           </Link>
         </div>

@@ -422,21 +422,21 @@ const Page = () => {
 
                   {/* Restaurant Cards - List View */}
                   {viewMode === "list" && (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {filteredRestaurants.map((restaurant) => (
                         <Card
                           key={restaurant.id}
                           classname="cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-gray-200 hover:border-gray-300"
                           onClick={() => handleRestaurantClick(restaurant.id)}
                         >
-                          <div className="p-1">
-                            {/* Header with Restaurant Name and Status */}
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-                              <div className="flex flex-col items-start gap-2">
-                                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-gray-900">
+                          <div className="p-3">
+                            {/* Compact Header with Restaurant Name and Status */}
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="flex flex-col gap-1">
+                                <h3 className="text-lg font-medium text-gray-900">
                                   {restaurant.restaurantName}
                                 </h3>
-                                <div className="text-xs sm:text-sm text-gray-500">
+                                <div className="text-sm text-gray-500">
                                   <MapPin className="inline-block w-3 h-3 mr-1" />
                                   {resorts.find(
                                     (resort) =>
@@ -444,9 +444,12 @@ const Page = () => {
                                   )?.name || "Unknown Resort"}
                                 </div>
                               </div>
-                              <div className="flex-shrink-0 mt-2 sm:mt-0">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-600">
+                                  ID: #{restaurant.id}
+                                </span>
                                 <span
-                                  className={`inline-flex items-center px-2 py-1 lg:px-3 lg:py-2 text-sm md:text-base font-medium rounded-full ${
+                                  className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${
                                     restaurant.status === "Open"
                                       ? "bg-green-100 text-green-800"
                                       : "bg-red-100 text-red-800"
@@ -457,56 +460,8 @@ const Page = () => {
                               </div>
                             </div>
 
-                            {/* Restaurant Details - All in One Row */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-4">
-                              <div className="flex flex-col">
-                                <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
-                                  Restaurant ID
-                                </span>
-                                <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
-                                  #{restaurant.id}
-                                </span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
-                                  Type
-                                </span>
-                                <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
-                                  Full Service
-                                </span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
-                                  Capacity
-                                </span>
-                                <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
-                                  50-80 guests
-                                </span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
-                                  Cuisine Type
-                                </span>
-                                <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
-                                  International
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Second Row - Operating Hours */}
-                            <div className="mb-4">
-                              <div className="flex flex-col">
-                                <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium">
-                                  Operating Hours
-                                </span>
-                                <span className="text-sm sm:text-base font-medium text-gray-900 mt-1">
-                                  7:00 AM - 11:00 PM
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Footer with Timestamp and Edit Action */}
-                            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            {/* Compact Footer with Timestamp */}
+                            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                               <div className="flex items-center gap-2 text-xs text-gray-500">
                                 <Clock className="w-3 h-3" />
                                 <span>
