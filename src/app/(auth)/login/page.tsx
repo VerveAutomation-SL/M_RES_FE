@@ -126,9 +126,9 @@ const Page = () => {
   return (
     <>
       <div className="min-h-screen flex flex-col lg:flex-row">
-        {/* Left Side - Brand Section */}
-        <div className="flex flex-1 md:flex-3 bg-[var(--primary)] text-white items-center justify-center py-10 relative overflow-hidden">
-          {/* Background pattern - subtle texture */}
+        {/* Left Side - Brand Section - Adjusted for mobile */}
+        <div className="flex flex-1 md:flex-3 bg-[var(--primary)] text-white items-center justify-center py-6 md:py-10 relative overflow-hidden h-[40vh] md:h-auto">
+          {/* Background pattern - unchanged */}
           <div className="absolute inset-0 opacity-10">
             <div
               className="absolute inset-0"
@@ -138,8 +138,8 @@ const Page = () => {
             />
           </div>
 
-          {/* Logo with glow effect */}
-          <div className="absolute top-6 left-6">
+          {/* Logo - repositioned for mobile */}
+          <div className="absolute top-4 left-4 md:top-6 md:left-6">
             <div className="relative">
               <div className="absolute -inset-1 rounded-full blur-md"></div>
               <Image
@@ -147,63 +147,64 @@ const Page = () => {
                 alt="Gusteify Brand Logo"
                 width={128}
                 height={128}
-                className="w-24 md:w-28 lg:w-32 h-auto relative"
+                className="w-16 md:w-24 lg:w-32 h-auto relative"
                 priority
               />
             </div>
           </div>
 
-          {/* Content with enhanced styling */}
-          <div className="z-10 mt-16 sm:mt-20 md:mt-0 transition-all duration-500 hover:scale-105">
-            <div className="flex flex-col items-center space-y-2">
+          {/* Content - simplified for mobile */}
+          <div className="z-10 transition-all duration-500 hover:scale-105">
+            <div className="flex flex-col items-center space-y-1 md:space-y-2">
               <div className="relative">
-                <h2 className="text-2xl font-medium text-center tracking-wider text-white/90">
+                <h2 className="text-xl md:text-2xl font-medium text-center tracking-wider text-white/90">
                   Guestify
                 </h2>
-                <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-200 to-transparent mx-auto mt-2"></div>
+                <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-200 to-transparent mx-auto mt-1 md:mt-2"></div>
               </div>
 
-              <h5 className="text-base md:text-lg lg:text-xl tracking-wider text-center text-white/80 font-light mt-4 mb-2">
+              <h5 className="text-sm md:text-lg lg:text-xl tracking-wider text-center text-white/80 font-light mt-2 md:mt-4 mb-1 md:mb-2">
                 FOR
               </h5>
 
               <div className="relative">
                 <div className="absolute -inset-1 bg-white/10 rounded-xl blur-sm"></div>
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wider my-2 text-center transition-all duration-300 relative">
+                <h1 className="text-xl md:text-4xl lg:text-5xl font-bold tracking-wider my-1 md:my-2 text-center transition-all duration-300 relative">
                   The Residence
                 </h1>
               </div>
 
-              <h3 className="text-2xl md:text-3xl lg:text-4xl tracking-wider mb-2 text-center font-light">
+              <h3 className="text-lg md:text-3xl lg:text-4xl tracking-wider mb-1 md:mb-2 text-center font-light">
                 Maldives
               </h3>
 
               <div className="h-px w-20 bg-gradient-to-r from-transparent via-amber-100/30 to-transparent mx-auto"></div>
 
-              <p className="text-center text-sm md:text-base lg:text-lg mt-3 italic text-white/70">
+              <p className="text-center text-xs md:text-base lg:text-lg mt-1 md:mt-3 italic text-white/70">
                 by Cenizaro
               </p>
             </div>
           </div>
         </div>
-        {/* Right Side - Login Form */}
-        <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-center px-4 py-12 md:py-0">
-          <div className="w-full max-w-md justify-center mt:6 md:mt-12">
-            {/* Heading */}
-            <div className="text-center mb-10">
-              <h3 className="text-2xl sm:text-3xl font-bold tracking-wide text-[var(--highlight-text)] mb-2">
+
+        {/* Right Side - Login Form - Optimized for mobile */}
+        <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-between px-4 py-6 md:py-0 h-[60vh] md:h-auto">
+          <div className="w-full max-w-md justify-center md:mt-12 lg:py-24">
+            {/* Heading - reduced spacing for mobile */}
+            <div className="text-center mb-4 md:mb-10">
+              <h3 className="text-xl sm:text-3xl font-bold tracking-wide text-[var(--highlight-text)] mb-1 md:mb-2">
                 WELCOME
               </h3>
-              <p className="text-base sm:text-lg text-gray-600">
+              <p className="text-sm sm:text-lg text-gray-600">
                 Please login to continue
               </p>
             </div>
 
-            {/* Error Message */}
+            {/* Error Message - unchanged */}
             {loginError && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 text-center rounded-md text-sm sm:text-base gap-2 flex items-center">
+              <div className="mb-3 p-2 md:p-3 bg-red-100 text-red-700 text-center rounded-md text-xs sm:text-base gap-1 md:gap-2 flex items-center">
                 <X
-                  className="inline-block h-5 w-5 mr-2 cursor-pointer"
+                  className="inline-block h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2 cursor-pointer"
                   onClick={() => {
                     setLoginError(null);
                     formData.userName = "";
@@ -214,16 +215,16 @@ const Page = () => {
               </div>
             )}
 
-            {/* Login Form */}
+            {/* Login Form - reduced spacing */}
             <form
               autoComplete="off"
               onSubmit={handleSubmit}
-              className="space-y-5"
+              className="space-y-3 md:space-y-5"
             >
-              {/* Username */}
+              {/* Username - smaller on mobile */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-[#8B6F47] opacity-70" />
+                <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                  <User className="h-4 w-4 md:h-5 md:w-5 text-[#8B6F47] opacity-70" />
                 </div>
                 <AuthInput
                   type="text"
@@ -234,15 +235,15 @@ const Page = () => {
                   error={errors.name}
                   required
                   disabled={isLoading}
-                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
+                  className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-xs md:text-sm transition-all duration-300"
                   autoComplete="loginUser"
                 />
               </div>
 
-              {/* Password */}
+              {/* Password - smaller on mobile */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 mt-4 flex items-start pointer-events-none">
-                  <Key className="h-5 w-5 text-[#8B6F47] opacity-70" />
+                <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 mt-3 md:mt-4 flex items-start pointer-events-none">
+                  <Key className="h-4 w-4 md:h-5 md:w-5 text-[#8B6F47] opacity-70" />
                 </div>
                 <AuthInput
                   type={showPassword ? "text" : "password"}
@@ -253,22 +254,22 @@ const Page = () => {
                   error={errors.password}
                   required
                   disabled={isLoading}
-                  className="w-full pl-12 pr-12 py-3 sm:py-4 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-sm sm:text-base transition-all duration-300"
+                  className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 bg-[#D4C4A8] border-none rounded-full text-[#8B6F47] placeholder:text-[#8B6F47] placeholder:opacity-70 text-xs md:text-sm transition-all duration-300"
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-4 mt-5 flex items-start text-[#8B6F47] opacity-70"
+                  className="absolute inset-y-0 right-0 pr-3 md:pr-4 mt-3 md:mt-4 flex items-start text-[#8B6F47] opacity-70"
                   onClick={() => setShowPassword((prev) => !prev)}
                   tabIndex={-1}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
+                    <EyeOff className="h-4 w-4 md:h-5 md:w-5" />
                   ) : (
-                    <Eye className="h-5 w-5" />
+                    <Eye className="h-4 w-4 md:h-5 md:w-5" />
                   )}
                 </button>
-                <div className="text-right mt-2 sm:mt-3 mr-2">
+                <div className="text-right mt-1 md:mt-2 mr-2">
                   <a
                     href="/forgot-password"
                     className="text-[#8B6F47] text-xs sm:text-sm font-medium hover:underline"
@@ -278,28 +279,29 @@ const Page = () => {
                 </div>
               </div>
 
-              {/* Buttons */}
-              <div className="flex flex-col sm:flex-row pt-4 sm:pt-6 gap-4 sm:gap-6">
+              {/* Buttons - smaller on mobile */}
+              <div className="flex flex-col pt-2 md:pt-4 gap-3 md:gap-4">
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 sm:py-4 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 md:py-3 bg-[#6B4E3D] hover:bg-[#5A3F2E] text-white font-medium tracking-wide rounded-full transition-all duration-300 text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? "SIGNING IN..." : "SIGN IN "}
+                  {isLoading ? "SIGNING IN..." : "SIGN IN"}
                 </Button>
               </div>
             </form>
           </div>
 
-          <div className="w-full mt-12 md:mt-16">
-            <div className="flex flex-col items-center justify-center gap-2">
+          {/* Footer */}
+          <div className="w-full mt-auto pb-2 md:pb-4">
+            <div className="flex flex-row items-center justify-center gap-2">
               <div className="relative overflow-hidden">
                 <Image
                   src="/verveLogo.png"
                   alt="Verve Automation Logo"
-                  width={50}
-                  height={50}
-                  className="rounded-full object-cover"
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover "
                   priority
                 />
               </div>
@@ -307,13 +309,12 @@ const Page = () => {
                 href="https://verveautomation.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 transition-all duration-300 "
+                className="group flex items-center gap-1 md:gap-2 transition-all duration-300"
               >
-                <p className="text-gray-500 text-xs uppercase tracking-wide font-light">
+                <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wide font-light">
                   Powered by
                 </p>
-
-                <span className="font-medium text-sm text-gray-700 group-hover:text-[var(--primary)] hover:underline">
+                <span className="font-medium text-[10px] md:text-sm text-gray-700 group-hover:text-[var(--primary)] hover:underline">
                   Verve Automation
                 </span>
               </Link>
