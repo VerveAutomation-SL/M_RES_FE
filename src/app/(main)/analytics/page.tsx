@@ -120,11 +120,11 @@ export default function AnalyticsPage() {
         setPreviewData(response.data);
         setPagination(response.pagination);
 
-        const previewElement = document.getElementById('preview-section');
-        if(previewElement){
+        const previewElement = document.getElementById("preview-section");
+        if (previewElement) {
           previewElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
+            behavior: "smooth",
+            block: "start",
           });
         }
       }
@@ -187,7 +187,7 @@ export default function AnalyticsPage() {
       setExportDropdownOpen(false);
     } catch (error) {
       console.log("Error exporting PDF:", error);
-      alert("Failed to export PDF. Please try again later.");
+      toast.error("Failed to export PDF. Please try again later.");
     } finally {
       setExportLoading(null);
     }
@@ -285,7 +285,6 @@ export default function AnalyticsPage() {
       checkIns: item.checkIns,
     }));
   };
-
 
   // Transform functions for new charts
   // const transformResortOccupancyData = () => {
@@ -514,7 +513,10 @@ export default function AnalyticsPage() {
 
         {/* Preview Section */}
         {showPreview && (
-          <div id="preview-section" className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+          <div
+            id="preview-section"
+            className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6"
+          >
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <Eye className="w-5 h-5 text-blue-600" />
