@@ -34,6 +34,7 @@ export const getPreviewData = async (filters: ReportFilterData & {page?: number,
 export const exportExcelReport = async (filters: ReportFilterData): Promise<Blob> => {
   try {
     const response = await api.post('/reports/excel', filters,{
+        responseType: 'blob',
         headers:{
             'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         }
@@ -53,6 +54,7 @@ export const exportExcelReport = async (filters: ReportFilterData): Promise<Blob
 export const exportPdfReport = async (filters: ReportFilterData): Promise<Blob> => {
   try {
     const response = await api.post('/reports/pdf', filters, {
+      responseType: 'blob',
         headers: {
             'Accept': 'application/pdf'
         }

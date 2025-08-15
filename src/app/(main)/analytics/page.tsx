@@ -31,8 +31,11 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function AnalyticsPage() {
+  const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<"overview" | "trends">("overview");
   const [filters, setFilters] = useState<ReportFilterData>({
     checkinStartDate: "",
@@ -194,7 +197,14 @@ export default function AnalyticsPage() {
       setExportDropdownOpen(false);
     } catch (error) {
       if (error instanceof AppError) {
-        toast.error(error.message);
+        if (error.statusCode === 403 || error.statusCode === 401) {
+          toast.error(
+            "You do not have permission to export this report. Please log in again."
+          );
+          router.push("/login");
+        } else {
+          toast.error(error.message);
+        }
       } else {
         toast.error("An unexpected error occurred while exporting PDF report.");
       }
@@ -213,8 +223,16 @@ export default function AnalyticsPage() {
       setExportDropdownOpen(false);
     } catch (error) {
       if (error instanceof AppError) {
-        toast.error(error.message);
+        if (error.statusCode === 403 || error.statusCode === 401) {
+          toast.error(
+            "You do not have permission to export this report. Please log in again."
+          );
+          router.push("/login");
+        } else {
+          toast.error(error.message);
+        }
       } else {
+        console.error("Error exporting Excel report:", error);
         toast.error(
           "An unexpected error occurred while exporting Excel report."
         );
