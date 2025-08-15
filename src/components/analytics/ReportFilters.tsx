@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
+  AppError,
   PreviewPagination,
   ReportFilterData,
   Resort,
@@ -129,11 +130,11 @@ export default function ReportFilters({
 
       // Filter the data and send to parent
       const response = await getPreviewData(filters);
-      if (response.success && response.data && response.pagination){
+      if (response.success && response.data && response.pagination) {
         onPreviewData(response.data, response.pagination);
-      }else{
+      } else {
         setError("Invalid response from server");
-        onPreviewData([],{
+        onPreviewData([], {
           currentPage: 1,
           pageSize: 20,
           totalPages: 0,
@@ -142,11 +143,15 @@ export default function ReportFilters({
           hasPrevPage: false,
         });
       }
-
     } catch (error) {
-      console.error("Error filtering data:", error);
-      setError("Failed to fetch preview data. Please try again.");
-      onPreviewData([],{
+      if (error instanceof AppError) {
+        setError(error.message);
+        console.log(error.message);
+      } else {
+        setError("An unexpected error occurred while fetching preview data.");
+        console.log(error);
+      }
+      onPreviewData([], {
         currentPage: 1,
         pageSize: 20,
         totalPages: 0,
@@ -176,7 +181,7 @@ export default function ReportFilters({
 
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
-    onPreviewData([],{
+    onPreviewData([], {
       currentPage: 1,
       pageSize: 20,
       totalPages: 0,
