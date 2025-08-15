@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/analyticsApi";
 import {
   AnalyticsResponse,
+  AppError,
   checkInRecord,
   PreviewPagination,
   ReportFilterData,
@@ -129,8 +130,14 @@ export default function AnalyticsPage() {
         }
       }
     } catch (error) {
-      console.log("Error fetching analytics:", error);
-      setError("Failed to fetch analytics data");
+      console.log("Error fetching preview data:", error);
+      if (error instanceof AppError) {
+        setError(error.message);
+        console.log(error.message);
+      } else {
+        setError("An unexpected error occurred while fetching preview data.");
+        console.log(error);
+      }
     } finally {
       setFilterLoading(false);
     }
@@ -186,8 +193,11 @@ export default function AnalyticsPage() {
       downloadFile(pdfBlob, filename);
       setExportDropdownOpen(false);
     } catch (error) {
-      console.log("Error exporting PDF:", error);
-      toast.error("Failed to export PDF. Please try again later.");
+      if (error instanceof AppError) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred while exporting PDF report.");
+      }
     } finally {
       setExportLoading(null);
     }
@@ -202,8 +212,13 @@ export default function AnalyticsPage() {
       downloadFile(excelBlob, filename);
       setExportDropdownOpen(false);
     } catch (error) {
-      console.log("Error exporting Excel:", error);
-      toast.error("Failed to export Excel. Please try again later.");
+      if (error instanceof AppError) {
+        toast.error(error.message);
+      } else {
+        toast.error(
+          "An unexpected error occurred while exporting Excel report."
+        );
+      }
     } finally {
       setExportLoading(null);
     }
@@ -219,9 +234,14 @@ export default function AnalyticsPage() {
         const response = await getAnalyticsData();
         setAnalyticsData(response.data);
         setError(null);
-      } catch (err) {
-        console.log("Error fetching analytics:", err);
-        setError("Failed to fetch analytics data");
+      } catch (error) {
+        if (error instanceof AppError) {
+          toast.error(error.message);
+        } else {
+          toast.error(
+            "An unexpected error occurred while fetching preview data."
+          );
+        }
       } finally {
         setLoading(false);
       }

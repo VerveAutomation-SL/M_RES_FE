@@ -1,4 +1,5 @@
-import { AnalyticsResponse, ApiResponse, PreviewApiResponse, ReportFilterData } from "../types"
+import axios from "axios";
+import { AnalyticsResponse, ApiResponse, AppError, PreviewApiResponse, ReportFilterData } from "../types"
 import { api } from "./config"
 
 export const getAnalyticsData = async () => {
@@ -7,7 +8,11 @@ export const getAnalyticsData = async () => {
         return response.data;
     } catch (error) {
         console.error("Error fetching analytics data:", error);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data.message || "Error fetching analytics data", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching analytics data", 500);
+        }
     }
 }
 
@@ -17,8 +22,11 @@ export const getPreviewData = async (filters: ReportFilterData & {page?: number,
     const response = await api.post<PreviewApiResponse>('/reports/preview', filters);
     return response.data;
   } catch (error) {
-    console.error("Error fetching preview data:", error);
-    throw error;
+    if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data.message || "Error fetching preview data", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during fetching preview data", 500);
+        }
   }
 };
 
@@ -26,15 +34,18 @@ export const getPreviewData = async (filters: ReportFilterData & {page?: number,
 export const exportExcelReport = async (filters: ReportFilterData): Promise<Blob> => {
   try {
     const response = await api.post('/reports/excel', filters,{
-        responseType:'blob',
         headers:{
             'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         }
     });
     return response.data;
   } catch (error) {
-    console.error("Error exporting Excel report:", error);
-    throw error;
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new AppError(error.response?.data.message || "Error exporting Excel report", error.status || 500);
+    } else {
+      throw new AppError("An unexpected error occurred during exporting Excel report", 500);
+    }
   }
 };
 
@@ -42,7 +53,6 @@ export const exportExcelReport = async (filters: ReportFilterData): Promise<Blob
 export const exportPdfReport = async (filters: ReportFilterData): Promise<Blob> => {
   try {
     const response = await api.post('/reports/pdf', filters, {
-        responseType: 'blob',
         headers: {
             'Accept': 'application/pdf'
         }
@@ -50,6 +60,10 @@ export const exportPdfReport = async (filters: ReportFilterData): Promise<Blob> 
     return response.data;
   } catch (error) {
     console.error("Error exporting PDF report:", error);
-    throw error;
+    if (axios.isAxiosError(error)) {
+      throw new AppError(error.response?.data.message || "Error exporting PDF report", error.status || 500);
+    } else {
+      throw new AppError("An unexpected error occurred during exporting PDF report", 500);
+    }
   }
 };
