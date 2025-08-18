@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/analyticsApi";
 import {
   AnalyticsResponse,
+  AppError,
   checkInRecord,
   PreviewPagination,
   ReportFilterData,
@@ -30,8 +31,11 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function AnalyticsPage() {
+  const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<"overview" | "trends">("overview");
   const [filters, setFilters] = useState<ReportFilterData>({
     checkinStartDate: "",
@@ -120,17 +124,23 @@ export default function AnalyticsPage() {
         setPreviewData(response.data);
         setPagination(response.pagination);
 
-        const previewElement = document.getElementById('preview-section');
-        if(previewElement){
+        const previewElement = document.getElementById("preview-section");
+        if (previewElement) {
           previewElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
+            behavior: "smooth",
+            block: "start",
           });
         }
       }
     } catch (error) {
-      console.log("Error fetching analytics:", error);
-      setError("Failed to fetch analytics data");
+      console.log("Error fetching preview data:", error);
+      if (error instanceof AppError) {
+        setError(error.message);
+        console.log(error.message);
+      } else {
+        setError("An unexpected error occurred while fetching preview data.");
+        console.log(error);
+      }
     } finally {
       setFilterLoading(false);
     }
@@ -186,8 +196,18 @@ export default function AnalyticsPage() {
       downloadFile(pdfBlob, filename);
       setExportDropdownOpen(false);
     } catch (error) {
-      console.log("Error exporting PDF:", error);
-      alert("Failed to export PDF. Please try again later.");
+      if (error instanceof AppError) {
+        if (error.statusCode === 403 || error.statusCode === 401) {
+          toast.error(
+            "You do not have permission to export this report. Please log in again."
+          );
+          router.push("/login");
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        toast.error("An unexpected error occurred while exporting PDF report.");
+      }
     } finally {
       setExportLoading(null);
     }
@@ -202,8 +222,21 @@ export default function AnalyticsPage() {
       downloadFile(excelBlob, filename);
       setExportDropdownOpen(false);
     } catch (error) {
-      console.log("Error exporting Excel:", error);
-      toast.error("Failed to export Excel. Please try again later.");
+      if (error instanceof AppError) {
+        if (error.statusCode === 403 || error.statusCode === 401) {
+          toast.error(
+            "You do not have permission to export this report. Please log in again."
+          );
+          router.push("/login");
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        console.error("Error exporting Excel report:", error);
+        toast.error(
+          "An unexpected error occurred while exporting Excel report."
+        );
+      }
     } finally {
       setExportLoading(null);
     }
@@ -219,9 +252,14 @@ export default function AnalyticsPage() {
         const response = await getAnalyticsData();
         setAnalyticsData(response.data);
         setError(null);
-      } catch (err) {
-        console.log("Error fetching analytics:", err);
-        setError("Failed to fetch analytics data");
+      } catch (error) {
+        if (error instanceof AppError) {
+          toast.error(error.message);
+        } else {
+          toast.error(
+            "An unexpected error occurred while fetching preview data."
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -285,7 +323,6 @@ export default function AnalyticsPage() {
       checkIns: item.checkIns,
     }));
   };
-
 
   // Transform functions for new charts
   // const transformResortOccupancyData = () => {
@@ -514,7 +551,10 @@ export default function AnalyticsPage() {
 
         {/* Preview Section */}
         {showPreview && (
-          <div id="preview-section" className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+          <div
+            id="preview-section"
+            className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6"
+          >
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <Eye className="w-5 h-5 text-blue-600" />
