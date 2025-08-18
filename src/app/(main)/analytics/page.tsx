@@ -535,7 +535,7 @@ export default function AnalyticsPage() {
             {/* Backdrop for mobile with better z-index */}
             {exportDropdownOpen && (
               <div
-                className="fixed inset-0 z-40 bg-black bg-opacity-10 sm:bg-transparent"
+                className="fixed inset-0 z-40 bg-transparent bg-opacity-10 sm:bg-transparent"
                 onClick={() => setExportDropdownOpen(false)}
               />
             )}

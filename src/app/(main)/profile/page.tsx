@@ -335,53 +335,53 @@ export default function ProfilePage() {
         </div>
       </Header>
 
-      <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
-        <div className="flex items-start gap-6">
-          <div className="relative">
+      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 lg:p-8 mb-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
+          <div className="relative flex-shrink-0">
             <Image
               src="/userPlaceholder.jpg"
               width={120}
               height={120}
-              className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+              className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full object-cover border-4 border-white shadow-lg"
               alt={selectedUser?.username || "User Avatar"}
               onError={(e) => {
                 e.currentTarget.src = "/userPlaceholder.jpg";
               }}
             />
             <div
-              className={`absolute -bottom-2 -right-2 w-6 h-6 border-4 border-white rounded-full ${
+              className={`absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 w-5 h-5 md:w-6 md:h-6 border-3 md:border-4 border-white rounded-full ${
                 selectedUser?.status === "Active"
                   ? "bg-green-500"
                   : "bg-red-500"
               }`}
             ></div>
           </div>
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="flex-1 text-center md:text-left w-full">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 gap-3 md:gap-4">
+              <div className="flex-1">
+                <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                   {selectedUser?.username}
                 </h1>
-                <p className="text-lg text-gray-600 mb-3">
+                <p className="text-base md:text-lg text-gray-600 mb-3">
                   {selectedUser?.role} • User ID: {selectedUser?.UserId}
                 </p>
-                <div className="flex items-center gap-6 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <UtensilsCrossed className="w-4 h-4" />
-                    <span>
+                <div className="flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center gap-2 md:gap-4 lg:gap-6 text-xs md:text-sm text-gray-500">
+                  <div className="flex items-center justify-center md:justify-start gap-2">
+                    <UtensilsCrossed className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">
                       Restaurant ID:{" "}
                       {selectedUser?.restaurantId || "Not assigned"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>
+                  <div className="flex items-center justify-center md:justify-start gap-2">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">
                       Resort ID: {selectedUser?.resortId || "Not assigned"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>
+                  <div className="flex items-center justify-center md:justify-start gap-2">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">
                       Joined{" "}
                       {selectedUser?.createdAt
                         ? new Date(selectedUser.createdAt).toLocaleDateString()
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div
-                className={`px-4 py-2 rounded-full font-medium text-sm ${
+                className={`px-3 md:px-4 py-2 rounded-full font-medium text-xs md:text-sm whitespace-nowrap self-center md:self-start ${
                   selectedUser?.status === "Active"
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
@@ -400,7 +400,7 @@ export default function ProfilePage() {
                 {selectedUser?.status}
               </div>
             </div>
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-sm md:text-base text-gray-700 leading-relaxed">
               {selectedUser?.role} with meal access: {selectedUser?.meal_type}
             </p>
           </div>
@@ -410,21 +410,22 @@ export default function ProfilePage() {
       {/* Navigation Tabs */}
       <div className="bg-white rounded-t-xl shadow-sm">
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-8">
+          <nav className="flex overflow-x-auto px-4 md:px-6 lg:px-8">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
+                  className={`flex items-center gap-2 py-4 px-3 md:px-4 lg:px-6 border-b-2 font-medium text-xs md:text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
                     activeTab === tab.id
                       ? "border-orange-500 text-orange-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  {tab.label}
+                  <span className="hidden md:inline">{tab.label}</span>
+                  <span className="md:hidden">{tab.label.split(" ")[0]}</span>
                 </button>
               );
             })}
@@ -433,32 +434,32 @@ export default function ProfilePage() {
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white rounded-b-xl shadow-sm p-8">
+      <div className="bg-white rounded-b-xl shadow-sm p-4 md:p-6 lg:p-8">
         {message && (
-          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6 text-sm md:text-base">
             {message}
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6 text-sm md:text-base">
             {error}
           </div>
         )}
 
         {activeTab === "profile" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* User Information */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <div className="order-1">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-6">
                 User Information
               </h2>
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-2">
                       User ID
                     </label>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-900 font-medium text-sm md:text-base">
                       {selectedUser?.UserId}
                     </p>
                   </div>
@@ -472,10 +473,10 @@ export default function ProfilePage() {
                         name="username"
                         value={form.username}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
                       />
                     ) : (
-                      <p className="text-gray-900 font-medium">
+                      <p className="text-gray-900 font-medium text-sm md:text-base">
                         {selectedUser?.username}
                       </p>
                     )}
@@ -492,12 +493,14 @@ export default function ProfilePage() {
                       name="email"
                       value={form.email}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
                     />
                   ) : (
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900">{selectedUser?.email}</p>
+                      <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <p className="text-gray-900 text-sm md:text-base break-all">
+                        {selectedUser?.email}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -507,7 +510,7 @@ export default function ProfilePage() {
                     Role
                   </label>
                   <span
-                    className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${
+                    className={`inline-flex items-center px-3 py-1 text-xs md:text-sm font-medium rounded-full ${
                       selectedUser?.role === "Admin"
                         ? "bg-purple-100 text-purple-800"
                         : selectedUser?.role === "Manager"
@@ -524,7 +527,7 @@ export default function ProfilePage() {
                     Status
                   </label>
                   <span
-                    className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                    className={`inline-flex px-3 py-1 rounded-full text-xs md:text-sm font-medium ${
                       selectedUser?.status === "Active"
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
@@ -534,12 +537,12 @@ export default function ProfilePage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-2">
                       Created At
                     </label>
-                    <p className="text-gray-900">
+                    <p className="text-gray-900 text-sm md:text-base">
                       {selectedUser?.createdAt
                         ? new Date(selectedUser.createdAt).toLocaleDateString()
                         : "N/A"}
@@ -549,7 +552,7 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium text-gray-600 mb-2">
                       Last Updated
                     </label>
-                    <p className="text-gray-900">
+                    <p className="text-gray-900 text-sm md:text-base">
                       {selectedUser?.updatedAt
                         ? new Date(selectedUser.updatedAt).toLocaleDateString()
                         : "N/A"}
@@ -560,9 +563,9 @@ export default function ProfilePage() {
 
               {/* Change Password Section - Only show when editing */}
               {editing && (
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-200">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-900">
                       Change Password
                     </h3>
                     <button
@@ -581,7 +584,7 @@ export default function ProfilePage() {
                           setConfirmPasswordError("");
                         }
                       }}
-                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                      className={`px-3 py-1 text-xs md:text-sm rounded-md transition-colors whitespace-nowrap ${
                         changePassword
                           ? "bg-red-100 text-red-700 hover:bg-red-200"
                           : "bg-blue-100 text-blue-700 hover:bg-blue-200"
@@ -603,7 +606,7 @@ export default function ProfilePage() {
                         </label>
                         <input
                           key={`password-${editing}`}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base"
                           name="currentPassword"
                           type="password"
                           placeholder="Enter current password"
@@ -613,7 +616,7 @@ export default function ProfilePage() {
                       </div>
 
                       {/* New Password Section */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             New Password <span className="text-red-500">*</span>
@@ -621,7 +624,7 @@ export default function ProfilePage() {
                           <div className="relative">
                             <input
                               type={showPassword ? "text" : "password"}
-                              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors pr-10 ${
+                              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors pr-10 text-sm md:text-base ${
                                 passwordError
                                   ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                                   : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
@@ -646,7 +649,7 @@ export default function ProfilePage() {
                             </button>
                           </div>
                           {passwordError && (
-                            <p className="mt-1 text-sm text-red-600">
+                            <p className="mt-1 text-xs md:text-sm text-red-600">
                               {passwordError}
                             </p>
                           )}
@@ -660,7 +663,7 @@ export default function ProfilePage() {
                           <div className="relative">
                             <input
                               type={showConfirmPassword ? "text" : "password"}
-                              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors pr-10 ${
+                              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors pr-10 text-sm md:text-base ${
                                 confirmPasswordError
                                   ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                                   : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
@@ -687,16 +690,16 @@ export default function ProfilePage() {
                             </button>
                           </div>
                           {confirmPasswordError && (
-                            <p className="mt-1 text-sm text-red-600">
+                            <p className="mt-1 text-xs md:text-sm text-red-600">
                               {confirmPasswordError}
                             </p>
                           )}
                         </div>
 
                         {/* Password Requirements */}
-                        <div className="md:col-span-2">
+                        <div className="lg:col-span-2">
                           <div className="bg-gray-50 p-3 rounded-lg">
-                            <p className="text-sm font-medium text-gray-700 mb-2">
+                            <p className="text-xs md:text-sm font-medium text-gray-700 mb-2">
                               Password Requirements:
                             </p>
                             <ul className="text-xs text-gray-600 space-y-1">
@@ -747,20 +750,20 @@ export default function ProfilePage() {
             </div>
 
             {/* Assignment Information */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <div className="order-2">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-6">
                 Assignment Information
               </h2>
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">
                     Resort ID
                   </label>
-                  <p className="text-gray-900 font-medium">
+                  <p className="text-gray-900 font-medium text-sm md:text-base">
                     {selectedUser?.resortId || "Not assigned"}
                   </p>
                   {selectedUser?.resorts?.name && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs md:text-sm text-gray-500">
                       {selectedUser.resorts.name}
                     </p>
                   )}
@@ -770,11 +773,11 @@ export default function ProfilePage() {
                   <label className="block text-sm font-medium text-gray-600 mb-2">
                     Restaurant ID
                   </label>
-                  <p className="text-gray-900 font-medium">
+                  <p className="text-gray-900 font-medium text-sm md:text-base">
                     {selectedUser?.restaurantId || "Not assigned"}
                   </p>
                   {selectedUser?.restaurant?.restaurantName && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs md:text-sm text-gray-500">
                       {selectedUser.restaurant.restaurantName}
                     </p>
                   )}
@@ -784,7 +787,7 @@ export default function ProfilePage() {
                   <label className="block text-sm font-medium text-gray-600 mb-2">
                     Meal Type Access
                   </label>
-                  <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-blue-100 text-blue-800">
                     {selectedUser?.meal_type}
                   </span>
                 </div>
@@ -794,50 +797,58 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "activity" && (
-          <div className="text-center py-12">
-            <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="text-center py-8 sm:py-12">
+            <Activity className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               Activity Log
             </h3>
-            <p className="text-gray-500">
+            <p className="text-sm sm:text-base text-gray-500">
               Activity log functionality coming soon.
             </p>
           </div>
         )}
 
         {activeTab === "performance" && (
-          <div className="text-center py-12">
-            <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="text-center py-8 sm:py-12">
+            <BarChart3 className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               Performance
             </h3>
-            <p className="text-gray-500">Performance metrics coming soon.</p>
+            <p className="text-sm sm:text-base text-gray-500">
+              Performance metrics coming soon.
+            </p>
           </div>
         )}
 
         {activeTab === "permissions" && (
-          <div className="text-center py-12">
-            <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="text-center py-8 sm:py-12">
+            <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               Permissions
             </h3>
-            <p className="text-gray-500">Permission management coming soon.</p>
+            <p className="text-sm sm:text-base text-gray-500">
+              Permission management coming soon.
+            </p>
           </div>
         )}
 
         {activeTab === "settings" && (
-          <div className="text-center py-12">
-            <Settings className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Settings</h3>
-            <p className="text-gray-500">Settings panel coming soon.</p>
+          <div className="text-center py-8 sm:py-12">
+            <Settings className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+              Settings
+            </h3>
+            <p className="text-sm sm:text-base text-gray-500">
+              Settings panel coming soon.
+            </p>
           </div>
         )}
       </div>
 
       {/* Logout Button */}
-      <div className="my-6 text-center">
+      <div className="my-6 text-center px-4">
         <button
-          className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+          className="bg-red-600 hover:bg-red-700 text-white px-6 md:px-8 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base w-full md:w-auto"
           onClick={logout_user}
         >
           Log out
