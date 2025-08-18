@@ -54,7 +54,7 @@ export const exportExcelReport = async (filters: ReportFilterData): Promise<Blob
 export const exportPdfReport = async (filters: ReportFilterData): Promise<Blob> => {
   try {
     const response = await api.post('/reports/pdf', filters, {
-      responseType: 'blob',
+        responseType: 'blob',
         headers: {
             'Accept': 'application/pdf'
         }
