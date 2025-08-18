@@ -11,6 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import EditRestaurantModal from "@/components/forms/EditResturant";
 import { useAuthStore } from "@/store/authStore";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
+import ViewResort from "@/components/forms/ViewResort";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,8 @@ const Page = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showaddModal, setShowaddModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [showViewResortModal, setShowViewResortModal] = useState(false);
+  const [selectedResortID, setSelectedResortID] = useState<number>();
   const [selectedRestaurant, setSelectedRestaurant] = useState<number>();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -123,8 +126,14 @@ const Page = () => {
 
   const handleCloseViewModal = () => {
     setShowViewModal(false);
+    setShowViewResortModal(false);
     handelRefresh();
   };
+
+  function handleCardClick(id: number): void {
+    setSelectedResortID(id);
+    setShowViewResortModal(true);
+  }
 
   return (
     <ProtectedRoute allowedRoles={["Admin"]}>
@@ -161,7 +170,11 @@ const Page = () => {
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
                 {resorts.map((resort) => (
-                  <Card key={resort.id} classname={getCardClasses()}>
+                  <Card
+                    key={resort.id}
+                    classname={getCardClasses()}
+                    onClick={() => handleCardClick(resort.id)}
+                  >
                     <div>
                       <div className="flex items-center gap-2 mb-5">
                         <MapPin className="w-4 md:w-5 h-4 md:h-5 text-gray-600 flex-shrink-0" />
@@ -519,6 +532,14 @@ const Page = () => {
             onClose={handleCloseViewModal}
             onUpdate={handelRefresh}
             isOpen={showViewModal}
+          />
+        )}
+
+        {showViewResortModal && selectedResortID && (
+          <ViewResort
+            resortId={selectedResortID}
+            onClose={handleCloseViewModal}
+            isOpen={showViewResortModal}
           />
         )}
 
