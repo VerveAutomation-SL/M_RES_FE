@@ -3,17 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Button from "../ui/button";
-import { Clock, RefreshCw } from "lucide-react";
+import { Clock, RefreshCw, Menu, X } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 
 interface HeaderProps {
   title?: string;
   breadcrumbs?: Array<{ label: string; href?: string }>;
+  onMobileMenuToggle?: (isOpen: boolean) => void;
+  isMobileMenuOpen?: boolean;
 }
 
-const TopBar = ({ breadcrumbs }: HeaderProps) => {
+const TopBar = ({
+  breadcrumbs,
+  onMobileMenuToggle,
+  isMobileMenuOpen = false,
+}: HeaderProps) => {
   const pathname = usePathname();
-  const {user} = useAuthStore();
+  const { user } = useAuthStore();
 
   // Dynamic breadcrumbs based on current route
   const getBreadcrumbs = () => {
@@ -22,25 +28,25 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
     const routeBreadcrumbs: {
       [key: string]: Array<{ label: string; href?: string }>;
     } = {
-      "/": [{ label: "Home", href: "/" }, { label: "Dashboard" }],
+      "/dashboard": [{ label: "Home", href: "/" }, { label: "Dashboard" }],
       "/check-in": [
         { label: "Home", href: "/" },
-        { label: "Overview"},
+        { label: "Overview" },
         { label: "Check-ins" },
       ],
       "/analytics": [
         { label: "Home", href: "/" },
-        { label: "Overview"},
+        { label: "Overview" },
         { label: "Analytics" },
       ],
       "/resorts": [
         { label: "Home", href: "/" },
-        { label: "Management"},
+        { label: "Management" },
         { label: "Resorts" },
       ],
       "/restaurants": [
         { label: "Home", href: "/" },
-        { label: "Management"},
+        { label: "Management" },
         { label: "Restaurants" },
       ],
       "/admin": [
@@ -60,18 +66,24 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
         { label: "User Management" },
         { label: "Hosts" },
       ],
+      "/profile": [{ label: "Home", href: "/" }, { label: "Profile" }],
     };
 
     const routeCrumbs = routeBreadcrumbs[pathname] || [
-    { label: `Hi ${user?.username || "User"}!`},
-  ];
-  
-    return routeCrumbs.filter(crumb => crumb.label !== "Home");
+      { label: `Hi ${user?.username || "User"}!` },
+    ];
+
+    return routeCrumbs.filter((crumb) => crumb.label !== "Home");
   };
 
-  
-
-  const currentBreadcrumbs = getBreadcrumbs();
+  // Get mobile-friendly breadcrumbs (only show current page)
+  const getMobileBreadcrumbs = () => {
+    const allBreadcrumbs = getBreadcrumbs();
+    // On mobile, only show the last (current) breadcrumb
+    return allBreadcrumbs.length > 0
+      ? [allBreadcrumbs[allBreadcrumbs.length - 1]]
+      : [];
+  };
 
   const [time, setTime] = useState("HH:MM:SS AM/PM");
 
@@ -93,31 +105,59 @@ const TopBar = ({ breadcrumbs }: HeaderProps) => {
   return (
     <div className="bg-[var(--background)] shadow-md border-gray-200 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
-        {/* Breadcrumb Navigation - Fixed for mobile sidebar */}
-        <div className="flex items-center gap-1 sm:gap-2 text-sm  flex-1 min-w-0">
-          {currentBreadcrumbs.map((crumb, index) => (
-            <React.Fragment key={index}>
-              {index > 0 && (
-                <span className="text-gray-400 mx-1 text-xs sm:text-sm flex-shrink-0 hidden sm:inline">
-                  &gt;
-                </span>
-              )}
-              {crumb.href ? (
-                <a
-                  href={crumb.href}
-                  className={`text-gray-600 hover:text-gray-800 transition-colors text-xs sm:text-sm lg:text-base truncate ${
-                    index === 0 ? "hidden sm:inline" : ""
-                  }`}
+        {/* Mobile Menu Button and Breadcrumb Navigation */}
+        <div className="flex items-center gap-2 sm:gap-3 text-sm flex-1 min-w-0">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => onMobileMenuToggle?.(!isMobileMenuOpen)}
+            className="lg:hidden bg-[var(--primary)] text-white p-1.5 rounded-md shadow-sm border border-[#7A5F3F] flex-shrink-0"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-3.5 w-3.5" />
+            ) : (
+              <Menu className="h-3.5 w-3.5" />
+            )}
+          </button>
+
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Desktop breadcrumbs - show all levels */}
+            <div className="hidden md:flex items-center gap-1 sm:gap-2">
+              {getBreadcrumbs().map((crumb, index) => (
+                <React.Fragment key={index}>
+                  {index > 0 && (
+                    <span className="text-gray-400 mx-1 text-xs sm:text-sm flex-shrink-0">
+                      &gt;
+                    </span>
+                  )}
+                  {crumb.href ? (
+                    <a
+                      href={crumb.href}
+                      className="text-gray-600 hover:text-gray-800 transition-colors text-xs sm:text-sm lg:text-base truncate"
+                    >
+                      {crumb.label}
+                    </a>
+                  ) : (
+                    <span className="text-[#8B6F47] font-medium truncate text-xs sm:text-sm lg:text-base">
+                      {crumb.label}
+                    </span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+
+            {/* Mobile breadcrumbs - only show current page */}
+            <div className="flex md:hidden items-center">
+              {getMobileBreadcrumbs().map((crumb, index) => (
+                <span
+                  key={index}
+                  className="text-[#8B6F47] font-medium truncate text-sm"
                 >
                   {crumb.label}
-                </a>
-              ) : (
-                <span className="text-[#8B6F47] font-medium truncate text-xs sm:text-sm lg:text-base">
-                  {crumb.label}
                 </span>
-              )}
-            </React.Fragment>
-          ))}
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Right Side - Time and Refresh */}

@@ -11,6 +11,7 @@ import { ResortStats, Resort, RoomStatus } from "@/lib/types";
 import { useAuthStore } from "@/store/authStore";
 import { ChevronRight, MapPin } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
+import ViewResort from "@/components/forms/ViewResort";
 
 const Page = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -18,6 +19,8 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [selectedResort, setSelectedResort] = useState<number>();
+  const [showViewModal, setShowViewModal] = useState(false);
 
   // Add state for check-in stats
   const [resortStats, setResortStats] = useState<Record<number, ResortStats>>(
@@ -154,12 +157,19 @@ const Page = () => {
 
   const handleResortCreated = () => {
     console.log("Resort created, refreshing...");
+    setShowViewModal(false);
+    setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setShowViewModal(false);
     setRefreshTrigger((prev) => prev + 1); // Trigger re-fetch
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-  };
+  function handleCardClick(id: number): void {
+    setSelectedResort(id);
+    setShowViewModal(true);
+  }
 
   return (
     <ProtectedRoute allowedRoles={["Admin"]}>
@@ -210,7 +220,11 @@ const Page = () => {
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {resorts.map((resort) => (
-                <Card key={resort.id} classname={getCardClasses()}>
+                <Card
+                  key={resort.id}
+                  classname={getCardClasses()}
+                  onClick={() => handleCardClick(resort.id)}
+                >
                   <div>
                     <div className="flex items-center gap-2 mb-5">
                       <MapPin className="w-4 md:w-5 h-4 md:h-5 text-gray-600 flex-shrink-0" />
@@ -264,6 +278,13 @@ const Page = () => {
             isOpen={showModal}
             onClose={handleCloseModal}
             onSuccess={handleResortCreated}
+          />
+        )}
+        {showViewModal && selectedResort && (
+          <ViewResort
+            resortId={selectedResort}
+            onClose={handleCloseModal}
+            isOpen={showViewModal}
           />
         )}
       </>

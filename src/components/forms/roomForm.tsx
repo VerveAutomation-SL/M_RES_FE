@@ -24,7 +24,6 @@ export default function RoomForm({
   const [formData, setFormData] = useState<RoomFormData>({
     room_number: roomNumber || "",
     resortId: 0,
-    name: "",
   });
 
   const [resorts, setResorts] = useState<Resort[]>([]);
@@ -87,20 +86,12 @@ export default function RoomForm({
         return;
       }
 
-      // if (!roomType) {
-      //     setError("Please select a room type");
-      //     setLoading(false);
-      //     return;
-      // }
-
       console.log("🏠 Creating room:", formData);
 
       // Create room payload
       const roomPayload = {
         room_number: formData.room_number.trim(),
         resort_id: formData.resortId,
-        // room_type: roomType,
-        // status: "available"
       };
 
       const response = await roomApi.createRoom(roomPayload);
@@ -111,8 +102,7 @@ export default function RoomForm({
         toast.success("Room created successfully!");
 
         // Reset form
-        setFormData({ room_number: "", resortId: 0, name: "" });
-        // setRoomType('');
+        setFormData({ room_number: "", resortId: 0 });
         setError("");
 
         // Call success callback to refresh parent data
@@ -142,8 +132,7 @@ export default function RoomForm({
 
   const handleCancel = () => {
     // Reset form when canceling
-    setFormData({ room_number: "", resortId: 0, name: "" });
-    // setRoomType('');
+    setFormData({ room_number: "", resortId: 0 });
     setError("");
     onClose?.();
   };

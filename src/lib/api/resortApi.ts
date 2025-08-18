@@ -46,3 +46,33 @@ export const createResort = async (resortData: ResortFormData) => {
         }
     }
 };
+
+// update resort
+export const updateResort = async (resortId: number, resortData: ResortFormData) => {
+    try {
+        const response = await api.put<ApiResponse<Resort>>(`/resorts/${resortId}`, resortData);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating Resort:", error);
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data.message || "Error updating Resort", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during updating Resort", 500);
+        }
+    }
+};
+
+// delete resort
+export const deleteResort = async (resortId: number) => {
+    try {
+        const response = await api.delete<ApiResponse<Resort>>(`/resorts/${resortId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting Resort:", error);
+        if (axios.isAxiosError(error)) {
+            throw new AppError(error.response?.data.message || "Error deleting Resort", error.status || 500);
+        } else {
+            throw new AppError("An unexpected error occurred during deleting Resort", 500);
+        }
+    }
+};

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Home,
   Users,
@@ -12,15 +12,32 @@ import {
   ChevronUp,
   Store,
   UserCheck,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 
-const SideBar = () => {
+const SideBar = ({
+  isMobileMenuOpen = false,
+  onMobileMenuClose,
+}: {
+  isMobileMenuOpen?: boolean;
+  onMobileMenuClose?: () => void;
+}) => {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
   const { user } = useAuthStore();
   const pathname = usePathname();
+
+  // Close mobile menu when route changes (handled by parent now)
+  useEffect(() => {
+    // This effect can be removed as parent handles menu closing
+  }, [pathname]);
+
+  // Close mobile menu when clicking outside (handled by parent now)
+  useEffect(() => {
+    // This can be handled by parent component if needed
+  }, [isMobileMenuOpen]);
 
   const navigationItems = [
     { href: "/dashboard", icon: Home, label: "Dashboard", section: "Overview" },
@@ -89,17 +106,59 @@ const SideBar = () => {
 
   return (
     <>
-      {/* Sidebar*/}
-      <div className="inset-y-0 left-0 z-40">
-        <div className="bg-[var(--primary)] text-white flex flex-col h-screen">
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-transparent bg-opacity-50 z-[45]" />
+      )}
+
+      {/* Sidebar */}
+      <div
+        id="mobile-sidebar"
+        className={`
+          fixed lg:relative inset-y-0 left-0 z-[50] w-64 lg:w-auto
+          transform transition-transform duration-300 ease-in-out
+          ${
+            isMobileMenuOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
+          }
+        `}
+      >
+        <div className="bg-[var(--primary)] text-white flex flex-col h-screen w-64 lg:w-auto">
+          {/* Mobile Close Button */}
+          <div className="lg:hidden flex justify-end p-3">
+            <button
+              onClick={onMobileMenuClose}
+              className="bg-[#7A5F3F] text-white p-1.5 rounded-md shadow-sm hover:bg-[#8B6F47] transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
           {/* Logo Section */}
           <div className="flex items-center justify-center my-6 lg:my-10">
-            {/* Mobile/Tablet Logo */}
-            <div className="lg:hidden w-11 h-11 sm:w-13 sm:h-13">
-              <div className="w-full h-full bg-[var(--primary)] rounded-lg shadow-xl flex items-center justify-center relative overflow-hidden transform ">
-                <div className="absolute inset-0 via-transparent to-transparent"></div>
-                <div className="transform text-white font-black text-sm tracking-wider">
-                  RM
+            {/* Mobile Logo - Using same design as desktop but smaller */}
+            <div className="lg:hidden">
+              <div className="text-center space-y-0.5">
+                <div className="text-white font-light text-[0.6rem] tracking-[0.2em] leading-tight">
+                  THE
+                </div>
+                <div className="text-white font-bold text-xs tracking-[0.15em] leading-none">
+                  RESIDENCE
+                </div>
+                <div className="text-white font-light text-[0.6rem] tracking-[0.2em] leading-tight mb-1">
+                  MALDIVES
+                </div>
+
+                {/* Elegant divider line - smaller for mobile */}
+                <div className="flex items-center justify-center mb-1">
+                  <div className="w-4 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                  <div className="w-0.5 h-0.5 bg-white/60 rounded-full mx-1"></div>
+                  <div className="w-4 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                </div>
+
+                <div className="text-white/80 text-[0.5rem] font-light italic tracking-wider">
+                  BY CENIZARO
                 </div>
               </div>
             </div>
@@ -135,8 +194,8 @@ const SideBar = () => {
           {/* Navigation */}
           <div className="flex-1 overflow-y-auto px-2 lg:px-4 scrollbar-hide">
             <nav className="space-y-1 lg:space-y-2">
-              {/* Overview Section - Only show on desktop */}
-              <div className="hidden lg:block text-gray-50 opacity-90 font-medium text-sm mb-2 px-4">
+              {/* Overview Section */}
+              <div className="text-gray-50 opacity-90 font-medium text-sm mb-2 px-4">
                 Overview
               </div>
 
@@ -149,11 +208,12 @@ const SideBar = () => {
                   pathname={pathname}
                   userRole={user?.role}
                   hasAccess={hasAccessToRoute(item.href, user?.role)}
+                  onClick={onMobileMenuClose}
                 />
               ))}
 
-              {/* Management Section - Only show on desktop */}
-              <div className="hidden lg:block text-gray-50 opacity-90 font-medium text-sm mb-2 mt-4 px-4">
+              {/* Management Section */}
+              <div className="text-gray-50 opacity-90 font-medium text-sm mb-2 mt-4 px-4">
                 Management
               </div>
 
@@ -168,19 +228,18 @@ const SideBar = () => {
                     pathname={pathname}
                     userRole={user?.role}
                     hasAccess={hasAccessToRoute(item.href, user?.role)}
+                    onClick={onMobileMenuClose}
                   />
                 ))}
 
               {/* User Management Dropdown */}
               <div>
                 <button
-                  className="flex items-center w-full gap-2 px-2 lg:px-4 py-3 rounded hover:bg-[#7A5F3F] transition-all"
+                  className="flex items-center w-full gap-2 px-4 py-3 rounded hover:bg-[#7A5F3F] transition-all"
                   onClick={() => setUserMgmtOpen((open) => !open)}
                 >
-                  <Users className="h-5 w-5 lg:h-4 lg:w-4 flex-shrink-0" />
-                  <span className="hidden lg:inline text-base text-left">
-                    User Management
-                  </span>
+                  <Users className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-base text-left">User Management</span>
                   {userMgmtOpen ? (
                     <ChevronUp className="w-4 h-4" />
                   ) : (
@@ -188,40 +247,40 @@ const SideBar = () => {
                   )}
                 </button>
                 {userMgmtOpen && (
-                  <div className="lg:ml-5 mt-1 flex flex-col gap-1 transition-all duration-200">
-                    <div className="lg:border-l-4 border-white/30">
+                  <div className="ml-5 mt-1 flex flex-col gap-1 transition-all duration-200">
+                    <div className="border-l-4 border-white/30">
                       <Link
                         href="/managers"
-                        className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
+                        className={`flex items-center gap-2 px-2 py-2 ml-4 rounded transition-colors text-sm ${
                           pathname.startsWith("/managers") &&
                           hasAccessToRoute("/managers", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
+                        onClick={onMobileMenuClose}
                       >
                         <User className="h-4 w-4" />
-                        <span className="lg:hidden font-medium text-lg">M</span>
-                        <span className="hidden lg:inline">Managers</span>
+                        <span>Managers</span>
                       </Link>
                       <Link
                         href="/hosts"
-                        className={`flex items-center gap-2 px-2 py-2 lg:ml-4 rounded transition-colors text-sm ${
+                        className={`flex items-center gap-2 px-2 py-2 ml-4 rounded transition-colors text-sm ${
                           pathname.startsWith("/hosts") &&
                           hasAccessToRoute("/hosts", user?.role)
                             ? "bg-[#8B6F47] text-white"
                             : "hover:bg-[#8B6F47]"
                         }`}
+                        onClick={onMobileMenuClose}
                       >
                         <User className="h-4 w-4 " />
-                        <span className="lg:hidden font-medium text-lg">H</span>
-                        <span className="hidden lg:inline">Hosts</span>
+                        <span>Hosts</span>
                       </Link>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Now render Admin Manager below */}
+              {/* Admin Manager */}
               {managementItems
                 .filter((item) => item.label === "Admin Manager")
                 .map((item) => (
@@ -233,6 +292,7 @@ const SideBar = () => {
                     pathname={pathname}
                     userRole={user?.role}
                     hasAccess={hasAccessToRoute(item.href, user?.role)}
+                    onClick={onMobileMenuClose}
                   />
                 ))}
             </nav>
@@ -240,18 +300,15 @@ const SideBar = () => {
 
           {/* User Profile Section */}
           <Link
-            className="p-2 lg:p-4 border-t border-[#7A5F3F]"
+            className="p-4 border-t border-[#7A5F3F]"
             href="/profile"
+            onClick={onMobileMenuClose}
           >
-            <div className="flex items-center justify-center lg:justify-start gap-2 lg:gap-3">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#7A5F3F] rounded-full flex items-center justify-center group relative">
-                <User className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                {/* Mobile/Tablet Tooltip */}
-                <div className="lg:hidden absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                  {user?.username}
-                </div>
+            <div className="flex items-center justify-start gap-3">
+              <div className="w-8 h-8 bg-[#7A5F3F] rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
               </div>
-              <div className="hidden lg:block flex-1 min-w-0">
+              <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-white">
                   {user?.username}
                 </div>
@@ -260,7 +317,7 @@ const SideBar = () => {
                 </div>
               </div>
             </div>
-            <div className="hidden lg:block text-xs text-white opacity-60 mt-2 text-center lg:text-left">
+            <div className="text-xs text-white opacity-60 mt-2 text-left">
               Powered by VerveAutomation.com
             </div>
           </Link>
@@ -278,6 +335,7 @@ type NavItemProps = {
   pathname: string;
   userRole?: string;
   hasAccess: boolean;
+  onClick?: () => void;
 };
 
 const NavItem: React.FC<NavItemProps> = ({
@@ -286,6 +344,7 @@ const NavItem: React.FC<NavItemProps> = ({
   label,
   pathname,
   hasAccess,
+  onClick,
 }) => {
   // Only show as active if the pathname matches AND user has access
   const isActive = pathname.startsWith(href) && hasAccess;
@@ -293,16 +352,13 @@ const NavItem: React.FC<NavItemProps> = ({
   return (
     <Link
       href={href}
-      className={`flex items-center justify-start gap-2 lg:gap-3 px-2 lg:px-4 py-3 lg:py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors group relative ${
+      className={`flex items-center justify-start gap-3 px-4 py-2 rounded text-white hover:bg-[#7A5F3F] transition-colors ${
         isActive ? "bg-[#8B6F47]" : ""
       }`}
+      onClick={onClick}
     >
-      <Icon className="h-5 w-5 lg:h-4 lg:w-4 flex-shrink-0" />
-      <span className="hidden lg:inline text-base">{label}</span>
-      {/* Mobile/Tablet Tooltip */}
-      <div className="lg:hidden absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-        {label}
-      </div>
+      <Icon className="h-4 w-4 flex-shrink-0" />
+      <span className="text-base">{label}</span>
     </Link>
   );
 };

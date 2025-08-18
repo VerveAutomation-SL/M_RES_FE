@@ -99,7 +99,6 @@ export interface ResortFormData {
 export interface RoomFormData {
   room_number: string;
   resortId: number;
-  name?: string; 
 }
 
 export interface CheckInAnalyticsData{
