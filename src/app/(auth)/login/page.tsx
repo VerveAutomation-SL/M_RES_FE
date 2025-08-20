@@ -143,11 +143,11 @@ const Page = () => {
             <div className="relative">
               <div className="absolute -inset-1 rounded-full blur-md"></div>
               <Image
-                src="/Guestiefy logo trans.png"
-                alt="Gusteify Brand Logo"
+                src="/logo1.png"
+                alt="Guestiefy Brand Logo"
                 width={128}
                 height={128}
-                className="w-16 md:w-24 lg:w-32 h-auto relative"
+                className="w-14 md:w-20 lg:w-32 h-auto relative"
                 priority
               />
             </div>
@@ -158,7 +158,7 @@ const Page = () => {
             <div className="flex flex-col items-center space-y-1 md:space-y-2">
               <div className="relative">
                 <h2 className="text-xl md:text-2xl font-medium text-center tracking-wider text-white/90">
-                  Guestify
+                  Guestiefy
                 </h2>
                 <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-200 to-transparent mx-auto mt-1 md:mt-2"></div>
               </div>
