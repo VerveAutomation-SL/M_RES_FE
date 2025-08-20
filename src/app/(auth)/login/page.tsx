@@ -138,21 +138,6 @@ const Page = () => {
             />
           </div>
 
-          {/* Logo - repositioned for mobile */}
-          <div className="absolute top-4 left-4 md:top-6 md:left-6">
-            <div className="relative">
-              <div className="absolute -inset-1 rounded-full blur-md"></div>
-              <Image
-                src="/logo1.png"
-                alt="Guestiefy Brand Logo"
-                width={128}
-                height={128}
-                className="w-14 md:w-20 lg:w-32 h-auto relative"
-                priority
-              />
-            </div>
-          </div>
-
           {/* Content - simplified for mobile */}
           <div className="z-10 transition-all duration-500 hover:scale-105">
             <div className="flex flex-col items-center space-y-1 md:space-y-2">
@@ -190,6 +175,19 @@ const Page = () => {
         {/* Right Side */}
         <div className="flex flex-col flex-1/2 md:flex-4 bg-[var(--background)] items-center justify-start px-4 py-6 md:pt-24 md:pb-0 h-[60vh] md:h-auto">
           {/* Centered container */}
+          {/* Logo - repositioned for mobile */}
+          <div className="flex items-center justify-center mb-4 md:mb-8">
+            <div className="-inset-1 rounded-full">
+              <Image
+                src="/Guestiefy Logo.png"
+                alt="Guestiefy Brand Logo"
+                width={128}
+                height={128}
+                className="w-18 md:w-20 lg:w-32 h-auto relative"
+                priority
+              />
+            </div>
+          </div>
           <div className="w-full max-w-md flex flex-col items-center my-auto">
             {/* Heading */}
             <div className="text-center mb-4 md:mb-8">
