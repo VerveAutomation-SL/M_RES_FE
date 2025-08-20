@@ -103,7 +103,7 @@ const TopBar = ({
   }, []);
 
   return (
-    <div className="bg-[var(--background)] shadow-md border-gray-200 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+    <div className="sticky top-0 bg-[var(--background)] shadow-md border-gray-200 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
         {/* Mobile Menu Button and Breadcrumb Navigation */}
         <div className="flex items-center gap-2 sm:gap-3 text-sm flex-1 min-w-0">
